@@ -1,0 +1,16 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "welcome",
+  "build": {
+    "icon": "src/assets/appicon.png"
+  },
+  "outputfilename": "welcome",
+  "frontend:install": "npm install",
+  "frontend:build": "npm run build",
+  "frontend:dev:watcher": "npm run dev",
+  "frontend:dev:serverUrl": "auto",
+  "author": {
+    "name": "harshau007",
+    "email": "amanupadhyay2004@gmail.com"
+  }
+}
