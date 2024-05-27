@@ -51,7 +51,8 @@ const App: React.FC = () => {
         `${
           isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
         } w-[600px] h-[500px]`,
-        { "border border-gray-300": !isDarkMode }
+        { "border border-gray-300": !isDarkMode },
+        "select-none"
       )}
     >
       <div className="h-full">
