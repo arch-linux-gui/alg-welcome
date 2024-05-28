@@ -63,7 +63,7 @@ func (a *App) CurrentTheme() string {
 		cmd := exec.Command("kreadconfig5", "--file", "kdeglobals", "--group", "General", "--key", "widgetStyle")
 		output, err := cmd.Output()
 		if err != nil {
-			fmt.Println("Error:", err)
+			fmt.Println("Curr theme Error:", err)
 		}
 
 		currThemeName = strings.TrimSpace(string(output))
@@ -71,15 +71,15 @@ func (a *App) CurrentTheme() string {
 		cmd := exec.Command("xfconf-query", "-c", "xsettings", "-p", "/Net/ThemeName", "-v")
 		output, err := cmd.Output()
 		if err != nil {
-			fmt.Println("Error:", err)
+			fmt.Println("Curr theme Error:", err)
 		}
 
 		currThemeName = strings.TrimSpace(string(output))
 	case "gnome":
-		cmd := exec.Command("gsettings", "get", "org.gnome.desktop.interface", "gtk-theme")
+		cmd := exec.Command("gsettings", "get", "org.gnome.desktop.interface", "color-scheme")
 		output, err := cmd.Output()
 		if err != nil {
-			fmt.Println("Error:", err)
+			fmt.Println("Curr theme Error:", err)
 		}
 
 		currThemeName = strings.Trim(strings.TrimSpace(string(output)), "'")
@@ -129,94 +129,58 @@ func (a *App) ToggleTheme(dark bool) {
 	}
 }
 
-func (a *App) MirrorList(command string) int {
+func (a *App) MirrorList(command string) {
 	var pkexecCmd *exec.Cmd
 
 	switch desktopEnv {
 	case "xfce":
 		pkexecCmd = exec.Command("xfce4-terminal", "-x", "bash", "-c", command)
 		if err := pkexecCmd.Run(); err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				return exitError.ExitCode()
-			}
 			fmt.Printf("Error executing command: %v\n", err)
-			return -1
 		}
 	case "gnome":
 		pkexecCmd = exec.Command("gnome-terminal", "--", "bash", "-c", command)
 		if err := pkexecCmd.Run(); err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				return exitError.ExitCode()
-			}
 			fmt.Printf("Error executing command: %v\n", err)
-			return -1
 		}
 	case "kde":
 		pkexecCmd = exec.Command("konsole", "-e", "bash", "-c", command)
 		if err := pkexecCmd.Run(); err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				return exitError.ExitCode()
-			}
 			fmt.Printf("Error executing command: %v\n", err)
-			return -1
 		}
 	default:
 		fmt.Printf("unsupported desktop environment: %s", desktopEnv)
 		if err := pkexecCmd.Run(); err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				return exitError.ExitCode()
-			}
 			fmt.Printf("Error executing command: %v\n", err)
-			return -1
 		}
 	}
-
-	return 0
 }
 
-func (a *App) UpdateSystem() int {
+func (a *App) UpdateSystem() {
 	var pkexecCmd *exec.Cmd
 
 	switch desktopEnv {
 	case "xfce":
 		pkexecCmd = exec.Command("xfce4-terminal", "-x", "pkexec", "pacman", "--noconfirm", "-Syu")
 		if err := pkexecCmd.Run(); err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				return exitError.ExitCode()
-			}
 			fmt.Printf("Error executing command: %v\n", err)
-			return -1
 		}
 	case "gnome":
 		pkexecCmd = exec.Command("gnome-terminal", "--", "sudo", "pacman", "--noconfirm", "-Syu")
 		if err := pkexecCmd.Run(); err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				return exitError.ExitCode()
-			}
 			fmt.Printf("Error executing command: %v\n", err)
-			return -1
 		}
 	case "kde":
 		pkexecCmd = exec.Command("konsole", "-e", "sudo", "pacman", "--noconfirm", "-Syu")
 		if err := pkexecCmd.Run(); err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				return exitError.ExitCode()
-			}
 			fmt.Printf("Error executing command: %v\n", err)
-			return -1
 		}
 	default:
 		fmt.Printf("unsupported desktop environment: %s\n", desktopEnv)
 		if err := pkexecCmd.Run(); err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				return exitError.ExitCode()
-			}
 			fmt.Printf("Error executing command: %v\n", err)
-			return -1
 		}
 	}
-
-	return 0
 }
 
 func (a *App) ScreenResolution() {
@@ -240,17 +204,14 @@ func (a *App) ScreenResolution() {
 }
 
 func (a *App) IsLiveISO() bool {
-	// var pkexecCmd *exec.Cmd
-	// calamares := "sudo -E calamares -D 8"
+	var pkexecCmd *exec.Cmd
 	_, err := os.Stat("/run/archiso")
 	if err != nil {
-		// pkexecCmd = exec.Command("bash", "-c", calamares)
-		// err = pkexecCmd.Run()
-		// if err != nil {
-		// 	fmt.Printf("Error: %s", err)
-		// }
-
-		fmt.Println(err)
+		pkexecCmd = exec.Command("bash", "-c", "sudo", "-E", "calamares", "-D", "8")
+		err = pkexecCmd.Run()
+		if err != nil {
+			fmt.Printf("isLiveISO Error: %s", err)
+		}
 		return false
 	}
 	return true

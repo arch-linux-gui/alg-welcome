@@ -36,14 +36,9 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
   const handleUpdateSystem = async () => {
     setLoading(true);
     try {
-      const exitCode = await UpdateSystem();
-      if (exitCode !== 0) {
-        setModalTitle("Error");
-        setModalMessage("Failed to update the system.");
-      } else {
-        setModalTitle("Success");
-        setModalMessage("System updated successfully.");
-      }
+      await UpdateSystem();
+      setModalTitle("Success");
+      setModalMessage("System updated successfully.");
     } catch (error) {
       setModalTitle("Error");
       setModalMessage("Failed to update the system.");
@@ -78,7 +73,11 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
         ) : (
           <button
             onClick={handleUpdateSystem}
-            className="button"
+            className={
+              loading
+                ? `bg-[#6a45d1] text-white px-4 py-2 rounded opacity-50 cursor-not-allowed button`
+                : `bg-[#6a45d1] text-white px-4 py-2 rounded hover:bg-[#7c53ed] button`
+            }
             disabled={loading}
           >
             <span>Update System</span>
