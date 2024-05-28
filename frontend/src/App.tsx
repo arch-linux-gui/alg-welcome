@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { ToggleTheme } from "../wailsjs/go/main/App";
-import { MirrorList } from "../wailsjs/go/main/App";
+import { ToggleTheme, MirrorList, CurrentTheme } from "../wailsjs/go/main/App";
 import appicon from "./assets/appicon.png";
 import moon from "./assets/moon.png";
 import sun from "./assets/sun.png";
@@ -26,9 +25,25 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [isNavigated, setIsNavigated] = useState<boolean>(false);
 
+  useEffect(() => {
+    const fetchTheme = async () => {
+      try {
+        const currTheme = await CurrentTheme();
+        setIsDarkMode(
+          currTheme == "Adwaita-dark" || currTheme == "prefer-dark"
+        );
+      } catch (error) {
+        console.error("Failed to fetch current theme:", error);
+      }
+    };
+
+    fetchTheme();
+  }, []);
+
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    ToggleTheme(!isDarkMode);
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    ToggleTheme(newDarkMode);
   };
 
   const goToScreen = (index: number) => {
@@ -118,54 +133,32 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen }) => (
   <div className="flex flex-col items-center justify-center h-full space-y-4">
     <img src={appicon} width={120} height={120} />
     <h1 className="text-2xl font-bold">Welcome to ALG</h1>
-    <div className="grid grid-cols-3 gap-x-16 gap-y-4">
-      <button
-        onClick={() => goToScreen(1)}
-        className="px-4 py-2 pl-6 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
-      >
-        Tutorial
+    <div className="grid grid-cols-3 gap-4">
+      <button onClick={() => goToScreen(2)} className="button">
+        <span>Tutorial</span>
         <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
       </button>
-      <button
-        onClick={() => goToScreen(1)}
-        className="px-4 py-2 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
-      >
-        Mirrorlist
+      <button onClick={() => goToScreen(1)} className="button">
+        Update Mirrorlist
+      </button>
+      <button onClick={() => goToScreen(3)} className="button">
+        <span>Screen 3</span>
         <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
       </button>
-      <button
-        onClick={() => goToScreen(3)}
-        className="px-4 py-2 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
-      >
-        Screen 3
+      <button onClick={() => goToScreen(4)} className="button">
+        <span>Screen 4</span>
         <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
       </button>
-      <button
-        onClick={() => goToScreen(4)}
-        className="px-4 py-2 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
-      >
-        Screen 4
+      <button onClick={() => goToScreen(5)} className="button">
+        <span>Screen 5</span>
         <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
       </button>
-      <button
-        onClick={() => goToScreen(5)}
-        className="px-4 py-2 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
-      >
-        Screen 5
-        <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
-      </button>
-      <button
-        onClick={() => goToScreen(6)}
-        className="px-4 py-2 pl-10 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
-      >
-        FAQ
+      <button onClick={() => goToScreen(6)} className="button">
+        <span>FAQ</span>
         <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
       </button>
     </div>
-    <button
-      onClick={() => goToScreen(7)}
-      className="px-4 py-2 mt-10 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
-    >
+    <button onClick={() => goToScreen(7)} className="button mt-10">
       <img src={about} alt="Icon" className="w-5 h-5 mr-2" />
       About Us
     </button>
@@ -230,6 +223,7 @@ const CountrySelectionScreen: React.FC = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [modalTitle, setModalTitle] = useState<string>("");
   const [modalMessage, setModalMessage] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   const countries = [
     "United States",
@@ -265,6 +259,8 @@ const CountrySelectionScreen: React.FC = () => {
       --latest 20 \
       --save /etc/pacman.d/mirrorlist`;
 
+    setLoading(true);
+
     try {
       await MirrorList(command);
       setModalTitle("Success");
@@ -275,6 +271,8 @@ const CountrySelectionScreen: React.FC = () => {
       setModalTitle("Error");
       setModalMessage("Failed to update mirrorlist.");
       setModalVisible(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -326,10 +324,10 @@ const CountrySelectionScreen: React.FC = () => {
             onClick={handleSubmit}
             className={
               !selectedCountries.length
-                ? `bg-[#6a45d1] text-white px-4 py-2 rounded opacity-50 cursor-not-allowed`
-                : `bg-[#6a45d1] text-white px-4 py-2 rounded hover:bg-[#7c53ed]`
+                ? `bg-[#6a45d1] text-white px-4 py-2 rounded opacity-50 cursor-not-allowed button`
+                : `bg-[#6a45d1] text-white px-4 py-2 rounded hover:bg-[#7c53ed] button`
             }
-            disabled={!selectedCountries.length}
+            disabled={!selectedCountries.length || loading}
           >
             Update Mirrorlist
           </button>
@@ -341,6 +339,11 @@ const CountrySelectionScreen: React.FC = () => {
           message={modalMessage}
           onClose={() => setModalVisible(false)}
         />
+      )}
+      {loading && (
+        <div className="fixed top-0 left-0 right-0 bottom-0 flex justify-center items-center bg-gray-900 bg-opacity-50 z-50">
+          <div className="w-12 h-12 border-4 border-gray-200 rounded-full animate-spin"></div>
+        </div>
       )}
     </div>
   );

@@ -83,3 +83,19 @@ html {
 .nodrag {
   --wails-draggable: no-drag;
 }
+
+.button {
+  padding: 8px 16px;
+  background-color: #6a45d1;
+  color: white;
+  border-radius: 9999px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  transition: background-color 0.3s;
+}
+
+.button:hover {
+  background-color: #7c53ed;
+}
