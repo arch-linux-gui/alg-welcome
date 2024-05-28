@@ -99,3 +99,21 @@ html {
 .button:hover {
   background-color: #7c53ed;
 }
+
+.about-us {
+  height: 41px !important; /* 3rem or h-12 */
+  width: 170px !important; /* 8rem or w-32 */
+  padding: 8px 16px;
+  background-color: #6a45d1;
+  color: white;
+  border-radius: 9999px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  transition: background-color 0.3s;
+}
+
+.about-us:hover {
+  background-color: #7c53ed;
+}

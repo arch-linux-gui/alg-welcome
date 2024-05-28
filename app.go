@@ -53,13 +53,13 @@ func init() {
 }
 
 func getDesktopEnvironment() string {
-	return os.Getenv("XDG_CURRENT_DESKTOP")
+	return strings.ToLower(os.Getenv("XDG_CURRENT_DESKTOP"))
 }
 
 func (a *App) CurrentTheme() string {
 	var currThemeName string
 	switch desktopEnv {
-	case "KDE":
+	case "kde":
 		cmd := exec.Command("kreadconfig5", "--file", "kdeglobals", "--group", "General", "--key", "widgetStyle")
 		output, err := cmd.Output()
 		if err != nil {
@@ -67,7 +67,7 @@ func (a *App) CurrentTheme() string {
 		}
 
 		currThemeName = strings.TrimSpace(string(output))
-	case "XFCE":
+	case "xfce":
 		cmd := exec.Command("xfconf-query", "-c", "xsettings", "-p", "/Net/ThemeName", "-v")
 		output, err := cmd.Output()
 		if err != nil {
@@ -75,7 +75,7 @@ func (a *App) CurrentTheme() string {
 		}
 
 		currThemeName = strings.TrimSpace(string(output))
-	case "GNOME":
+	case "gnome":
 		cmd := exec.Command("gsettings", "get", "org.gnome.desktop.interface", "gtk-theme")
 		output, err := cmd.Output()
 		if err != nil {
@@ -91,7 +91,7 @@ func (a *App) CurrentTheme() string {
 func (a *App) ToggleTheme(dark bool) {
 	var style string
 	switch desktopEnv {
-	case "KDE":
+	case "kde":
 		if dark {
 			style = "kde dark theme"
 		} else {
@@ -102,7 +102,7 @@ func (a *App) ToggleTheme(dark bool) {
 		if err != nil {
 			fmt.Println("failed to change KDE theme:", err)
 		}
-	case "GNOME":
+	case "gnome":
 		if dark {
 			style = "prefer-dark"
 		} else {
@@ -113,7 +113,7 @@ func (a *App) ToggleTheme(dark bool) {
 		if err != nil {
 			fmt.Println("failed to change GNOME theme:", err)
 		}
-	case "XFCE":
+	case "xfce":
 		if dark {
 			style = "Adwaita-dark"
 		} else {
@@ -130,11 +130,39 @@ func (a *App) ToggleTheme(dark bool) {
 }
 
 func (a *App) MirrorList(command string) {
-	pkexecCmd := exec.Command("pkexec", "sh", "-c", command)
+	var pkexecCmd *exec.Cmd
 
-	pkexecCmd.Stdin = os.Stdin
-	pkexecCmd.Stdout = os.Stdout
-	pkexecCmd.Stderr = os.Stderr
+	switch desktopEnv {
+	case "xfce":
+		pkexecCmd = exec.Command("xfce4-terminal", "-x", "bash", "-c", command)
+	case "gnome":
+		pkexecCmd = exec.Command("gnome-terminal", "--", "bash", "-c", command)
+	case "kde":
+		pkexecCmd = exec.Command("konsole", "-e", "bash", "-c", command)
+	default:
+		fmt.Printf("unsupported desktop environment: %s", desktopEnv)
+	}
+
+	err := pkexecCmd.Run()
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
+	}
+}
+
+func (a *App) UpdateSystem() {
+	var pkexecCmd *exec.Cmd
+
+	switch desktopEnv {
+	case "xfce":
+		pkexecCmd = exec.Command("xfce4-terminal", "-x", "pkexec", "pacman", "--noconfirm", "-Syu")
+	case "gnome":
+		pkexecCmd = exec.Command("gnome-terminal", "--", "sudo", "pacman", "--noconfirm", "-Syu")
+	case "kde":
+		pkexecCmd = exec.Command("konsole", "-e", "sudo", "pacman", "--noconfirm", "-Syu")
+	default:
+		fmt.Printf("unsupported desktop environment: %s", desktopEnv)
+	}
 
 	err := pkexecCmd.Run()
 	if err != nil {

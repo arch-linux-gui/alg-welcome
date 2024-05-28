@@ -17,3 +17,7 @@ export function MirrorList(arg1) {
 export function ToggleTheme(arg1) {
   return window['go']['main']['App']['ToggleTheme'](arg1);
 }
+
+export function UpdateSystem() {
+  return window['go']['main']['App']['UpdateSystem']();
+}
