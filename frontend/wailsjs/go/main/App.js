@@ -6,6 +6,10 @@ export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
 
+export function MirrorList(arg1) {
+  return window['go']['main']['App']['MirrorList'](arg1);
+}
+
 export function ToggleTheme(arg1) {
   return window['go']['main']['App']['ToggleTheme'](arg1);
 }

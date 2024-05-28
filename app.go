@@ -90,3 +90,7 @@ func (a *App) ToggleTheme(dark bool) {
         fmt.Println("unsupported desktop environment:", desktopEnv)
     }
 }
+
+func (a *App) MirrorList(command string) {
+    fmt.Println(command)
+}

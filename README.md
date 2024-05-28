@@ -4,6 +4,10 @@
 
 About your template
 
+## Pre-Installation
+
+- sudo pacman -S webkit2gtk
+
 ## Live Development
 
 To run in live development mode, run `wails dev` in the project directory. In another terminal, go into the `frontend`

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { ToggleTheme } from "../wailsjs/go/main/App";
+import { MirrorList } from "../wailsjs/go/main/App";
 import appicon from "./assets/appicon.png";
 import moon from "./assets/moon.png";
 import sun from "./assets/sun.png";
@@ -12,6 +13,12 @@ interface ScreenProps {
   goToScreen: (index: number) => void;
   goBack?: () => void;
   currentScreenIndex?: number;
+}
+
+interface ModalProps {
+  title: string;
+  message: string;
+  onClose: () => void;
 }
 
 const App: React.FC = () => {
@@ -36,7 +43,7 @@ const App: React.FC = () => {
 
   const screens: JSX.Element[] = [
     <WelcomeScreen goToScreen={goToScreen} />,
-    <InfoScreen />,
+    <CountrySelectionScreen />,
     <AdditionalScreen />,
     <AdditionalScreen />,
     <AdditionalScreen />,
@@ -66,7 +73,7 @@ const App: React.FC = () => {
         <div className="absolute top-4 left-4">
           <button
             onClick={goBack}
-            className="px-2 py-2 pr-2 w-[5rem] bg-blue-600 text-white font-bold flex item-center rounded-2xl hover:bg-blue-700"
+            className="px-2 py-2 pr-2 w-[5rem] bg-[#6a45d1] text-white font-bold flex item-center rounded-2xl hover:bg-[#7c53ed]"
           >
             <img src={back} alt="Icon" className="w-5 h-5 mt-[2px]" />
             Back
@@ -114,50 +121,50 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen }) => (
     <div className="grid grid-cols-3 gap-x-16 gap-y-4">
       <button
         onClick={() => goToScreen(1)}
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center hover:bg-blue-700"
+        className="px-4 py-2 pl-6 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
       >
-        Screen 1
+        Tutorial
         <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
       </button>
       <button
         onClick={() => goToScreen(1)}
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center hover:bg-blue-700"
+        className="px-4 py-2 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
       >
-        Screen 2
+        Mirrorlist
         <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
       </button>
       <button
         onClick={() => goToScreen(3)}
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center hover:bg-blue-700"
+        className="px-4 py-2 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
       >
         Screen 3
         <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
       </button>
       <button
         onClick={() => goToScreen(4)}
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center hover:bg-blue-700"
+        className="px-4 py-2 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
       >
         Screen 4
         <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
       </button>
       <button
         onClick={() => goToScreen(5)}
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center hover:bg-blue-700"
+        className="px-4 py-2 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
       >
         Screen 5
         <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
       </button>
       <button
         onClick={() => goToScreen(6)}
-        className="px-4 py-2 bg-blue-600 text-white rounded-lg flex items-center hover:bg-blue-700"
+        className="px-4 py-2 pl-10 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
       >
-        Screen 6
+        FAQ
         <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
       </button>
     </div>
     <button
       onClick={() => goToScreen(7)}
-      className="px-4 py-2 mt-10 bg-blue-600 text-white rounded-lg flex items-center hover:bg-blue-700"
+      className="px-4 py-2 mt-10 bg-[#6a45d1] text-white rounded-lg flex items-center hover:bg-[#7c53ed]"
     >
       <img src={about} alt="Icon" className="w-5 h-5 mr-2" />
       About Us
@@ -179,9 +186,7 @@ const AdditionalScreen: React.FC = () => (
 
 const AboutUs: React.FC = () => (
   <div className="p-8 pt-20 rounded-lg shadow-md max-w-3xl mx-auto ">
-    <h1 className="text-4xl font-bold text-center mb-6">
-      About Us
-    </h1>
+    <h1 className="text-4xl font-bold text-center mb-6">About Us</h1>
     <p className="text-lg leading-relaxed mb-4 text-center">
       Welcome to <span className="font-bold text-blue-600">Arka Linux GUI</span>
       , your gateway to an efficient and powerful Arch-based Linux experience.
@@ -189,7 +194,7 @@ const AboutUs: React.FC = () => (
       leverages the strengths of Arch Linux while offering a polished graphical
       interface.
     </p>
-    <p className="text-lg leading-relaxed mb-4 text-center">  
+    <p className="text-lg leading-relaxed mb-4 text-center">
       At <span className="font-bold text-blue-600">Arka Linux GUI</span>, we
       believe in the power of simplicity and customization. Whether you are a
       seasoned Linux user or a newcomer, our distribution aims to deliver an
@@ -199,4 +204,145 @@ const AboutUs: React.FC = () => (
   </div>
 );
 
+const Modal: React.FC<ModalProps> = ({ title, message, onClose }) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-gray-800 p-4 rounded shadow-lg w-70">
+        <h2 className="text-xl mb-4 text-white text-center">{title}</h2>
+        <p className="text-white">{message}</p>
+        <div className="flex justify-center mt-4">
+          <button
+            onClick={onClose}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CountrySelectionScreen: React.FC = () => {
+  const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
+  const [includeHttps, setIncludeHttps] = useState<boolean>(true);
+  const [includeHttp, setIncludeHttp] = useState<boolean>(false);
+  const [modalVisible, setModalVisible] = useState<boolean>(false);
+  const [modalTitle, setModalTitle] = useState<string>("");
+  const [modalMessage, setModalMessage] = useState<string>("");
+
+  const countries = [
+    "United States",
+    "France",
+    "Germany",
+    "India",
+    "Norway",
+    "Australia",
+    "Sweden",
+    "Canada",
+    "Japan",
+    "United Kingdom",
+  ];
+
+  const handleCountryChange = (country: string) => {
+    setSelectedCountries((prev) =>
+      prev.includes(country)
+        ? prev.filter((c) => c !== country)
+        : [...prev, country]
+    );
+  };
+
+  const handleSubmit = async () => {
+    const protocol = `${includeHttps ? "https" : ""}${
+      includeHttp ? ",http" : ""
+    }`;
+    const command = `pkexec reflector --country "${selectedCountries.join(
+      ","
+    )}" \
+      --verbose \
+      --sort rate \
+      --protocol ${protocol} \
+      --latest 20 \
+      --save /etc/pacman.d/mirrorlist`;
+
+    try {
+      await MirrorList(command);
+      setModalTitle("Success");
+      setModalMessage("Mirrorlist updated successfully!");
+      setModalVisible(true);
+      // alert("Success"); // Conflicted between Alert and Custon Modal
+    } catch (error) {
+      setModalTitle("Error");
+      setModalMessage("Failed to update mirrorlist.");
+      setModalVisible(true);
+    }
+  };
+
+  return (
+    <div className="p-10 pt-17 w-full h-full flex flex-col">
+      <h1 className="text-4xl mt-4 mb-4 text-center font-bold">
+        Select Arch Mirrors
+      </h1>
+      <div className="flex-1 flex flex-col lg:flex-row lg:space-x-4">
+        <div className="mb-4 lg:mb-0 lg:flex-1">
+          <h2 className="text-xl mb-2">Countries</h2>
+          <div className="grid grid-cols-2 gap-2">
+            {countries.map((country) => (
+              <label key={country} className="block">
+                <input
+                  type="checkbox"
+                  value={country}
+                  onChange={() => handleCountryChange(country)}
+                  className="mr-2 p-2"
+                />
+                {country}
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="lg:flex-1 flex flex-col justify-between">
+          <div>
+            <h2 className="text-xl mb-2">Protocols</h2>
+            <label className="block mb-2">
+              <input
+                type="checkbox"
+                checked={includeHttps}
+                onChange={() => setIncludeHttps(!includeHttps)}
+                className="mr-2"
+              />
+              HTTPS
+            </label>
+            <label className="block mb-4">
+              <input
+                type="checkbox"
+                checked={includeHttp}
+                onChange={() => setIncludeHttp(!includeHttp)}
+                className="mr-2"
+              />
+              HTTP
+            </label>
+          </div>
+          <button
+            onClick={handleSubmit}
+            className={
+              !selectedCountries.length
+                ? `bg-[#6a45d1] text-white px-4 py-2 rounded opacity-50 cursor-not-allowed`
+                : `bg-[#6a45d1] text-white px-4 py-2 rounded hover:bg-[#7c53ed]`
+            }
+            disabled={!selectedCountries.length}
+          >
+            Update Mirrorlist
+          </button>
+        </div>
+      </div>
+      {modalVisible && (
+        <Modal
+          title={modalTitle}
+          message={modalMessage}
+          onClose={() => setModalVisible(false)}
+        />
+      )}
+    </div>
+  );
+};
 export default App;

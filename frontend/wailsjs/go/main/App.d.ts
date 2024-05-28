@@ -3,4 +3,6 @@
 
 export function Greet(arg1:string):Promise<string>;
 
+export function MirrorList(arg1:string):Promise<void>;
+
 export function ToggleTheme(arg1:boolean):Promise<void>;
