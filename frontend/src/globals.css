@@ -101,8 +101,8 @@ html {
 }
 
 .about-us {
-  height: 41px !important; /* 3rem or h-12 */
-  width: 170px !important; /* 8rem or w-32 */
+  height: 41px !important;
+  width: 170px !important;
   padding: 8px 16px;
   background-color: #6a45d1;
   color: white;

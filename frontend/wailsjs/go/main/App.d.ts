@@ -5,8 +5,12 @@ export function CurrentTheme():Promise<string>;
 
 export function Greet(arg1:string):Promise<string>;
 
-export function MirrorList(arg1:string):Promise<void>;
+export function IsLiveISO():Promise<boolean>;
+
+export function MirrorList(arg1:string):Promise<number>;
+
+export function ScreenResolution():Promise<void>;
 
 export function ToggleTheme(arg1:boolean):Promise<void>;
 
-export function UpdateSystem():Promise<void>;
+export function UpdateSystem():Promise<number>;

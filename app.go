@@ -129,44 +129,129 @@ func (a *App) ToggleTheme(dark bool) {
 	}
 }
 
-func (a *App) MirrorList(command string) {
+func (a *App) MirrorList(command string) int {
 	var pkexecCmd *exec.Cmd
 
 	switch desktopEnv {
 	case "xfce":
 		pkexecCmd = exec.Command("xfce4-terminal", "-x", "bash", "-c", command)
+		if err := pkexecCmd.Run(); err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				return exitError.ExitCode()
+			}
+			fmt.Printf("Error executing command: %v\n", err)
+			return -1
+		}
 	case "gnome":
 		pkexecCmd = exec.Command("gnome-terminal", "--", "bash", "-c", command)
+		if err := pkexecCmd.Run(); err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				return exitError.ExitCode()
+			}
+			fmt.Printf("Error executing command: %v\n", err)
+			return -1
+		}
 	case "kde":
 		pkexecCmd = exec.Command("konsole", "-e", "bash", "-c", command)
+		if err := pkexecCmd.Run(); err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				return exitError.ExitCode()
+			}
+			fmt.Printf("Error executing command: %v\n", err)
+			return -1
+		}
 	default:
 		fmt.Printf("unsupported desktop environment: %s", desktopEnv)
+		if err := pkexecCmd.Run(); err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				return exitError.ExitCode()
+			}
+			fmt.Printf("Error executing command: %v\n", err)
+			return -1
+		}
 	}
 
-	err := pkexecCmd.Run()
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
+	return 0
 }
 
-func (a *App) UpdateSystem() {
+func (a *App) UpdateSystem() int {
 	var pkexecCmd *exec.Cmd
 
 	switch desktopEnv {
 	case "xfce":
 		pkexecCmd = exec.Command("xfce4-terminal", "-x", "pkexec", "pacman", "--noconfirm", "-Syu")
+		if err := pkexecCmd.Run(); err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				return exitError.ExitCode()
+			}
+			fmt.Printf("Error executing command: %v\n", err)
+			return -1
+		}
 	case "gnome":
 		pkexecCmd = exec.Command("gnome-terminal", "--", "sudo", "pacman", "--noconfirm", "-Syu")
+		if err := pkexecCmd.Run(); err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				return exitError.ExitCode()
+			}
+			fmt.Printf("Error executing command: %v\n", err)
+			return -1
+		}
 	case "kde":
 		pkexecCmd = exec.Command("konsole", "-e", "sudo", "pacman", "--noconfirm", "-Syu")
+		if err := pkexecCmd.Run(); err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				return exitError.ExitCode()
+			}
+			fmt.Printf("Error executing command: %v\n", err)
+			return -1
+		}
 	default:
-		fmt.Printf("unsupported desktop environment: %s", desktopEnv)
+		fmt.Printf("unsupported desktop environment: %s\n", desktopEnv)
+		if err := pkexecCmd.Run(); err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				return exitError.ExitCode()
+			}
+			fmt.Printf("Error executing command: %v\n", err)
+			return -1
+		}
+	}
+
+	return 0
+}
+
+func (a *App) ScreenResolution() {
+	var pkexecCmd *exec.Cmd
+
+	switch desktopEnv {
+	case "xfce":
+		pkexecCmd = exec.Command("bash", "-c", "xfce4-display-settings")
+	case "gnome":
+		pkexecCmd = exec.Command("bash", "-c", "gnome-control-center", "display")
+	case "kde":
+		pkexecCmd = exec.Command("bash", "-e", "kde screen resolution")
+	default:
+		fmt.Printf("unsupported desktop environment: %s\n", desktopEnv)
 	}
 
 	err := pkexecCmd.Run()
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		fmt.Printf("Error Occured: %s", err)
 	}
+}
+
+func (a *App) IsLiveISO() bool {
+	// var pkexecCmd *exec.Cmd
+	// calamares := "sudo -E calamares -D 8"
+	_, err := os.Stat("/run/archiso")
+	if err != nil {
+		// pkexecCmd = exec.Command("bash", "-c", calamares)
+		// err = pkexecCmd.Run()
+		// if err != nil {
+		// 	fmt.Printf("Error: %s", err)
+		// }
+
+		fmt.Println(err)
+		return false
+	}
+	return true
 }

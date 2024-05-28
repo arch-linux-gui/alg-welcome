@@ -10,8 +10,16 @@ export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
 
+export function IsLiveISO() {
+  return window['go']['main']['App']['IsLiveISO']();
+}
+
 export function MirrorList(arg1) {
   return window['go']['main']['App']['MirrorList'](arg1);
+}
+
+export function ScreenResolution() {
+  return window['go']['main']['App']['ScreenResolution']();
 }
 
 export function ToggleTheme(arg1) {

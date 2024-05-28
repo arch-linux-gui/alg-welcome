@@ -54,15 +54,19 @@ const CountrySelectionScreen: React.FC<CountrySelectionScreenProps> = ({
     setLoading(true);
 
     try {
-      await MirrorList(command);
-      setModalTitle("Success");
-      setModalMessage("Mirrorlist updated successfully!");
-      setModalVisible(true);
-      setSelectedCountries([]);
-      // alert("Success"); // Conflicted between Alert and Custon Modal
+      const exitCode = await MirrorList(command);
+      if (exitCode != 0) {
+        setModalTitle("Error");
+        setModalMessage("Failed to update the system.");
+        setModalVisible(true);
+      } else {
+        setModalTitle("Success");
+        setModalMessage(`System updated successfully.`);
+        setModalVisible(true);
+      }
     } catch (error) {
       setModalTitle("Error");
-      setModalMessage("Failed to update mirrorlist.");
+      setModalMessage("Failed to update the system.");
       setModalVisible(true);
     } finally {
       setLoading(false);

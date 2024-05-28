@@ -7,6 +7,7 @@ import back from "./assets/back.png";
 import WelcomeScreen from "./components/WelcomeScreen";
 import AboutUs from "./components/AboutUs";
 import CountrySelectionScreen from "./components/CountrySelectionScreen";
+import FAQ from "./components/FAQ";
 
 const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<number>(0);
@@ -50,7 +51,7 @@ const App: React.FC = () => {
     <AdditionalScreen />,
     <AdditionalScreen />,
     <AdditionalScreen />,
-    <AdditionalScreen />,
+    <FAQ />,
     <AboutUs />,
   ];
 
