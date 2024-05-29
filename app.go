@@ -91,13 +91,6 @@ func (a *App) CurrentTheme() string {
 	var currThemeName string
 	switch desktopEnv {
 	case "kde":
-		// cmd := exec.Command("kreadconfig5", "--file", "kdeglobals", "--group", "General", "--key", "widgetStyle")
-		// output, err := cmd.Output()
-		// if err != nil {
-		// 	fmt.Println("Curr theme Error:", err)
-		// }
-
-		// currThemeName = strings.TrimSpace(string(output))
 		currThemeName = getLookAndFeelPackageKDE()
 	case "xfce":
 		cmd := exec.Command("xfconf-query", "-c", "xsettings", "-p", "/Net/ThemeName", "-v")
@@ -224,7 +217,8 @@ func (a *App) ScreenResolution() {
 	case "gnome":
 		pkexecCmd = exec.Command("bash", "-c", "gnome-control-center", "display")
 	case "kde":
-		pkexecCmd = exec.Command("bash", "-e", "kde screen resolution")
+		kcm_kscreen := "`kcmshell6 kcm_kscreen`"
+		pkexecCmd = exec.Command("bash", "-e", kcm_kscreen)
 	default:
 		fmt.Printf("unsupported desktop environment: %s\n", desktopEnv)
 	}
