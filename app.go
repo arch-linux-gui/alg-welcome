@@ -207,12 +207,12 @@ func (a *App) IsLiveISO() bool {
 	var pkexecCmd *exec.Cmd
 	_, err := os.Stat("/run/archiso")
 	if err != nil {
-		pkexecCmd = exec.Command("bash", "-c", "`", "sudo", "-E", "calamares", "-D", "8", "`")
-		err = pkexecCmd.Run()
-		if err != nil {
-			fmt.Printf("isLiveISO Error: %s", err)
-		}
 		return false
+	}
+	pkexecCmd = exec.Command("bash", "-c", "`sudo", "-E", "calamares", "-D", "8`")
+	err = pkexecCmd.Run()
+	if err != nil {
+		fmt.Printf("isLiveISO Error: %s", err)
 	}
 	return true
 }

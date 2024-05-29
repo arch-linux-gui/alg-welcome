@@ -57,7 +57,6 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
       setModalMessage("Failed to update the system.");
     } finally {
       setLoading(false);
-      setModalVisible(true);
     }
   };
 
