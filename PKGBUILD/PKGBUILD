@@ -1,0 +1,22 @@
+ # Maintainer: Harsh Upadhyay amanupadhyay2004@gmail.com
+pkgname=alg-welcome
+pkgver=1.0.0
+pkgrel=1
+destname="/usr/bin"
+pkgdesc="Welcome App For ALG"
+arch=('x86_64')
+url="https://github.com/arch-linux-gui/alg-welcome"
+license=('GPL3')
+depends=('webkit2gtk')
+source=("$pkgname".tar.gz::"${url}"/releases/download/latest/"${pkgname}".tar.gz)
+sha256sums=('4aa746bf6aa32603675b29c11c5ec20dfd29224e58a05d124eff906217080e9a')
+
+package() {
+  tar -xf "$srcdir/"${pkgname}".tar.gz" -C "$pkgdir/"
+
+  install -Dm644 "$srcdir/"${pkgname}"/build/bin/alg-logo.png" "$pkgdir/usr/share/pixmaps/alg-logo.png"
+
+  install -Dm755 "$srcdir/"${pkgname}"/build/bin/alg-welcome.desktop" "$pkgdir/usr/share/applications/alg-welcome.desktop"
+
+  install -Dm755 "$srcdir/"${pkgname}"/build/bin/welcome" "$pkgdir/usr/bin/welcome"
+}
