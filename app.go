@@ -9,6 +9,7 @@ import (
 )
 
 var desktopEnv string
+var isLiveISO bool
 
 // App struct
 type App struct {
@@ -50,6 +51,11 @@ func (a *App) Greet(name string) string {
 
 func init() {
 	desktopEnv = getDesktopEnvironment()
+	isLiveISO = checkIfLiveISO()
+
+	if isLiveISO {
+		runCalamaresIfLiveISO()
+	}
 }
 
 func getDesktopEnvironment() string {
@@ -203,21 +209,26 @@ func (a *App) ScreenResolution() {
 	}
 }
 
-func (a *App) IsLiveISO() bool {
-	var pkexecCmd *exec.Cmd
+func checkIfLiveISO() bool {
 	_, err := os.Stat("/run/archiso")
-	if err != nil {
-		return false
-	}
-	calamaresCmd := "`sudo -E calamares -D 8`"
-	pkexecCmd = exec.Command("bash", "-c", calamaresCmd)
-	output, err := pkexecCmd.CombinedOutput()
-	if err != nil {
-		if exitError, ok := err.(*exec.ExitError); ok {
-			fmt.Println(exitError.ExitCode())
+	return err == nil
+}
+
+func runCalamaresIfLiveISO() {
+	if isLiveISO {
+		calamaresCmd := "`sudo -E calamares -D 8`"
+		pkexecCmd := exec.Command("bash", "-c", calamaresCmd)
+		output, err := pkexecCmd.CombinedOutput()
+		if err != nil {
+			if exitError, ok := err.(*exec.ExitError); ok {
+				fmt.Println(exitError.ExitCode())
+			}
+			fmt.Printf("runCalamaresIfLiveISO Error: %s", err)
 		}
-		fmt.Printf("isLiveISO Error: %s", err)
+		fmt.Println(string(output))
 	}
-	fmt.Println(string(output))
-	return true
+}
+
+func (a *App) IsLiveISO() bool {
+	return isLiveISO
 }
