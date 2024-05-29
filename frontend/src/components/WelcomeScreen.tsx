@@ -7,6 +7,7 @@ import {
   ScreenResolution,
   IsLiveISO,
   RunCalamaresIfLiveISO,
+  URL,
 } from "../../wailsjs/go/main/App";
 import "../globals.css";
 import Modal from "./ui/modal";
@@ -117,16 +118,33 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
         >
           <span>Screen Resolution</span>
         </button>
-        <button onClick={() => goToScreen(4)} className="button">
+        <button
+          onClick={async () => {
+            await URL("https://discord.gg/NgAFEw9Tkf");
+          }}
+          className="button"
+        >
           <span>Discord Server</span>
           <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
         </button>
-        <button onClick={() => goToScreen(5)} className="button">
-          <span>Screen 5</span>
+        <button
+          onClick={async () => {
+            await URL("https://github.com/arch-linux-gui");
+          }}
+          className="button"
+        >
+          <span>GitHub</span>
           <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
         </button>
-        <button onClick={() => goToScreen(6)} className="button">
-          <span>FAQ</span>
+        <button
+          onClick={async () => {
+            await URL(
+              "https://arch-linux-gui.github.io/web/tutorials/index.html"
+            );
+          }}
+          className="button"
+        >
+          <span>Tutorial</span>
           <img src={next} alt="Icon" className="w-5 h-5 ml-2" />
         </button>
       </div>

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"os/user"
+	"path/filepath"
 	"strings"
 )
 
@@ -227,4 +229,66 @@ func (a *App) RunCalamaresIfLiveISO() {
 
 func (a *App) IsLiveISO() bool {
 	return isLiveISO
+}
+
+func (a *App) URL(url string) {
+	cmd := exec.Command("xdg-open", url)
+	err := cmd.Run()
+	if err != nil {
+		fmt.Println("Discord Error: " + err.Error())
+	}
+}
+
+func (a *App) ToggleAutostart(enable bool) {
+	autoDir := filepath.Join(os.Getenv("HOME"), ".config", "autostart")
+	autoFile := filepath.Join(autoDir, "alg-welcome.desktop")
+
+	if _, err := os.Stat(autoDir); os.IsNotExist(err) {
+		err := os.MkdirAll(autoDir, 0755)
+		if err != nil {
+			fmt.Println("Error creating directory:", err)
+			return
+		}
+	}
+
+	if enable {
+		if _, err := os.Stat(autoFile); err == nil {
+			fmt.Println("Autostart is already enabled")
+			return
+		}
+
+		fmt.Println("Enabling autostart...")
+		err := exec.Command("cp", "/usr/share/applications/alg-welcome.desktop", autoFile).Run()
+		if err != nil {
+			fmt.Println("Error enabling autostart:", err)
+			return
+		}
+		fmt.Println("Autostart enabled")
+	} else {
+		if _, err := os.Stat(autoFile); err != nil {
+			fmt.Println("Autostart is already disabled")
+			return
+		}
+
+		fmt.Println("Disabling autostart...")
+		err := exec.Command("pkexec", "rm", autoFile).Run()
+		if err != nil {
+			fmt.Println("Error disabling autostart:", err)
+			return
+		}
+		fmt.Println("Autostart disabled")
+	}
+}
+
+func (a *App) CheckFileExists() bool {
+	usr, err := user.Current()
+	if err != nil {
+		return false
+	}
+
+	homeDir := usr.HomeDir
+	filePath := filepath.Join(homeDir, ".config", "autostart", "alg-welcome.desktop")
+
+	_, err = os.Stat(filePath)
+	return !os.IsNotExist(err)
 }
