@@ -18,6 +18,10 @@ export function MirrorList(arg1) {
   return window['go']['main']['App']['MirrorList'](arg1);
 }
 
+export function RunCalamaresIfLiveISO() {
+  return window['go']['main']['App']['RunCalamaresIfLiveISO']();
+}
+
 export function ScreenResolution() {
   return window['go']['main']['App']['ScreenResolution']();
 }

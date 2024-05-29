@@ -52,10 +52,6 @@ func (a *App) Greet(name string) string {
 func init() {
 	desktopEnv = getDesktopEnvironment()
 	isLiveISO = checkIfLiveISO()
-
-	if isLiveISO {
-		runCalamaresIfLiveISO()
-	}
 }
 
 func getDesktopEnvironment() string {
@@ -214,7 +210,7 @@ func checkIfLiveISO() bool {
 	return err == nil
 }
 
-func runCalamaresIfLiveISO() {
+func (a *App) RunCalamaresIfLiveISO() {
 	if isLiveISO {
 		calamaresCmd := "`sudo -E calamares -D 8`"
 		pkexecCmd := exec.Command("bash", "-c", calamaresCmd)

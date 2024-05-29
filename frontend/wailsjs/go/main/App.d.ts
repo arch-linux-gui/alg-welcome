@@ -9,6 +9,8 @@ export function IsLiveISO():Promise<boolean>;
 
 export function MirrorList(arg1:string):Promise<void>;
 
+export function RunCalamaresIfLiveISO():Promise<void>;
+
 export function ScreenResolution():Promise<void>;
 
 export function ToggleTheme(arg1:boolean):Promise<void>;

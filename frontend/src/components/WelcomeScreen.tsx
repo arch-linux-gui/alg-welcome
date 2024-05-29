@@ -6,6 +6,7 @@ import {
   UpdateSystem,
   ScreenResolution,
   IsLiveISO,
+  RunCalamaresIfLiveISO,
 } from "../../wailsjs/go/main/App";
 import "../globals.css";
 import Modal from "./ui/modal";
@@ -23,6 +24,8 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
   const [modalMessage, setModalMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
+  const [isActiveScreenRes, setIsActiveScreenRes] = useState<boolean>(false);
+  const [isActiveInstall, setIsActiveInstall] = useState<boolean>(false);
 
   useEffect(() => {
     const checkInstallation = async () => {
@@ -32,6 +35,15 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
     };
     checkInstallation();
   }, []);
+
+  const handleInstallALG = async () => {
+    try {
+      setIsInstalled(true);
+      await RunCalamaresIfLiveISO();
+    } finally {
+      setIsInstalled(false);
+    }
+  };
 
   const handleUpdateSystem = async () => {
     setLoading(true);
@@ -49,14 +61,14 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
   };
 
   const handleScreenResolution = async () => {
-    setLoading(true);
     try {
+      setIsActiveScreenRes(true);
       await ScreenResolution();
     } catch (error) {
       setModalTitle("Error");
       setModalMessage("Failed to update the system.");
     } finally {
-      setLoading(false);
+      setIsActiveScreenRes(false);
     }
   };
 
@@ -66,7 +78,15 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
       <h1 className="text-4xl font-bold">Welcome to ALG</h1>
       <div className="grid grid-cols-3 gap-4">
         {isInstalled ? (
-          <button onClick={() => {}} className="button">
+          <button
+            onClick={handleInstallALG}
+            className={
+              isActiveInstall
+                ? `bg-[#6a45d1] text-white px-4 py-2 rounded opacity-50 cursor-not-allowed button`
+                : `bg-[#6a45d1] text-white px-4 py-2 rounded hover:bg-[#7c53ed] button`
+            }
+            disabled={isActiveInstall}
+          >
             Install ALG
           </button>
         ) : (
@@ -86,7 +106,15 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
           Update Mirrorlist
           <img src={next} alt="Next Icon" className="w-5 h-5" />
         </button>
-        <button onClick={handleScreenResolution} className="button">
+        <button
+          onClick={handleScreenResolution}
+          className={
+            isActiveScreenRes
+              ? `bg-[#6a45d1] text-white px-4 py-2 rounded opacity-50 cursor-not-allowed button`
+              : `bg-[#6a45d1] text-white px-4 py-2 rounded hover:bg-[#7c53ed] button`
+          }
+          disabled={isActiveScreenRes}
+        >
           <span>Screen Resolution</span>
         </button>
         <button onClick={() => goToScreen(4)} className="button">
