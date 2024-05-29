@@ -209,7 +209,7 @@ func (a *App) IsLiveISO() bool {
 	if err != nil {
 		return false
 	}
-	pkexecCmd = exec.Command("bash", "-c", "`sudo", "-E", "calamares", "-D", "8`")
+	pkexecCmd = exec.Command("bash", "-c", "sudo", "-E", "calamares", "-D", "8")
 	err = pkexecCmd.Run()
 	if err != nil {
 		fmt.Printf("isLiveISO Error: %s", err)
