@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"os"
@@ -60,17 +61,44 @@ func getDesktopEnvironment() string {
 	return strings.ToLower(os.Getenv("XDG_CURRENT_DESKTOP"))
 }
 
+func getLookAndFeelPackageKDE() string {
+	configFile := os.ExpandEnv("$HOME/.config/kdeglobals")
+
+	file, err := os.Open(configFile)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return "org.kde.breeze.desktop"
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, "LookAndFeelPackage=") {
+			return strings.TrimPrefix(line, "LookAndFeelPackage=")
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error reading file:", err)
+	}
+
+	return "org.kde.breeze.desktop"
+}
+
 func (a *App) CurrentTheme() string {
 	var currThemeName string
 	switch desktopEnv {
 	case "kde":
-		cmd := exec.Command("kreadconfig5", "--file", "kdeglobals", "--group", "General", "--key", "widgetStyle")
-		output, err := cmd.Output()
-		if err != nil {
-			fmt.Println("Curr theme Error:", err)
-		}
+		// cmd := exec.Command("kreadconfig5", "--file", "kdeglobals", "--group", "General", "--key", "widgetStyle")
+		// output, err := cmd.Output()
+		// if err != nil {
+		// 	fmt.Println("Curr theme Error:", err)
+		// }
 
-		currThemeName = strings.TrimSpace(string(output))
+		// currThemeName = strings.TrimSpace(string(output))
+		currThemeName = getLookAndFeelPackageKDE()
 	case "xfce":
 		cmd := exec.Command("xfconf-query", "-c", "xsettings", "-p", "/Net/ThemeName", "-v")
 		output, err := cmd.Output()
@@ -97,11 +125,11 @@ func (a *App) ToggleTheme(dark bool) {
 	switch desktopEnv {
 	case "kde":
 		if dark {
-			style = "kde dark theme"
+			style = "org.kde.breezedark.desktop"
 		} else {
-			style = "kde light theme"
+			style = "org.kde.breeze.desktop"
 		}
-		cmd := exec.Command("kwriteconfig5", "--file", "kdeglobals", "--group", "KDE", "--key", "LookAndFeelPackage", style)
+		cmd := exec.Command("lookandfeeltool", "--apply", style)
 		_, err := cmd.Output()
 		if err != nil {
 			fmt.Println("failed to change KDE theme:", err)

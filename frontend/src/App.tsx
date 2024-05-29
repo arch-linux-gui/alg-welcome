@@ -27,7 +27,9 @@ const App: React.FC = () => {
         const fileExist = await CheckFileExists();
         setIsAutoStart(fileExist);
         setIsDarkMode(
-          currTheme == "Adwaita-dark" || currTheme == "prefer-dark"
+          currTheme == "Adwaita-dark" ||
+            currTheme == "prefer-dark" ||
+            currTheme == "org.kde.breezedark.desktop"
         );
       } catch (error) {
         console.error("Failed to fetch current theme:", error);
