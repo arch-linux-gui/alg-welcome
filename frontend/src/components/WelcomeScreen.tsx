@@ -38,10 +38,10 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
 
   const handleInstallALG = async () => {
     try {
-      setIsInstalled(true);
+      setIsActiveInstall(true);
       await RunCalamaresIfLiveISO();
     } finally {
-      setIsInstalled(false);
+      setIsActiveInstall(false);
     }
   };
 
