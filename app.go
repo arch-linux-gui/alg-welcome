@@ -218,7 +218,7 @@ func (a *App) ScreenResolution() {
 		pkexecCmd = exec.Command("bash", "-c", "gnome-control-center", "display")
 	case "kde":
 		kcm_kscreen := "`kcmshell6 kcm_kscreen`"
-		pkexecCmd = exec.Command("bash", "-e", kcm_kscreen)
+		pkexecCmd = exec.Command("bash", "-c", kcm_kscreen)
 	default:
 		fmt.Printf("unsupported desktop environment: %s\n", desktopEnv)
 	}
