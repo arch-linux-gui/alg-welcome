@@ -1,19 +1,19 @@
-# README
+![ALG](frontend/src/assets/images/alg-welcome.png)
 
-## About
+# About
 
-About your template
+ALG-Welcome built using wails framework with Reactjs and Go
 
-## Pre-Installation
+# Pre-Installation
 
 - sudo pacman -S webkit2gtk
 
-## Live Development
+# Live Development
 
 To run in live development mode, run `wails dev` in the project directory. In another terminal, go into the `frontend`
 directory and run `npm run dev`. The frontend dev server will run on http://localhost:34115. Connect to this in your
 browser and connect to your application.
 
-## Building
+# Building
 
 To build a redistributable, production mode package, use `wails build`.

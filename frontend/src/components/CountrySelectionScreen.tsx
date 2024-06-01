@@ -28,14 +28,14 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
 
   const countries = [
     "United States",
-    "France",
-    "Germany",
-    "India",
     "Norway",
+    "Brazil",
+    "India",
+    "Japan",
     "Australia",
     "Sweden",
-    "Canada",
-    "Japan",
+    "China",
+    "France",
     "United Kingdom",
   ];
 
