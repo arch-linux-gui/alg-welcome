@@ -13,12 +13,15 @@ import WelcomeScreen from "./components/WelcomeScreen";
 import AboutUs from "./components/AboutUs";
 import CountrySelectionScreen from "./components/CountrySelectionScreen";
 import FAQ from "./components/FAQ";
+import logDark from "./assets/logDark.png";
+import logLight from "./assets/logLight.png";
 
 const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<number>(0);
   const [isDarkMode, setIsDarkMode] = useState<boolean>(true);
   const [isNavigated, setIsNavigated] = useState<boolean>(false);
   const [isAutoStart, setIsAutoStart] = useState<boolean>(false); // New state for auto start
+  const [showLogger, setShowLogger] = useState<boolean>(false); // State for logger screen
 
   useEffect(() => {
     const fetchTheme = async () => {
@@ -63,16 +66,12 @@ const App: React.FC = () => {
   const goBack = () => {
     setCurrentScreen(0);
     setIsNavigated(false);
+    setShowLogger(false);
   };
 
   const screens: JSX.Element[] = [
     <WelcomeScreen goToScreen={goToScreen} isDarkMode={isDarkMode} />,
     <CountrySelectionScreen isDarkMode={isDarkMode} />,
-    <AdditionalScreen />,
-    <AdditionalScreen />,
-    <AdditionalScreen />,
-    <AdditionalScreen />,
-    <FAQ />,
     <AboutUs />,
   ];
 
@@ -86,27 +85,53 @@ const App: React.FC = () => {
         "select-none"
       )}
     >
-      <div className="h-full">
-        {React.cloneElement(screens[currentScreen], {
-          goToScreen,
-          goBack,
-          currentScreenIndex: currentScreen,
-        })}
-      </div>
-      {isNavigated && (
-        <div className="absolute top-4 left-4">
+      <div className="h-full relative">
+        {!showLogger ? (
+          <>
+            {React.cloneElement(screens[currentScreen], {
+              goToScreen,
+              goBack,
+              currentScreenIndex: currentScreen,
+            })}
+            {isNavigated && (currentScreen === 1 || currentScreen === 2) && (
+              <div className="absolute top-4 left-4">
+                <button
+                  onClick={goBack}
+                  className="px-2 py-2 pr-2 w-[5rem] bg-[#6a45d1] text-white font-bold flex item-center rounded-2xl hover:bg-[#7c53ed]"
+                >
+                  <img src={back} alt="Icon" className="w-5 h-5 mt-[2px]" />
+                  Back
+                </button>
+              </div>
+            )}
+          </>
+        ) : (
+          <div className="logger-screen flex flex-col justify-center items-center">
+            <h1 className="text-4xl mt-4 mb-4 text-center font-bold">
+              Logger Screen
+            </h1>
+            {/* Logger content goes here */}
+          </div>
+        )}
+        {currentScreen === 1 && (
           <button
-            onClick={goBack}
-            className="px-2 py-2 pr-2 w-[5rem] bg-[#6a45d1] text-white font-bold flex item-center rounded-2xl hover:bg-[#7c53ed]"
+            onClick={() => setShowLogger(!showLogger)}
+            className={cn(
+              `${isDarkMode ? "bg-gray-500" : "bg-gray-300"}
+              absolute bottom-1 right-3 m-9 p-1 rounded-full`
+            )}
           >
-            <img src={back} alt="Icon" className="w-5 h-5 mt-[2px]" />
-            Back
+            <img
+              src={isDarkMode ? logDark : logLight}
+              alt="Toggle Logger"
+              className="w-6 h-6 mt-1 ml-1"
+            />
           </button>
-        </div>
-      )}
-      {currentScreen === 0 && (
+        )}
+      </div>
+      {currentScreen === 0 && !showLogger && (
         <>
-          <div className="absolute bottom-4 right-4">
+          <div className="absolute bottom-4 right-7">
             <div className="flex items-center space-x-2">
               <span className="font-bold">Light</span>
               <button
@@ -121,7 +146,7 @@ const App: React.FC = () => {
                   className={cn(
                     `${
                       isDarkMode ? "translate-x-2" : "-translate-x-2"
-                    } inline-block w-5 mt-1 ml-1 mr-1 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300`
+                    } inline-block w-5 mt-1 ml-1 h-5 bg-white rounded-full shadow-md transform transition-transform duration-300`
                   )}
                 >
                   {isDarkMode ? (

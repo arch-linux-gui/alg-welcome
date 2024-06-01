@@ -149,7 +149,7 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
         </button>
       </div>
       <button
-        onClick={() => goToScreen(7)}
+        onClick={() => goToScreen(2)}
         className="flex items-center justify-center h-12 w-50 about-us"
       >
         <img src={about} alt="About Icon" className="w-6 h-6 mr-2" />
