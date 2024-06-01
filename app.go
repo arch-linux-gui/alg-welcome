@@ -4,11 +4,14 @@ import (
 	"bufio"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"os/user"
 	"path/filepath"
 	"strings"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 var desktopEnv string
@@ -154,32 +157,63 @@ func (a *App) ToggleTheme(dark bool) {
 	}
 }
 
-func (a *App) MirrorList(command string) {
-	var pkexecCmd *exec.Cmd
-
-	switch desktopEnv {
-	case "xfce":
-		pkexecCmd = exec.Command("xfce4-terminal", "-x", "bash", "-c", command)
-		if err := pkexecCmd.Run(); err != nil {
-			fmt.Printf("Error executing command: %v\n", err)
-		}
-	case "gnome":
-		pkexecCmd = exec.Command("gnome-terminal", "--", "bash", "-c", command)
-		if err := pkexecCmd.Run(); err != nil {
-			fmt.Printf("Error executing command: %v\n", err)
-		}
-	case "kde":
-		pkexecCmd = exec.Command("konsole", "-e", "bash", "-c", command)
-		if err := pkexecCmd.Run(); err != nil {
-			fmt.Printf("Error executing command: %v\n", err)
-		}
-	default:
-		fmt.Printf("unsupported desktop environment: %s", desktopEnv)
-		if err := pkexecCmd.Run(); err != nil {
-			fmt.Printf("Error executing command: %v\n", err)
-		}
+func (a *App) LogMessage(command string) {
+	cmd := exec.Command("bash", "-c", command)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		a.LogMessage(fmt.Sprintf("Error creating StdoutPipe: %s", err.Error()))
+		return
 	}
+
+	if err := cmd.Start(); err != nil {
+		a.LogMessage(fmt.Sprintf("Error starting command: %s", err.Error()))
+		return
+	}
+
+	scanner := bufio.NewScanner(stdout)
+	for scanner.Scan() {
+		logMessage := scanner.Text()
+		fmt.Println("Logging:", logMessage)
+		runtime.EventsEmit(a.ctx, "log", logMessage)
+	}
+
+	if err := scanner.Err(); err != nil {
+		a.LogMessage(fmt.Sprintf("Error reading from scanner: %s", err.Error()))
+	}
+
+	if err := cmd.Wait(); err != nil {
+		a.LogMessage(fmt.Sprintf("Error waiting for command: %s", err.Error()))
+	}
+
+	runtime.EventsEmit(a.ctx, "log", "Logging completed.")
 }
+
+// func (a *App) MirrorList(command string) {
+// 	var pkexecCmd *exec.Cmd
+
+// 	switch desktopEnv {
+// 	case "xfce":
+// 		pkexecCmd = exec.Command("xfce4-terminal", "-x", "bash", "-c", command)
+// 		if err := pkexecCmd.Run(); err != nil {
+// 			fmt.Printf("Error executing command: %v\n", err)
+// 		}
+// 	case "gnome":
+// 		pkexecCmd = exec.Command("gnome-terminal", "--", "bash", "-c", command)
+// 		if err := pkexecCmd.Run(); err != nil {
+// 			fmt.Printf("Error executing command: %v\n", err)
+// 		}
+// 	case "kde":
+// 		pkexecCmd = exec.Command("konsole", "-e", "bash", "-c", command)
+// 		if err := pkexecCmd.Run(); err != nil {
+// 			fmt.Printf("Error executing command: %v\n", err)
+// 		}
+// 	default:
+// 		fmt.Printf("unsupported desktop environment: %s", desktopEnv)
+// 		if err := pkexecCmd.Run(); err != nil {
+// 			fmt.Printf("Error executing command: %v\n", err)
+// 		}
+// 	}
+// }
 
 func (a *App) UpdateSystem() {
 	var pkexecCmd *exec.Cmd
@@ -313,4 +347,39 @@ func (a *App) CheckFileExists() bool {
 
 	_, err = os.Stat(filePath)
 	return !os.IsNotExist(err)
+}
+
+func (a *App) MirrorList(command string) error {
+	return a.StartLogging(command)
+}
+
+func (a *App) StartLogging(command string) error {
+	cmd := exec.Command("sh", "-c", command)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return err
+	}
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	go a.streamLogs(stdout)
+	go a.streamLogs(stderr)
+
+	return cmd.Wait()
+}
+
+func (a *App) streamLogs(pipe io.ReadCloser) {
+	scanner := bufio.NewScanner(pipe)
+	for scanner.Scan() {
+		line := scanner.Text()
+		fmt.Println(line)
+		runtime.EventsEmit(a.ctx, "log", line)
+	}
 }

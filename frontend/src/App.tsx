@@ -15,6 +15,7 @@ import CountrySelectionScreen from "./components/CountrySelectionScreen";
 import FAQ from "./components/FAQ";
 import logDark from "./assets/logDark.png";
 import logLight from "./assets/logLight.png";
+import Logger from "./components/Logger";
 
 const App: React.FC = () => {
   const [currentScreen, setCurrentScreen] = useState<number>(0);
@@ -30,9 +31,9 @@ const App: React.FC = () => {
         const fileExist = await CheckFileExists();
         setIsAutoStart(fileExist);
         setIsDarkMode(
-          currTheme == "Adwaita-dark" ||
-            currTheme == "prefer-dark" ||
-            currTheme == "org.kde.breezedark.desktop"
+          currTheme === "Adwaita-dark" ||
+            currTheme === "prefer-dark" ||
+            currTheme === "org.kde.breezedark.desktop"
         );
       } catch (error) {
         console.error("Failed to fetch current theme:", error);
@@ -107,28 +108,26 @@ const App: React.FC = () => {
           </>
         ) : (
           <div className="logger-screen flex flex-col justify-center items-center">
-            <h1 className="text-4xl mt-4 mb-4 text-center font-bold">
-              Logger Screen
-            </h1>
-            {/* Logger content goes here */}
+            <h1 className="text-4xl mt-4 text-center font-bold">Logs</h1>
+            <Logger isDarkMode={isDarkMode} />
           </div>
         )}
-        {currentScreen === 1 && (
-          <button
-            onClick={() => setShowLogger(!showLogger)}
-            className={cn(
-              `${isDarkMode ? "bg-gray-500" : "bg-gray-300"}
-              absolute bottom-1 right-3 m-9 p-1 rounded-full`
-            )}
-          >
-            <img
-              src={isDarkMode ? logDark : logLight}
-              alt="Toggle Logger"
-              className="w-6 h-6 mt-1 ml-1"
-            />
-          </button>
-        )}
       </div>
+      {currentScreen === 1 && (
+        <button
+          onClick={() => setShowLogger(!showLogger)}
+          className={cn(
+            `${isDarkMode ? "bg-gray-500" : "bg-gray-300"}
+              absolute bottom-1 right-3 m-9 p-1 rounded-full`
+          )}
+        >
+          <img
+            src={isDarkMode ? logDark : logLight}
+            alt="Toggle Logger"
+            className="w-6 h-6 mt-1 ml-1 z-50"
+          />
+        </button>
+      )}
       {currentScreen === 0 && !showLogger && (
         <>
           <div className="absolute bottom-4 right-7">
@@ -189,11 +188,5 @@ const App: React.FC = () => {
     </div>
   );
 };
-
-const AdditionalScreen: React.FC = () => (
-  <div className="flex items-center justify-center h-full">
-    <p className="text-xl">This is an additional screen.</p>
-  </div>
-);
 
 export default App;

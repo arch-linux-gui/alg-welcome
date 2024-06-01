@@ -9,11 +9,15 @@ export function Greet(arg1:string):Promise<string>;
 
 export function IsLiveISO():Promise<boolean>;
 
+export function LogMessage(arg1:string):Promise<void>;
+
 export function MirrorList(arg1:string):Promise<void>;
 
 export function RunCalamaresIfLiveISO():Promise<void>;
 
 export function ScreenResolution():Promise<void>;
+
+export function StartLogging(arg1:string):Promise<void>;
 
 export function ToggleAutostart(arg1:boolean):Promise<void>;
 

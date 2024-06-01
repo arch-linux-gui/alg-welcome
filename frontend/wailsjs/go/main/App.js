@@ -18,6 +18,10 @@ export function IsLiveISO() {
   return window['go']['main']['App']['IsLiveISO']();
 }
 
+export function LogMessage(arg1) {
+  return window['go']['main']['App']['LogMessage'](arg1);
+}
+
 export function MirrorList(arg1) {
   return window['go']['main']['App']['MirrorList'](arg1);
 }
@@ -28,6 +32,10 @@ export function RunCalamaresIfLiveISO() {
 
 export function ScreenResolution() {
   return window['go']['main']['App']['ScreenResolution']();
+}
+
+export function StartLogging(arg1) {
+  return window['go']['main']['App']['StartLogging'](arg1);
 }
 
 export function ToggleAutostart(arg1) {
