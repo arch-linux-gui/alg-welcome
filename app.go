@@ -350,6 +350,7 @@ func (a *App) CheckFileExists() bool {
 }
 
 func (a *App) MirrorList(command string) error {
+	fmt.Println(command)
 	return a.StartLogging(command)
 }
 

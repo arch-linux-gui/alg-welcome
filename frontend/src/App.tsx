@@ -12,7 +12,6 @@ import back from "./assets/back.png";
 import WelcomeScreen from "./components/WelcomeScreen";
 import AboutUs from "./components/AboutUs";
 import CountrySelectionScreen from "./components/CountrySelectionScreen";
-import FAQ from "./components/FAQ";
 import logDark from "./assets/logDark.png";
 import logLight from "./assets/logLight.png";
 import Logger from "./components/Logger";
@@ -81,7 +80,7 @@ const App: React.FC = () => {
       className={cn(
         `${
           isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
-        } w-[600px] h-[500px]`,
+        } w-[600px] h-[550px]`,
         { "border border-gray-300": !isDarkMode },
         "select-none"
       )}
@@ -118,7 +117,7 @@ const App: React.FC = () => {
           onClick={() => setShowLogger(!showLogger)}
           className={cn(
             `${isDarkMode ? "bg-gray-500" : "bg-gray-300"}
-              absolute bottom-1 right-3 m-9 p-1 rounded-full`
+              absolute bottom-1 right-0 mt-7 mr-5 mb-8 p-1 rounded-full`
           )}
         >
           <img

@@ -9,7 +9,9 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [includeHttps, setIncludeHttps] = useState<boolean>(true);
   const [includeHttp, setIncludeHttp] = useState<boolean>(false);
-  // const [loading, setLoading] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState<string>("rate");
+  const [maxMirrors, setMaxMirrors] = useState<number>(20);
+  const [timeout, setTimeout] = useState<number>(10);
   const { addLog, clearLogs, loading, setLoading } = useLogsContext();
 
   useEffect(() => {
@@ -51,9 +53,10 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
     }`;
     const command = `pkexec reflector --country "${selectedCountries.join(
       ","
-    )}" --protocol ${protocol} --latest 20 --sort rate --save /etc/pacman.d/mirrorlist`;
+    )}" --protocol ${protocol} --latest ${maxMirrors} --sort ${sortBy} --download-timeout ${timeout} --save /etc/pacman.d/mirrorlist`;
 
     setLoading(true);
+
     try {
       await MirrorList(command);
     } catch (error) {
@@ -63,17 +66,20 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
       setSelectedCountries([]);
       setIncludeHttps(true);
       setIncludeHttp(false);
+      setSortBy("rate");
+      setMaxMirrors(20);
+      setTimeout(10);
       clearLogs();
     }
   };
 
   return (
-    <div className="p-10 pt-17 w-full h-full flex flex-col">
-      <h1 className="text-4xl mt-4 mb-4 text-center font-bold">
+    <div className="p-4 w-[600px] h-[500px] flex flex-col">
+      <h1 className="text-2xl mt-2 mb-4 text-center font-bold">
         Update MirrorList
       </h1>
-      <div className="flex-1 flex flex-col lg:flex-row lg:space-x-4">
-        <div className="mb-4 lg:mb-0 lg:flex-1">
+      <div className="flex-1 flex flex-col space-y-4">
+        <div className="flex-1">
           <h2 className="text-xl mb-2">Countries</h2>
           <div className="grid grid-cols-2 gap-2">
             {countries.map((country) => (
@@ -90,42 +96,95 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
             ))}
           </div>
         </div>
-        <div className="lg:flex-1 flex flex-col justify-between">
-          <div>
-            <h2 className="text-xl mb-2">Protocols</h2>
-            <label className="block mb-2">
-              <input
-                type="checkbox"
-                checked={includeHttps}
-                onChange={() => setIncludeHttps(!includeHttps)}
-                className="mr-2"
-              />
-              HTTPS
-            </label>
-            <label className="block mb-4">
-              <input
-                type="checkbox"
-                checked={includeHttp}
-                onChange={() => setIncludeHttp(!includeHttp)}
-                className="mr-2"
-              />
-              HTTP
-            </label>
+        <div className="flex flex-col space-y-4">
+          <div className="flex space-x-4">
+            <div className="flex-1">
+              <h2 className="text-xl mb-2">Protocols</h2>
+              <label className="block mb-2">
+                <input
+                  type="checkbox"
+                  checked={includeHttps}
+                  onChange={() => setIncludeHttps(!includeHttps)}
+                  className="mr-2"
+                />
+                HTTPS
+              </label>
+              <label className="block mb-2">
+                <input
+                  type="checkbox"
+                  checked={includeHttp}
+                  onChange={() => setIncludeHttp(!includeHttp)}
+                  className="mr-2"
+                />
+                HTTP
+              </label>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-xl mb-2">Sort By</h2>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="p-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-700"
+              >
+                <option value="rate">Rate</option>
+                <option value="age">Age</option>
+                <option value="country">Country</option>
+                <option value="score">Score</option>
+                <option value="delay">Delay</option>
+              </select>
+            </div>
           </div>
-          <div className="flex items-center">
-            <button
-              onClick={handleUpdateMirrors}
-              className={
-                !selectedCountries.length
-                  ? `w-[90%] bg-[#6a45d1] text-white px-4 py-2 rounded opacity-50 cursor-not-allowed button`
-                  : `w-[90%] bg-[#6a45d1] text-white px-4 py-2 rounded hover:bg-[#7c53ed] button`
-              }
-              disabled={!selectedCountries.length || loading}
-            >
-              {loading ? "Updating..." : "Update"}
-            </button>
-            <span className="ml-2 p-2"></span>
+          <div className="flex space-x-4">
+            <div className="flex-1">
+              <h2 className="text-lg mb-2">Max Numbers of Fresh Mirrors</h2>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setMaxMirrors((prev) => Math.max(prev - 1, 1))}
+                  className="px-2 py-1 border rounded-3xl"
+                >
+                  -
+                </button>
+                <span className="w-12 text-center">{maxMirrors}</span>
+                <button
+                  onClick={() => setMaxMirrors((prev) => prev + 1)}
+                  className="px-2 py-1 border rounded-3xl"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div className="flex-1">
+              <h2 className="text-lg mb-2">Download Timeout (seconds)</h2>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setTimeout((prev) => Math.max(prev - 1, 1))}
+                  className="px-2 py-1 border rounded-3xl"
+                >
+                  -
+                </button>
+                <span className="w-12 text-center">{timeout}</span>
+                <button
+                  onClick={() => setTimeout((prev) => prev + 1)}
+                  className="px-2 py-1 border rounded-3xl"
+                >
+                  +
+                </button>
+              </div>
+            </div>
           </div>
+        </div>
+        <div className="flex items-center justify-center mt-4">
+          <button
+            onClick={handleUpdateMirrors}
+            className={
+              !selectedCountries.length
+                ? `w-[90%] bg-[#6a45d1] text-white mr-10 px-4 py-2 rounded-2xl opacity-50 cursor-not-allowed`
+                : `w-[90%] bg-[#6a45d1] text-white mr-10 px-4 py-2 rounded-2xl hover:bg-[#7c53ed]`
+            }
+            disabled={!selectedCountries.length || loading}
+          >
+            {loading ? "Updating..." : "Update"}
+          </button>
         </div>
       </div>
     </div>

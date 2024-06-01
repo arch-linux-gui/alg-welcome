@@ -6,6 +6,7 @@ interface LogsContextType {
   clearLogs: () => void;
   loading: boolean;
   setLoading: (loading: boolean) => void;
+  isEmpty: () => boolean;
 }
 
 const LogsContext = createContext<LogsContextType>({
@@ -14,6 +15,9 @@ const LogsContext = createContext<LogsContextType>({
   clearLogs: () => {},
   loading: false,
   setLoading: () => {},
+  isEmpty: () => {
+    return false;
+  },
 });
 
 export const useLogsContext = (): LogsContextType => {
@@ -42,9 +46,13 @@ export const LogsProvider: React.FC<LogsProviderProps> = ({ children }) => {
     setLogs([]);
   };
 
+  const isEmpty = () => {
+    return logs.toString() === "";
+  };
+
   return (
     <LogsContext.Provider
-      value={{ logs, addLog, loading, setLoading, clearLogs }}
+      value={{ logs, addLog, loading, setLoading, clearLogs, isEmpty }}
     >
       {children}
     </LogsContext.Provider>
