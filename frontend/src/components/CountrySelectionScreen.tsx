@@ -9,7 +9,7 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [includeHttps, setIncludeHttps] = useState<boolean>(true);
   const [includeHttp, setIncludeHttp] = useState<boolean>(false);
-  const [sortBy, setSortBy] = useState<string>("rate");
+  const [sortBy, setSortBy] = useState<string>("age");
   const [maxMirrors, setMaxMirrors] = useState<number>(20);
   const [timeout, setTimeout] = useState<number>(10);
   const { addLog, clearLogs, loading, setLoading } = useLogsContext();
@@ -144,7 +144,13 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
                 >
                   -
                 </button>
-                <span className="w-12 text-center">{maxMirrors}</span>
+                <input
+                  type="number"
+                  value={maxMirrors}
+                  onChange={(e) => setTimeout(parseInt(e.target.value))}
+                  className="w-12 text-center border-none bg-gray-800"
+                  min="1"
+                />
                 <button
                   onClick={() => setMaxMirrors((prev) => prev + 1)}
                   className="px-2 py-1 border rounded-3xl"
@@ -162,7 +168,13 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
                 >
                   -
                 </button>
-                <span className="w-12 text-center">{timeout}</span>
+                <input
+                  type="number"
+                  value={timeout}
+                  onChange={(e) => setTimeout(parseInt(e.target.value))}
+                  className="w-12 text-center border-none bg-gray-800"
+                  min="1"
+                />
                 <button
                   onClick={() => setTimeout((prev) => prev + 1)}
                   className="px-2 py-1 border rounded-3xl"
