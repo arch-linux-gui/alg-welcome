@@ -148,7 +148,11 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
                   type="number"
                   value={maxMirrors}
                   onChange={(e) => setTimeout(parseInt(e.target.value))}
-                  className="w-12 text-center border-none bg-gray-800"
+                  className={
+                    isDarkMode
+                      ? "w-12 text-center border-none bg-gray-800"
+                      : "w-12 text-center border-none bg-gray-200"
+                  }
                   min="1"
                 />
                 <button
@@ -172,7 +176,11 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
                   type="number"
                   value={timeout}
                   onChange={(e) => setTimeout(parseInt(e.target.value))}
-                  className="w-12 text-center border-none bg-gray-800"
+                  className={
+                    isDarkMode
+                      ? "w-12 text-center border-none bg-gray-800"
+                      : "w-12 text-center border-none bg-gray-200"
+                  }
                   min="1"
                 />
                 <button
