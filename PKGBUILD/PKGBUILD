@@ -9,14 +9,14 @@ url="https://github.com/arch-linux-gui/alg-welcome"
 license=('GPL3')
 depends=('webkit2gtk')
 source=("$pkgname".tar.gz::"${url}"/releases/download/latest/"${pkgname}".tar.gz)
-sha256sums=('562fb645e30c1cf9482ec34c332f4e994a619b5eff51bb3cade39082aed4a3c5')
+sha256sums=('60e71779be1cf8d19375a2a69f0e4edcfabd5ce5fbd64d7eb74bbe46ff0f782e')
 
 package() {
   tar -xf "$srcdir/"${pkgname}".tar.gz" -C "$pkgdir/"
 
-  install -Dm644 "$srcdir/"${pkgname}"/LinuxBuild/alg-logo.png" "$pkgdir/usr/share/pixmaps/alg-logo.png"
+  install -Dm644 "$srcdir/"${pkgname}"/build/bin/alg-logo.png" "$pkgdir/usr/share/pixmaps/alg-logo.png"
 
-  install -Dm755 "$srcdir/"${pkgname}"/LinuxBuild/alg-welcome.desktop" "$pkgdir/usr/share/applications/alg-welcome.desktop"
+  install -Dm755 "$srcdir/"${pkgname}"/build/bin/alg-welcome.desktop" "$pkgdir/usr/share/applications/alg-welcome.desktop"
 
   install -Dm755 "$srcdir/"${pkgname}"/build/bin/welcome" "$pkgdir/usr/bin/welcome"
 }
