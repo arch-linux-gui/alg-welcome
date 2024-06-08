@@ -79,7 +79,7 @@ const App: React.FC = () => {
     <div
       className={cn(
         `${
-          isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+          isDarkMode ? "bg-[#090E0E] text-white" : "bg-white text-black"
         } w-[600px] h-[550px]`,
         { "border border-gray-300": !isDarkMode },
         "select-none"

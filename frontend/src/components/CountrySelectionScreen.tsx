@@ -74,7 +74,13 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
   };
 
   return (
-    <div className="p-4 w-[600px] h-[500px] flex flex-col">
+    <div
+      className={
+        isDarkMode
+          ? "p-4 bg-[#090E0E] w-[600px] h-[500px] flex flex-col"
+          : "p-4 w-[600px] h-[500px] flex flex-col"
+      }
+    >
       <h1 className="text-2xl mt-2 mb-4 text-center font-bold">
         Update MirrorList
       </h1>

@@ -23,9 +23,9 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [modalTitle, setModalTitle] = useState<string>("");
   const [modalMessage, setModalMessage] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
   const [isActiveScreenRes, setIsActiveScreenRes] = useState<boolean>(false);
+  const [isUpdating, setIsUpdating] = useState<boolean>(false);
   const [isActiveInstall, setIsActiveInstall] = useState<boolean>(false);
 
   useEffect(() => {
@@ -47,17 +47,14 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
   };
 
   const handleUpdateSystem = async () => {
-    setLoading(true);
+    setIsUpdating(true);
     try {
       await UpdateSystem();
-      setModalTitle("Success");
-      setModalMessage("System updated successfully.");
     } catch (error) {
       setModalTitle("Error");
       setModalMessage("Failed to update the system.");
     } finally {
-      setLoading(false);
-      setModalVisible(true);
+      setIsUpdating(false);
     }
   };
 
@@ -74,7 +71,13 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full space-y-6">
+    <div
+      className={
+        isDarkMode
+          ? "flex bg-[#090E0E] flex-col items-center justify-center h-full space-y-6"
+          : "flex flex-col items-center justify-center h-full space-y-6"
+      }
+    >
       <img src={appicon} width={150} height={150} alt="App Icon" />
       <h1 className="text-4xl font-bold">Welcome to ALG</h1>
       <div className="grid grid-cols-3 gap-4">
@@ -94,11 +97,11 @@ const WelcomeScreen: React.FC<ScreenProps> = ({ goToScreen, isDarkMode }) => {
           <button
             onClick={handleUpdateSystem}
             className={
-              loading
+              isUpdating
                 ? `bg-[#6a45d1] text-white px-4 py-2 rounded opacity-50 cursor-not-allowed button`
                 : `bg-[#6a45d1] text-white px-4 py-2 rounded hover:bg-[#7c53ed] button`
             }
-            disabled={loading}
+            disabled={isUpdating}
           >
             <span>Update System</span>
           </button>
