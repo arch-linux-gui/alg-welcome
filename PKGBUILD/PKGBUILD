@@ -9,7 +9,7 @@ url="https://github.com/arch-linux-gui/alg-welcome"
 license=('GPL3')
 depends=('webkit2gtk')
 source=("$pkgname".tar.gz::"${url}"/releases/download/latest/"${pkgname}".tar.gz)
-sha256sums=('bd48b9958792c396cb9658f81427a40a9708c0a82db45be0a31c86690471c604')
+sha256sums=('16555f9c2988f909aac8d1d58884171bdba67781faa381c454468e3f26d09171')
 
 package() {
   tar -xf "$srcdir/"${pkgname}".tar.gz" -C "$pkgdir/"
