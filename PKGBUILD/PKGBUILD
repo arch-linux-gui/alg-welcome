@@ -5,11 +5,11 @@ pkgrel=1
 destname="/usr/bin"
 pkgdesc="Welcome App For ALG"
 arch=('x86_64')
-url="https://github.com/harshau007/alg-welcome"
+url="https://github.com/arch-linux-gui/alg-welcome"
 license=('GPL3')
 depends=('webkit2gtk')
 source=("$pkgname".tar.gz::"${url}"/releases/download/latest/"${pkgname}".tar.gz)
-sha256sums=('c69bf0c41555d1c31fca41aacef9082d7496864703b478ffc29bd92c672cb5f0')
+sha256sums=('bd48b9958792c396cb9658f81427a40a9708c0a82db45be0a31c86690471c604')
 
 package() {
   tar -xf "$srcdir/"${pkgname}".tar.gz" -C "$pkgdir/"
