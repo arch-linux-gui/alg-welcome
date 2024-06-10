@@ -3,15 +3,16 @@ import { MirrorList } from "../../wailsjs/go/main/App";
 import { EventsOn } from "../../wailsjs/runtime";
 import { useLogsContext } from "@/lib/LogsContext";
 
-const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
-  isDarkMode,
-}) => {
+const CountrySelectionScreen: React.FC<{
+  isDarkMode: boolean;
+  setShowLogger: (log: boolean) => void;
+}> = ({ isDarkMode, setShowLogger }) => {
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [includeHttps, setIncludeHttps] = useState<boolean>(true);
   const [includeHttp, setIncludeHttp] = useState<boolean>(false);
   const [sortBy, setSortBy] = useState<string>("age");
   const [maxMirrors, setMaxMirrors] = useState<number>(20);
-  const [timeout, setTimeout] = useState<number>(10);
+  const [timeout, setTimeout] = useState<number>(30);
   const { addLog, clearLogs, loading, setLoading } = useLogsContext();
 
   useEffect(() => {
@@ -58,11 +59,13 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
     setLoading(true);
 
     try {
+      setShowLogger(true);
       await MirrorList(command);
     } catch (error) {
       console.error("Error updating mirrors:", error);
     } finally {
       setLoading(false);
+      setShowLogger(false);
       setSelectedCountries([]);
       setIncludeHttps(true);
       setIncludeHttp(false);
@@ -77,7 +80,7 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
     <div
       className={
         isDarkMode
-          ? "p-4 bg-[#090E0E] w-[600px] h-[500px] flex flex-col"
+          ? "p-4 w-[600px] bg-[#090E0E] h-[500px] flex flex-col"
           : "p-4 w-[600px] h-[500px] flex flex-col"
       }
     >
@@ -204,8 +207,14 @@ const CountrySelectionScreen: React.FC<{ isDarkMode: boolean }> = ({
             onClick={handleUpdateMirrors}
             className={
               !selectedCountries.length
-                ? `w-[90%] bg-[#6a45d1] text-white mr-10 px-4 py-2 rounded-2xl opacity-50 cursor-not-allowed`
-                : `w-[90%] bg-[#6a45d1] text-white mr-10 px-4 py-2 rounded-2xl hover:bg-[#7c53ed]`
+                ? `w-[90%] ${
+                    isDarkMode ? "bg-gray-700" : "bg-gray-300"
+                  } mr-10 px-4 py-2 rounded-2xl opacity-50 cursor-not-allowed`
+                : `w-[90%] ${
+                    isDarkMode
+                      ? "bg-gray-700 hover:bg-gray-600"
+                      : "bg-gray-300 hover:bg-gray-400"
+                  } mr-10 px-4 py-2 rounded-2xl`
             }
             disabled={!selectedCountries.length || loading}
           >

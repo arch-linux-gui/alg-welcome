@@ -79,6 +79,7 @@ func getLookAndFeelPackageKDE() string {
 	for scanner.Scan() {
 		line := scanner.Text()
 		if strings.HasPrefix(line, "LookAndFeelPackage=") {
+			fmt.Println(strings.TrimPrefix(line, "LookAndFeelPackage="))
 			return strings.TrimPrefix(line, "LookAndFeelPackage=")
 		}
 	}
@@ -116,19 +117,44 @@ func (a *App) CurrentTheme() string {
 	return currThemeName
 }
 
+/*
+kwriteconfig6 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__Qogir-light"
+
+kwriteconfig6 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__Qogir-circle-dark"
+
+qdbus6 org.kde.KWin /KWin reconfigure
+*/
+
 func (a *App) ToggleTheme(dark bool) {
 	var style string
+	var winDeco string
 	switch desktopEnv {
 	case "kde":
-		if dark {
-			style = "org.kde.breezedark.desktop"
+		isPure := getLookAndFeelPackageKDE()
+		if strings.Contains(isPure, "org.kde.breeze") {
+			if dark {
+				style = "org.kde.breezedark.desktop"
+			} else {
+				style = "org.kde.breeze.desktop"
+			}
+			cmd := exec.Command("lookandfeeltool", "--apply", style)
+			_, err := cmd.Output()
+			if err != nil {
+				fmt.Println("failed to change KDE theme:", err)
+			}
 		} else {
-			style = "org.kde.breeze.desktop"
-		}
-		cmd := exec.Command("lookandfeeltool", "--apply", style)
-		_, err := cmd.Output()
-		if err != nil {
-			fmt.Println("failed to change KDE theme:", err)
+			if dark {
+				style = "Qogirdark"
+				winDeco = "__aurorae__svg__Qogir-dark-circle"
+			} else {
+				style = "Qogirlight"
+				winDeco = "__aurorae__svg__Qogir-light"
+			}
+			cmd := exec.Command("sh", "-c", fmt.Sprintf("plasma-apply-colorscheme %s && kwriteconfig6 --file %s/.config/kwinrc --group org.kde.kdecoration2 --key theme %s && qdbus6 org.kde.KWin /KWin reconfigure", style, os.Getenv("HOME"), winDeco))
+			_, err := cmd.Output()
+			if err != nil {
+				fmt.Println("failed to change KDE theme:", err)
+			}
 		}
 	case "gnome":
 		if dark {
@@ -136,7 +162,7 @@ func (a *App) ToggleTheme(dark bool) {
 		} else {
 			style = "prefer-light"
 		}
-		cmd := exec.Command("gsettings", "set", "org.gnome.desktop.interface", "color-scheme", style)
+		cmd := exec.Command("gsettings", "set", "org.gnome.desktop.interface", "gtk-theme", style)
 		_, err := cmd.Output()
 		if err != nil {
 			fmt.Println("failed to change GNOME theme:", err)
