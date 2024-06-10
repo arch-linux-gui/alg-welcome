@@ -323,7 +323,7 @@ func (a *App) URL(url string) {
 
 func (a *App) ToggleAutostart(enable bool) {
 	autoDir := filepath.Join(os.Getenv("HOME"), ".config", "autostart")
-	autoFile := filepath.Join(autoDir, "alg-welcome.desktop")
+	autoFile := filepath.Join(autoDir, "welcome.desktop")
 
 	if _, err := os.Stat(autoDir); os.IsNotExist(err) {
 		err := os.MkdirAll(autoDir, 0755)
@@ -340,7 +340,7 @@ func (a *App) ToggleAutostart(enable bool) {
 		}
 
 		fmt.Println("Enabling autostart...")
-		err := exec.Command("cp", "/usr/share/applications/alg-welcome.desktop", autoFile).Run()
+		err := exec.Command("cp", "/usr/share/applications/welcome.desktop", autoFile).Run()
 		if err != nil {
 			fmt.Println("Error enabling autostart:", err)
 			return
@@ -369,7 +369,7 @@ func (a *App) CheckFileExists() bool {
 	}
 
 	homeDir := usr.HomeDir
-	filePath := filepath.Join(homeDir, ".config", "autostart", "alg-welcome.desktop")
+	filePath := filepath.Join(homeDir, ".config", "autostart", "welcome.desktop")
 
 	_, err = os.Stat(filePath)
 	return !os.IsNotExist(err)
