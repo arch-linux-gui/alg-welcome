@@ -45,12 +45,15 @@ const WelcomeScreen: React.FC<ScreenProps> = ({
   }, []);
 
   const handleInstallALG = async () => {
+    setLoading(true);
     try {
       await RunCalamaresIfLiveISO();
     } catch (error) {
       setModalTitle("Error");
       setModalMessage("Failed to install ALG.");
       setModalVisible(true);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -103,10 +106,13 @@ const WelcomeScreen: React.FC<ScreenProps> = ({
               <button
                 onClick={handleInstallALG}
                 className={`block w-full py-2 px-4 mb-2 font-bold rounded-lg ${
-                  isDarkMode
+                  loading
+                    ? "opacity-50 cursor-not-allowed"
+                    : isDarkMode
                     ? "bg-gray-700 hover:bg-gray-600"
                     : "bg-gray-300 hover:bg-gray-400"
                 }`}
+                disabled={loading}
               >
                 Install ALG
               </button>
@@ -146,7 +152,7 @@ const WelcomeScreen: React.FC<ScreenProps> = ({
             <button
               onClick={handleUpdateSystem}
               disabled={loading}
-              className={`block w-full py-2 px-4 mb-2  font-bold rounded-lg ${
+              className={`block w-full py-2 px-4 mb-2 font-bold rounded-lg ${
                 loading
                   ? "opacity-50 cursor-not-allowed"
                   : isDarkMode

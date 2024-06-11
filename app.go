@@ -296,7 +296,7 @@ func checkIfLiveISO() bool {
 
 func (a *App) RunCalamaresIfLiveISO() {
 	if isLiveISO {
-		calamaresCmd := "`sudo -E calamares -D 8`"
+		calamaresCmd := "`sudo calamares -D 8`"
 		pkexecCmd := exec.Command("bash", "-c", calamaresCmd)
 		output, err := pkexecCmd.CombinedOutput()
 		if err != nil {
