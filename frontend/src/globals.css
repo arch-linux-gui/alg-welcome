@@ -127,3 +127,39 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+.custom-checkbox-light:checked {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: rgb(0, 0, 0);
+}
+
+.custom-checkbox-light:checked::after {
+  content: "";
+  display: block;
+  width: 0.3em;
+  height: 0.6em;
+  border: solid rgb(0, 0, 0);
+  border-width: 0 0.2em 0.2em 0;
+  transform: rotate(45deg);
+  position: relative;
+  top: 0.2em;
+  left: 0.4em;
+}
+
+.custom-checkbox-dark:checked {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: white;
+}
+
+.custom-checkbox-dark:checked::after {
+  content: "";
+  display: block;
+  width: 0.3em;
+  height: 0.6em;
+  border: solid white;
+  border-width: 0 0.2em 0.2em 0;
+  transform: rotate(45deg);
+  position: relative;
+  top: 0.2em;
+  left: 0.4em;
+}
