@@ -35,6 +35,7 @@ const WelcomeScreen: React.FC<ScreenProps> = ({
   const [modalMessage, setModalMessage] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
+  const [isCalaOpen, setIsCalaOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const checkInstallation = async () => {
@@ -47,7 +48,9 @@ const WelcomeScreen: React.FC<ScreenProps> = ({
   const handleInstallALG = async () => {
     setLoading(true);
     try {
+      setIsCalaOpen(true);
       await RunCalamaresIfLiveISO();
+      setIsCalaOpen(false);
     } catch (error) {
       setModalTitle("Error");
       setModalMessage("Failed to install ALG.");
@@ -106,13 +109,13 @@ const WelcomeScreen: React.FC<ScreenProps> = ({
               <button
                 onClick={handleInstallALG}
                 className={`block w-full py-2 px-4 mb-2 font-bold rounded-lg ${
-                  loading
+                  isCalaOpen
                     ? "opacity-50 cursor-not-allowed"
                     : isDarkMode
                     ? "bg-gray-700 hover:bg-gray-600"
                     : "bg-gray-300 hover:bg-gray-400"
                 }`}
-                disabled={loading}
+                disabled={isCalaOpen}
               >
                 Install ALG
               </button>

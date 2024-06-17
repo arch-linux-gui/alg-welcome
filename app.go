@@ -78,9 +78,9 @@ func getLookAndFeelPackageKDE() string {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(line, "LookAndFeelPackage=") {
-			fmt.Println(strings.TrimPrefix(line, "LookAndFeelPackage="))
-			return strings.TrimPrefix(line, "LookAndFeelPackage=")
+		if strings.HasPrefix(line, "ColorScheme=") {
+			fmt.Println(strings.TrimPrefix(line, "ColorScheme="))
+			return strings.TrimPrefix(line, "ColorScheme=")
 		}
 	}
 
