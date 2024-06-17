@@ -176,7 +176,7 @@ func (a *App) ToggleTheme(dark bool) {
 				style = "prefer-light"
 				shell = "Orchis-Light"
 			}
-			cmd := exec.Command("sh", "-c", fmt.Sprintf("gsettings set org.gnome.desktop.interface color-scheme %s && gsettings get org.gnome.shell.extensions.user-theme name %s", style, shell))
+			cmd := exec.Command("sh", "-c", fmt.Sprintf("gsettings set org.gnome.desktop.interface color-scheme %s && gsettings set org.gnome.shell.extensions.user-theme name %s", style, shell))
 			_, err := cmd.Output()
 			if err != nil {
 				fmt.Println("failed to change GNOME theme:", err)
