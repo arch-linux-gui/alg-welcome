@@ -63,7 +63,7 @@ const CountrySelectionScreen: React.FC<{
     }`;
     const command = `pkexec reflector --country "${selectedCountries.join(
       ","
-    )}" --protocol ${protocol} --latest ${maxMirrors} --sort ${sortBy} --download-timeout ${timeout} --save /etc/pacman.d/mirrorlist`;
+    )}" --protocol ${protocol} --latest ${maxMirrors} --sort ${sortBy} --download-timeout ${timeout} --save /etc/pacman.d/mirrorlist --verbose`;
 
     setLoading(true);
 
@@ -202,7 +202,7 @@ const CountrySelectionScreen: React.FC<{
                 <input
                   type="number"
                   value={maxMirrors}
-                  onChange={(e) => setTimeout(parseInt(e.target.value))}
+                  onChange={(e) => setMaxMirrors(parseInt(e.target.value))}
                   className={
                     isDarkMode
                       ? "w-12 text-center border-none bg-gray-800"
