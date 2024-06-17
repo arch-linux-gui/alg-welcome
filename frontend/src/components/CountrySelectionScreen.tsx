@@ -80,7 +80,7 @@ const CountrySelectionScreen: React.FC<{
       setIncludeHttp(false);
       setSortBy("rate");
       setMaxMirrors(20);
-      setTimeout(10);
+      setTimeout(30);
       clearLogs();
     }
   };

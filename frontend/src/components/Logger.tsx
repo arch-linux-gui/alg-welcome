@@ -9,6 +9,7 @@ interface LoggerProps {
 const Logger: React.FC<LoggerProps> = ({ isDarkMode }) => {
   const { logs, addLog, isEmpty } = useLogsContext();
   const loggerRef = useRef<HTMLDivElement>(null);
+  var logState = isEmpty();
 
   useEffect(() => {
     const logEventHandler = (message: string) => {
@@ -37,11 +38,17 @@ const Logger: React.FC<LoggerProps> = ({ isDarkMode }) => {
         }`}
         style={{ maxHeight: "400px" }}
       >
-        <div className="flex flex-col space-y-2 m-5 text-pretty">
-          {logs.map((log, index) => (
-            <div key={index}>{"◉ " + log}</div>
-          ))}
-        </div>
+        {logState ? (
+          <div className="flex items-center justify-center h-full text-2xl opacity-50 pointer-events-none">
+            No Logs
+          </div>
+        ) : (
+          <div className="flex flex-col space-y-2 m-5 text-pretty">
+            {logs.map((log, index) => (
+              <div key={index}>{"◉ " + log}</div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
