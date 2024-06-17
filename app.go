@@ -91,6 +91,15 @@ func getLookAndFeelPackageKDE() string {
 	return "org.kde.breeze.desktop"
 }
 
+func getShellTheme() string {
+	cmd := exec.Command("gsettings", "get", "org.gnome.shell.extensions.user-theme", "name")
+	output, err := cmd.Output()
+	if err != nil {
+		fmt.Println("Shell Theme error", err)
+	}
+	return strings.TrimSpace(string(output))
+}
+
 func (a *App) CurrentTheme() string {
 	var currThemeName string
 	switch desktopEnv {
@@ -157,15 +166,32 @@ func (a *App) ToggleTheme(dark bool) {
 			}
 		}
 	case "gnome":
-		if dark {
-			style = "prefer-dark"
+		shellTheme := getShellTheme()
+		var shell string
+		if strings.Contains(shellTheme, "Orchis") {
+			if dark {
+				style = "prefer-dark"
+				shell = "Orchis-Red-Dark"
+			} else {
+				style = "prefer-light"
+				shell = "Orchis-Light"
+			}
+			cmd := exec.Command("sh", "-c", fmt.Sprintf("gsettings set org.gnome.desktop.interface color-scheme %s && gsettings get org.gnome.shell.extensions.user-theme name %s", style, shell))
+			_, err := cmd.Output()
+			if err != nil {
+				fmt.Println("failed to change GNOME theme:", err)
+			}
 		} else {
-			style = "prefer-light"
-		}
-		cmd := exec.Command("gsettings", "set", "org.gnome.desktop.interface", "gtk-theme", style)
-		_, err := cmd.Output()
-		if err != nil {
-			fmt.Println("failed to change GNOME theme:", err)
+			if dark {
+				style = "prefer-dark"
+			} else {
+				style = "prefer-light"
+			}
+			cmd := exec.Command("gsettings", "set", "org.gnome.desktop.interface", "color-scheme", style)
+			_, err := cmd.Output()
+			if err != nil {
+				fmt.Println("failed to change GNOME theme:", err)
+			}
 		}
 	case "xfce":
 		if dark {
