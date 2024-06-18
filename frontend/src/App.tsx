@@ -27,6 +27,8 @@ const App: React.FC = () => {
     "org.kde.breezedark.desktop",
     "com.github.vinceliuice.Qogir-dark",
     "Qogirdark",
+    "Qogir-dark",
+    "Qogir-win-dark",
   ];
 
   useEffect(() => {

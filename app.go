@@ -100,19 +100,23 @@ func getShellTheme() string {
 	return strings.TrimSpace(string(output))
 }
 
+func getThemeNameXFCE() string {
+	cmd := exec.Command("xfconf-query", "-c", "xsettings", "-p", "/Net/ThemeName", "-v")
+	output, err := cmd.Output()
+	if err != nil {
+		fmt.Println("Curr theme Error:", err)
+	}
+
+	return strings.TrimSpace(string(output))
+}
+
 func (a *App) CurrentTheme() string {
 	var currThemeName string
 	switch desktopEnv {
 	case "kde":
 		currThemeName = getLookAndFeelPackageKDE()
 	case "xfce":
-		cmd := exec.Command("xfconf-query", "-c", "xsettings", "-p", "/Net/ThemeName", "-v")
-		output, err := cmd.Output()
-		if err != nil {
-			fmt.Println("Curr theme Error:", err)
-		}
-
-		currThemeName = strings.TrimSpace(string(output))
+		currThemeName = getThemeNameXFCE()
 	case "gnome":
 		cmd := exec.Command("gsettings", "get", "org.gnome.desktop.interface", "color-scheme")
 		output, err := cmd.Output()
@@ -194,15 +198,29 @@ func (a *App) ToggleTheme(dark bool) {
 			}
 		}
 	case "xfce":
-		if dark {
-			style = "Adwaita-dark"
+		xfceThemeName := getThemeNameXFCE()
+		if strings.Contains(xfceThemeName, "Qogir") {
+			if dark {
+				style = "Qogir-dark"
+			} else {
+				style = "Adwaita"
+			}
+			cmd := exec.Command("xfconf-query", "-c", "xsettings", "-p", "/Net/ThemeName", "-s", style)
+			_, err := cmd.Output()
+			if err != nil {
+				fmt.Println("failed to change XFCE theme:", err)
+			}
 		} else {
-			style = "Adwaita"
-		}
-		cmd := exec.Command("xfconf-query", "-c", "xsettings", "-p", "/Net/ThemeName", "-s", style)
-		_, err := cmd.Output()
-		if err != nil {
-			fmt.Println("failed to change XFCE theme:", err)
+			if dark {
+				style = "Adwaita-dark"
+			} else {
+				style = "Adwaita"
+			}
+			cmd := exec.Command("xfconf-query", "-c", "xsettings", "-p", "/Net/ThemeName", "-s", style)
+			_, err := cmd.Output()
+			if err != nil {
+				fmt.Println("failed to change XFCE theme:", err)
+			}
 		}
 	default:
 		fmt.Println("unsupported desktop environment:", desktopEnv)
