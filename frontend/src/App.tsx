@@ -31,19 +31,21 @@ const App: React.FC = () => {
     "Qogir-win-dark",
   ];
 
-  useEffect(() => {
-    const fetchTheme = async () => {
-      try {
-        const currTheme = await CurrentTheme();
-        const fileExist = await CheckFileExists();
-        setIsAutoStart(fileExist);
-        setIsDarkMode(Themes.includes(currTheme));
-      } catch (error) {
-        console.error("Failed to fetch current theme:", error);
-      }
-    };
+  const fetchTheme = async () => {
+    try {
+      const currTheme = await CurrentTheme();
+      const fileExist = await CheckFileExists();
+      setIsAutoStart(fileExist);
+      setIsDarkMode(Themes.includes(currTheme));
+    } catch (error) {
+      console.error("Failed to fetch current theme:", error);
+    }
+  };
 
+  useEffect(() => {
     fetchTheme();
+    const interval = setInterval(fetchTheme, 1000);
+    return () => clearInterval(interval);
   }, []);
 
   const toggleTheme = async () => {
