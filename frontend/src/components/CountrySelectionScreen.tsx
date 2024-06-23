@@ -10,9 +10,9 @@ const CountrySelectionScreen: React.FC<{
   const [selectedCountries, setSelectedCountries] = useState<string[]>([]);
   const [includeHttps, setIncludeHttps] = useState<boolean>(true);
   const [includeHttp, setIncludeHttp] = useState<boolean>(false);
-  const [sortBy, setSortBy] = useState<string>("age");
-  const [maxMirrors, setMaxMirrors] = useState<number>(20);
-  const [timeout, setTimeout] = useState<number>(30);
+  const [sortBy, setSortBy] = useState<string>("rate");
+  const [maxMirrors, setMaxMirrors] = useState<number>(5);
+  const [timeout, setTimeout] = useState<number>(10);
   const [isSelectOpen, setIsSelectOpen] = useState(false);
   const { addLog, clearLogs, loading, setLoading } = useLogsContext();
 
@@ -79,8 +79,8 @@ const CountrySelectionScreen: React.FC<{
       setIncludeHttps(true);
       setIncludeHttp(false);
       setSortBy("rate");
-      setMaxMirrors(20);
-      setTimeout(30);
+      setMaxMirrors(5);
+      setTimeout(10);
       clearLogs();
     }
   };
