@@ -201,9 +201,9 @@ func (a *App) ToggleTheme(dark bool) {
 		xfceThemeName := getThemeNameXFCE()
 		if strings.Contains(xfceThemeName, "Qogir") {
 			if dark {
-				style = "Qogir-Dark"
+				style = "Qogir-dark"
 			} else {
-				style = "Adwaita"
+				style = "Qogir-light"
 			}
 			cmd := exec.Command("sh", "-c", fmt.Sprintf("xfconf-query -c xsettings -p /Net/ThemeName -s %s && xfconf-query -c xfwm4 -p /general/theme -s %s", style, style))
 			_, err := cmd.Output()

@@ -9,7 +9,7 @@ interface LoggerProps {
 const Logger: React.FC<LoggerProps> = ({ isDarkMode }) => {
   const { logs, addLog, isEmpty } = useLogsContext();
   const loggerRef = useRef<HTMLDivElement>(null);
-  var logState = isEmpty();
+  let logState = isEmpty();
 
   useEffect(() => {
     const logEventHandler = (message: string) => {
