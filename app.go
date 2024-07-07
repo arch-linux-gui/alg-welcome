@@ -157,11 +157,11 @@ func (a *App) ToggleTheme(dark bool) {
 			}
 		} else {
 			if dark {
-				style = "Qogirdark"
-				winDeco = "__aurorae__svg__Qogir-dark-circle"
+				style = "QogirDark"
+				winDeco = "__aurorae__svg__Qogir-Dark-circle"
 			} else {
-				style = "Qogirlight"
-				winDeco = "__aurorae__svg__Qogir-light"
+				style = "QogirLight"
+				winDeco = "__aurorae__svg__Qogir-Light-circle"
 			}
 			cmd := exec.Command("sh", "-c", fmt.Sprintf("plasma-apply-colorscheme %s && kwriteconfig6 --file %s/.config/kwinrc --group org.kde.kdecoration2 --key theme %s && qdbus6 org.kde.KWin /KWin reconfigure", style, os.Getenv("HOME"), winDeco))
 			_, err := cmd.Output()
@@ -201,9 +201,9 @@ func (a *App) ToggleTheme(dark bool) {
 		xfceThemeName := getThemeNameXFCE()
 		if strings.Contains(xfceThemeName, "Qogir") {
 			if dark {
-				style = "Qogir-dark"
+				style = "Qogir-Dark"
 			} else {
-				style = "Qogir-light"
+				style = "Qogir-Light"
 			}
 			cmd := exec.Command("sh", "-c", fmt.Sprintf("xfconf-query -c xsettings -p /Net/ThemeName -s %s && xfconf-query -c xfwm4 -p /general/theme -s %s", style, style))
 			_, err := cmd.Output()
