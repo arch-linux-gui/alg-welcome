@@ -25,10 +25,10 @@ const App: React.FC = () => {
     "Adwaita-dark",
     "prefer-dark",
     "org.kde.breezedark.desktop",
-    "com.github.vinceliuice.Qogir-dark",
-    "Qogirdark",
-    "Qogir-dark",
-    "Qogir-win-dark",
+    "com.github.vinceliuice.Qogir-Dark",
+    "QogirDark",
+    "Qogir-Dark",
+    "Qogir-win-Dark",
   ];
 
   const fetchTheme = async () => {
