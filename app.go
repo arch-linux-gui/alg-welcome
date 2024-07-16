@@ -131,9 +131,9 @@ func (a *App) CurrentTheme() string {
 }
 
 /*
-kwriteconfig6 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__Qogir-light"
+kwriteconfig6 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__Qogir-Light"
 
-kwriteconfig6 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__Qogir-circle-dark"
+kwriteconfig6 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key theme "__aurorae__svg__Qogir-circle-Dark"
 
 qdbus6 org.kde.KWin /KWin reconfigure
 */
