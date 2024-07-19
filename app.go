@@ -31,6 +31,8 @@ func NewApp() *App {
 func (a *App) startup(ctx context.Context) {
 	// Perform your setup here
 	a.ctx = ctx
+	desktopEnv = getDesktopEnvironment()
+	isLiveISO = checkIfLiveISO()
 }
 
 // domReady is called after front-end resources have been loaded
@@ -74,7 +76,14 @@ func getLookAndFeelPackageKDE() string {
 	}
 
 	for _, configFile := range configFiles {
-		colorScheme, err := getColorSchemeFromFile(configFile)
+		// Pure KDE approach
+		colorScheme, err := getColorSchemeFromFile(configFile, "[KDE]", "LookAndFeelPackage")
+		if err == nil {
+			return formatColorScheme(colorScheme)
+		}
+
+		// If not found, then themed KDE approach
+		colorScheme, err = getColorSchemeFromFile(configFile, "[General]", "ColorScheme")
 		if err == nil {
 			return formatColorScheme(colorScheme)
 		}
@@ -83,7 +92,7 @@ func getLookAndFeelPackageKDE() string {
 	return defaultColorScheme
 }
 
-func getColorSchemeFromFile(configFile string) (string, error) {
+func getColorSchemeFromFile(configFile, sectionName, keyName string) (string, error) {
 	file, err := os.Open(configFile)
 	if err != nil {
 		return "", fmt.Errorf("error opening file %s: %w", configFile, err)
@@ -91,7 +100,7 @@ func getColorSchemeFromFile(configFile string) (string, error) {
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	inGeneralSection := false
+	inTargetSection := false
 	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 
@@ -100,19 +109,19 @@ func getColorSchemeFromFile(configFile string) (string, error) {
 			continue
 		}
 
-		// Check for [General] section
-		if line == "[General]" {
-			inGeneralSection = true
+		// Check for target section
+		if line == sectionName {
+			inTargetSection = true
 			continue
 		}
 
-		// If we're in [General] and find ColorScheme, return it
-		if inGeneralSection && strings.HasPrefix(line, "ColorScheme=") {
-			return strings.TrimPrefix(line, "ColorScheme="), nil
+		// If we're in the target section and find the key, return its value
+		if inTargetSection && strings.HasPrefix(line, keyName+"=") {
+			return strings.TrimPrefix(line, keyName+"="), nil
 		}
 
-		// If we've moved past [General], stop searching
-		if inGeneralSection && strings.HasPrefix(line, "[") {
+		// If we've moved past the target section, stop searching
+		if inTargetSection && strings.HasPrefix(line, "[") {
 			break
 		}
 	}
@@ -121,15 +130,27 @@ func getColorSchemeFromFile(configFile string) (string, error) {
 		return "", fmt.Errorf("error reading file %s: %w", configFile, err)
 	}
 
-	return "", fmt.Errorf("ColorScheme not found in [General] section of %s", configFile)
+	return "", fmt.Errorf("%s not found in %s section of %s", keyName, sectionName, configFile)
 }
 
 func formatColorScheme(colorScheme string) string {
-	// Check if the color scheme is a file path or a theme name
+	// Handle pure KDE themes
+	switch colorScheme {
+	case "org.kde.breeze.desktop":
+		return colorScheme
+	case "org.kde.breezedark.desktop":
+		return colorScheme
+	case "breeze":
+		return "org.kde.breeze.desktop"
+	case "breezedark":
+		return "org.kde.breezedark.desktop"
+	}
+
+	// Handle themed KDE
 	if filepath.Ext(colorScheme) == ".colors" {
-		// It's a file path, extract the theme name
 		colorScheme = strings.TrimSuffix(filepath.Base(colorScheme), ".colors")
 	}
+
 	return colorScheme
 }
 
@@ -157,10 +178,13 @@ func (a *App) CurrentTheme() string {
 	switch desktopEnv {
 	case "kde":
 		currThemeName = getLookAndFeelPackageKDE()
+		runtime.LogPrintf(a.ctx, "Current Theme %s on %s DE", currThemeName, desktopEnv)
 	case "xfce":
 		currThemeName = getThemeNameXFCE()
+		runtime.LogPrintf(a.ctx, "Current Theme %s on %s DE", currThemeName, desktopEnv)
 	case "gnome":
 		cmd := exec.Command("gsettings", "get", "org.gnome.desktop.interface", "color-scheme")
+		runtime.LogPrintf(a.ctx, "Current Theme %s on %s DE", currThemeName, desktopEnv)
 		output, err := cmd.Output()
 		if err != nil {
 			fmt.Println("Curr theme Error:", err)
@@ -195,21 +219,23 @@ func (a *App) ToggleTheme(dark bool) {
 			cmd := exec.Command("lookandfeeltool", "--apply", style)
 			_, err := cmd.Output()
 			if err != nil {
-				fmt.Println("failed to change KDE theme:", err)
+				runtime.LogErrorf(a.ctx, "failed to change %s theme: %s", desktopEnv, err)
 			}
+			runtime.LogPrintf(a.ctx, "On %s theme changed to %s", desktopEnv, style)
 		} else {
 			if dark {
-				style = "QogirDark"
-				winDeco = "__aurorae__svg__Qogir-Dark-circle"
+				style = "Qogirdark"
+				winDeco = "__aurorae__svg__Qogir-dark-circle"
 			} else {
-				style = "QogirLight"
-				winDeco = "__aurorae__svg__Qogir-Light-circle"
+				style = "Qogirlight"
+				winDeco = "__aurorae__svg__Qogir-light-circle"
 			}
 			cmd := exec.Command("sh", "-c", fmt.Sprintf("plasma-apply-colorscheme %s && kwriteconfig6 --file %s/.config/kwinrc --group org.kde.kdecoration2 --key theme %s && qdbus6 org.kde.KWin /KWin reconfigure", style, os.Getenv("HOME"), winDeco))
 			_, err := cmd.Output()
 			if err != nil {
-				fmt.Println("failed to change KDE theme:", err)
+				runtime.LogErrorf(a.ctx, "failed to change %s theme: %s", desktopEnv, err)
 			}
+			runtime.LogPrintf(a.ctx, "On %s theme changed to %s", desktopEnv, style)
 		}
 	case "gnome":
 		shellTheme := getShellTheme()
@@ -225,8 +251,9 @@ func (a *App) ToggleTheme(dark bool) {
 			cmd := exec.Command("sh", "-c", fmt.Sprintf("gsettings set org.gnome.desktop.interface color-scheme %s && gsettings set org.gnome.shell.extensions.user-theme name %s", style, shell))
 			_, err := cmd.Output()
 			if err != nil {
-				fmt.Println("failed to change GNOME theme:", err)
+				runtime.LogErrorf(a.ctx, "failed to change %s theme: %s", desktopEnv, err)
 			}
+			runtime.LogPrintf(a.ctx, "On %s theme changed to %s", desktopEnv, style)
 		} else {
 			if dark {
 				style = "prefer-dark"
@@ -236,8 +263,9 @@ func (a *App) ToggleTheme(dark bool) {
 			cmd := exec.Command("gsettings", "set", "org.gnome.desktop.interface", "color-scheme", style)
 			_, err := cmd.Output()
 			if err != nil {
-				fmt.Println("failed to change GNOME theme:", err)
+				runtime.LogErrorf(a.ctx, "failed to change %s theme: %s", desktopEnv, err)
 			}
+			runtime.LogPrintf(a.ctx, "On %s theme changed to %s", desktopEnv, style)
 		}
 	case "xfce":
 		xfceThemeName := getThemeNameXFCE()
@@ -250,8 +278,9 @@ func (a *App) ToggleTheme(dark bool) {
 			cmd := exec.Command("sh", "-c", fmt.Sprintf("xfconf-query -c xsettings -p /Net/ThemeName -s %s && xfconf-query -c xfwm4 -p /general/theme -s %s", style, style))
 			_, err := cmd.Output()
 			if err != nil {
-				fmt.Println("failed to change XFCE theme:", err)
+				runtime.LogErrorf(a.ctx, "failed to change %s theme: %s", desktopEnv, err)
 			}
+			runtime.LogPrintf(a.ctx, "On %s theme changed to %s", desktopEnv, style)
 		} else {
 			if dark {
 				style = "Adwaita-dark"
@@ -261,8 +290,9 @@ func (a *App) ToggleTheme(dark bool) {
 			cmd := exec.Command("sh", "-c", fmt.Sprintf("xfconf-query -c xsettings -p /Net/ThemeName -s %s && xfconf-query -c xfwm4 -p /general/theme -s %s", style, style))
 			_, err := cmd.Output()
 			if err != nil {
-				fmt.Println("failed to change XFCE theme:", err)
+				runtime.LogErrorf(a.ctx, "failed to change %s theme: %s", desktopEnv, err)
 			}
+			runtime.LogPrintf(a.ctx, "On %s theme changed to %s", desktopEnv, style)
 		}
 	default:
 		fmt.Println("unsupported desktop environment:", desktopEnv)
