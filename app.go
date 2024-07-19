@@ -64,31 +64,73 @@ func getDesktopEnvironment() string {
 	return strings.ToLower(os.Getenv("XDG_CURRENT_DESKTOP"))
 }
 
-func getLookAndFeelPackageKDE() string {
-	configFile := os.ExpandEnv("$HOME/.config/kdeglobals")
+const defaultColorScheme = "org.kde.breeze.desktop"
 
+func getLookAndFeelPackageKDE() string {
+	configFiles := []string{
+		os.ExpandEnv("$HOME/.config/kdeglobals"),
+		os.ExpandEnv("$HOME/.kde/share/config/kdeglobals"),
+		"/etc/kde/kdeglobals",
+	}
+
+	for _, configFile := range configFiles {
+		colorScheme, err := getColorSchemeFromFile(configFile)
+		if err == nil {
+			return formatColorScheme(colorScheme)
+		}
+	}
+
+	return defaultColorScheme
+}
+
+func getColorSchemeFromFile(configFile string) (string, error) {
 	file, err := os.Open(configFile)
 	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return "org.kde.breeze.desktop"
+		return "", fmt.Errorf("error opening file %s: %w", configFile, err)
 	}
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-
+	inGeneralSection := false
 	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, "ColorScheme=") {
-			fmt.Println(strings.TrimPrefix(line, "ColorScheme="))
-			return strings.TrimPrefix(line, "ColorScheme=")
+		line := strings.TrimSpace(scanner.Text())
+
+		// Skip empty lines and comments
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+
+		// Check for [General] section
+		if line == "[General]" {
+			inGeneralSection = true
+			continue
+		}
+
+		// If we're in [General] and find ColorScheme, return it
+		if inGeneralSection && strings.HasPrefix(line, "ColorScheme=") {
+			return strings.TrimPrefix(line, "ColorScheme="), nil
+		}
+
+		// If we've moved past [General], stop searching
+		if inGeneralSection && strings.HasPrefix(line, "[") {
+			break
 		}
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading file:", err)
+		return "", fmt.Errorf("error reading file %s: %w", configFile, err)
 	}
 
-	return "org.kde.breeze.desktop"
+	return "", fmt.Errorf("ColorScheme not found in [General] section of %s", configFile)
+}
+
+func formatColorScheme(colorScheme string) string {
+	// Check if the color scheme is a file path or a theme name
+	if filepath.Ext(colorScheme) == ".colors" {
+		// It's a file path, extract the theme name
+		colorScheme = strings.TrimSuffix(filepath.Base(colorScheme), ".colors")
+	}
+	return colorScheme
 }
 
 func getShellTheme() string {

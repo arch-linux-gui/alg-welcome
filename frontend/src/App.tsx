@@ -26,7 +26,7 @@ const App: React.FC = () => {
     "prefer-dark",
     "org.kde.breezedark.desktop",
     "com.github.vinceliuice.Qogir-Dark",
-    "QogirDark",
+    "Qogirdark",
     "Qogir-Dark",
     "Qogir-win-Dark",
   ];
