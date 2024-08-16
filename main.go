@@ -78,7 +78,8 @@ func main() {
 			},
 		},
 		Linux: &linux.Options{
-			Icon: icon,
+			Icon:             icon,
+			WebviewGpuPolicy: linux.WebviewGpuPolicyNever,
 		},
 	})
 
