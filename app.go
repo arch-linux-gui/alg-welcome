@@ -71,7 +71,7 @@ const defaultColorScheme = "org.kde.breeze.desktop"
 func getLookAndFeelPackageKDE() string {
 	configFiles := []string{
 		os.ExpandEnv("$HOME/.config/kdeglobals"),
-		os.ExpandEnv("$HOME/.kde/share/config/kdeglobals"),
+		os.ExpandEnv("$HOME/.kde4/share/config/kdeglobals"),
 		"/etc/kde/kdeglobals",
 	}
 
