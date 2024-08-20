@@ -400,7 +400,7 @@ func (a *App) ScreenResolution() {
 	case "xfce":
 		pkexecCmd = exec.Command("bash", "-c", "xfce4-display-settings")
 	case "gnome":
-		pkexecCmd = exec.Command("bash", "-c", "gnome-control-center", "display")
+		pkexecCmd = exec.Command("gnome-control-center", "display")
 	case "kde":
 		kcm_kscreen := "`kcmshell6 kcm_kscreen`"
 		pkexecCmd = exec.Command("bash", "-c", kcm_kscreen)
