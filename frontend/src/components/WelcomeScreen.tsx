@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import appicon from "../assets/appicon.png";
-import { cn } from "@/lib/utils";
 import {
   UpdateSystem,
   ScreenResolution,
@@ -11,7 +10,6 @@ import {
 import "../globals.css";
 import extDark from "../assets/ext-dark.png";
 import extLight from "../assets/ext-light.png";
-import { Image } from "lucide-react";
 
 interface ScreenProps {
   goToScreen: (index: number) => void;
