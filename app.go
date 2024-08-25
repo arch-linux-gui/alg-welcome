@@ -80,7 +80,7 @@ func getLookAndFeelPackageKDE() string {
 		colorScheme, err := getColorSchemeFromFile(configFile, "[KDE]", "LookAndFeelPackage")
 		if err == nil {
 			formattedScheme := formatColorScheme(colorScheme)
-			if formattedScheme != "breeze" && formattedScheme != "breezedark" {
+			if formattedScheme != "org.kde.breeze.desktop" && formattedScheme != "org.kde.breezedark.desktop" {
 				// If not breeze or breezedark, continue to themed approach
 				colorScheme, err = getColorSchemeFromFile(configFile, "[General]", "ColorScheme")
 				if err == nil {
