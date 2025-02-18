@@ -17,6 +17,7 @@ const (
 	cssFilePath  = "styles.css"
 	logoFilePath = "/usr/share/pixmaps/welcome.png"
 	logoSize     = 60
+	iconSize     = 20
 )
 
 var desktopEnv string
@@ -125,7 +126,7 @@ func createButtonWithIcon(label, iconName string, fromFile bool) (*gtk.Button, e
 
 	var icon *gtk.Image
 	if fromFile {
-		pixbuf, err := gdk.PixbufNewFromFileAtScale(iconName, 20, 20, true)
+		pixbuf, err := gdk.PixbufNewFromFileAtScale(iconName, iconSize, iconSize, true)
 		if err != nil {
 			log.Println("Unable to load logo:", err)
 		}
@@ -135,6 +136,10 @@ func createButtonWithIcon(label, iconName string, fromFile bool) (*gtk.Button, e
 		}
 	} else {
 		icon, err = gtk.ImageNewFromIconName(iconName, gtk.ICON_SIZE_BUTTON)
+		if err != nil {
+			return nil, err
+		}
+		icon.SetPixelSize(iconSize)
 	}
 
 	box.PackStart(labelWidget, true, true, 0)
