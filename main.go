@@ -7,7 +7,7 @@ import (
 	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 
-	utils "github.com/harshau007/welcome/utils"
+	utils "welcome/utils"
 )
 
 const (

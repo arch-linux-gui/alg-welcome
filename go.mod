@@ -1,4 +1,4 @@
-module github.com/harshau007/welcome
+module welcome
 
 go 1.23.2
 
