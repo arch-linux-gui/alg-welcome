@@ -1,3 +1,0 @@
-- [ ] Add Details in About US
-- [ ] Add Appropriate PKGBUILD
-- [ ] Implement GitHub Workflow

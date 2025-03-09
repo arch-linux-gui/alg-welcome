@@ -21,7 +21,7 @@ func AboutUs(parentWindow *gtk.Window) {
 	}
 	aboutUsDialog = dialog
 	dialog.SetTitle("About Us")
-	dialog.SetSizeRequest(400, 200)
+	dialog.SetSizeRequest(400, 300)
 	dialog.SetTransientFor(parentWindow)
 	dialog.SetModal(true)
 
@@ -30,18 +30,19 @@ func AboutUs(parentWindow *gtk.Window) {
 	content.SetMarginTop(20)
 	content.SetMarginBottom(20)
 	content.SetMarginStart(20)
-	content.SetMarginEnd(10)
+	content.SetMarginEnd(20)
 
-	appName, _ := gtk.LabelNew("ALG Welcome")
-	appName.SetMarkup("<span size='x-large' weight='bold'>ALG Welcome</span>")
+	// Application Name
+	appName, _ := gtk.LabelNew("Arka Linux GUI")
+	appName.SetMarkup("<span size='x-large' weight='bold'>Arka Linux GUI</span>")
 	content.Add(appName)
 
 	// Version
 	version, _ := gtk.LabelNew("Version 1.0.0")
 	content.Add(version)
 
-	// Description
-	description, _ := gtk.LabelNew("Your application description goes here. This can be a brief overview of what your application does and its main features.")
+	// Description with mission and history summary
+	description, _ := gtk.LabelNew("Welcome to Arka Linux GUI, formerly known as Arch Linux GUI. We provide a fast, offline Arch installer with a graphical user interface. Our mission is to simplify the installation process of Arch Linux, making it accessible to everyone—from beginners to advanced users. Originally launched as Arch Linux GUI, we rebranded to better reflect our vision and goals.")
 	description.SetLineWrap(true)
 	description.SetMaxWidthChars(50)
 	description.SetJustify(gtk.JUSTIFY_CENTER)
@@ -52,7 +53,10 @@ func AboutUs(parentWindow *gtk.Window) {
 	developers.SetMarkup("<span weight='bold'>Developers:</span>")
 	content.Add(developers)
 
-	devNames, _ := gtk.LabelNew("Developer 1\nDeveloper 2\nDeveloper 3")
+	// Listing team members with roles
+	devNames, _ := gtk.LabelNew("DemonKiller (Core Team Developer)\nAkash6222 (Core Team Developer)\nharshau007 (Core Team Developer)")
+	devNames.SetLineWrap(true)
+	devNames.SetJustify(gtk.JUSTIFY_CENTER)
 	content.Add(devNames)
 
 	// Website
