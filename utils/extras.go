@@ -5,6 +5,12 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
+)
+
+var (
+	calamaresRunning bool
+	calamaresMutex   sync.Mutex
 )
 
 func GetDesktopEnvironment() string {
@@ -26,15 +32,34 @@ func CheckIfLiveISO() bool {
 
 func RunCalamaresIfLiveISO(isLiveISO bool) {
 	if isLiveISO {
-		calamaresCmd := "`sudo calamares -D 8`"
-		pkexecCmd := exec.Command("bash", "-c", calamaresCmd)
-		output, err := pkexecCmd.CombinedOutput()
-		if err != nil {
-			if exitError, ok := err.(*exec.ExitError); ok {
-				fmt.Println(exitError.ExitCode())
-			}
-			fmt.Printf("runCalamaresIfLiveISO Error: %s", err)
+		calamaresMutex.Lock()
+
+		if calamaresRunning {
+			calamaresMutex.Unlock()
+			fmt.Println("Calamares is Already running")
+			return
 		}
-		fmt.Println(string(output))
+
+		calamaresRunning = true
+		calamaresMutex.Unlock()
+		go func() {
+
+			defer func() {
+				calamaresMutex.Lock()
+				calamaresRunning = true
+				calamaresMutex.Unlock()
+			}()
+
+			calamaresCmd := "`sudo calamares -D 8`"
+			pkexecCmd := exec.Command("bash", "-c", calamaresCmd)
+			output, err := pkexecCmd.CombinedOutput()
+			if err != nil {
+				if exitError, ok := err.(*exec.ExitError); ok {
+					fmt.Println(exitError.ExitCode())
+				}
+				fmt.Printf("runCalamaresIfLiveISO Error: %s", err)
+			}
+			fmt.Println(string(output))
+		}()
 	}
 }
