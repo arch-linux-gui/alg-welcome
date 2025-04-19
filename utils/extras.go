@@ -50,7 +50,7 @@ func RunCalamaresIfLiveISO(isLiveISO bool) {
 				calamaresMutex.Unlock()
 			}()
 
-			calamaresCmd := "`sudo calamares -D 8`"
+			calamaresCmd := "`/etc/calamares/launch.sh`"
 			pkexecCmd := exec.Command("bash", "-c", calamaresCmd)
 			output, err := pkexecCmd.CombinedOutput()
 			if err != nil {
