@@ -65,7 +65,7 @@ func setupWindow() (*gtk.Window, error) {
 	}
 	win.SetTitle(windowTitle)
 	win.SetSizeRequest(windowWidth, windowHeight)
-	win.SetResizable(true)
+	win.SetResizable(false)
 	win.SetPosition(gtk.WIN_POS_CENTER)
 
 	applyCSS()

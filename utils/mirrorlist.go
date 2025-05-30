@@ -26,10 +26,10 @@ var (
 	logMutex          sync.Mutex
 
 	// Variables to store initial state
-	initialProtocol   string
-	initialSortBy     string
-	initialMaxMirrors int
-	initialTimeout    int
+	// initialProtocol   string
+	// initialSortBy     string
+	// initialMaxMirrors int
+	// initialTimeout    int
 )
 
 func MirrorList(parentWindow *gtk.Window) {
@@ -135,10 +135,10 @@ func MirrorList(parentWindow *gtk.Window) {
 	content.Add(updateButton)
 
 	// Store initial state
-	initialProtocol = "https"
-	initialSortBy = sortByCombo.GetActiveText()
-	initialMaxMirrors = mirrorSpin.GetValueAsInt()
-	initialTimeout = timeoutSpin.GetValueAsInt()
+	// initialProtocol = "https"
+	// initialSortBy = sortByCombo.GetActiveText()
+	// initialMaxMirrors = mirrorSpin.GetValueAsInt()
+	// initialTimeout = timeoutSpin.GetValueAsInt()
 
 	updateButton.Connect("clicked", func() {
 		protocols := []string{"https"}

@@ -21,9 +21,17 @@ func AboutUs(parentWindow *gtk.Window) {
 	}
 	aboutUsDialog = dialog
 	dialog.SetTitle("About Us")
-	dialog.SetSizeRequest(400, 300)
 	dialog.SetTransientFor(parentWindow)
+	dialog.SetSizeRequest(400, 300)
+	dialog.SetResizable(false)
 	dialog.SetModal(true)
+	dialog.Connect("delete-event", func() bool {
+		dialog.Hide()
+		return true
+	})
+	dialog.Connect("response", func(d *gtk.Dialog, _ gtk.ResponseType) {
+		d.Hide()
+	})
 
 	content, _ := dialog.GetContentArea()
 	content.SetSpacing(10)
@@ -32,43 +40,46 @@ func AboutUs(parentWindow *gtk.Window) {
 	content.SetMarginStart(20)
 	content.SetMarginEnd(20)
 
-	// Application Name
-	appName, _ := gtk.LabelNew("Arka Linux GUI")
-	appName.SetMarkup("<span size='x-large' weight='bold'>Arka Linux GUI</span>")
+	appName, _ := gtk.LabelNew("<span size='xx-large' weight='bold'>Arka Linux GUI</span>")
+	appName.SetUseMarkup(true)
+	appName.SetHAlign(gtk.ALIGN_CENTER)
 	content.Add(appName)
 
-	// Version
 	version, _ := gtk.LabelNew("Version 1.0.0")
+	version.SetHAlign(gtk.ALIGN_CENTER)
 	content.Add(version)
 
-	// Description with mission and history summary
-	description, _ := gtk.LabelNew("Welcome to Arka Linux GUI, formerly known as Arch Linux GUI. We provide a fast, offline Arch installer with a graphical user interface. Our mission is to simplify the installation process of Arch Linux, making it accessible to everyone—from beginners to advanced users. Originally launched as Arch Linux GUI, we rebranded to better reflect our vision and goals.")
+	description, _ := gtk.LabelNew(
+		"Welcome to Arka Linux GUI, formerly Arch Linux GUI. We simplify Arch Linux installation with a fast, offline graphical installer. Our mission is to make Arch accessible to both beginners and power users.",
+	)
 	description.SetLineWrap(true)
-	description.SetMaxWidthChars(50)
-	description.SetJustify(gtk.JUSTIFY_CENTER)
+	description.SetMaxWidthChars(60)
+	description.SetJustify(gtk.JUSTIFY_FILL)
 	content.Add(description)
 
-	// Developers
-	developers, _ := gtk.LabelNew("")
-	developers.SetMarkup("<span weight='bold'>Developers:</span>")
-	content.Add(developers)
+	devLabel, _ := gtk.LabelNew("<span weight='bold'>Developers:</span>")
+	devLabel.SetUseMarkup(true)
+	devLabel.SetHAlign(gtk.ALIGN_START)
+	content.Add(devLabel)
 
-	// Listing team members with roles
-	devNames, _ := gtk.LabelNew("DemonKiller (Core Team Developer)\nAkash6222 (Core Team Developer)\nharshau007 (Core Team Developer)")
+	devNames, _ := gtk.LabelNew(
+		"• DemonKiller (Core Team)\n" +
+			"• Akash6222 (Core Team)\n" +
+			"• harshau007 (Core Team)",
+	)
 	devNames.SetLineWrap(true)
-	devNames.SetJustify(gtk.JUSTIFY_CENTER)
+	devNames.SetJustify(gtk.JUSTIFY_LEFT)
 	content.Add(devNames)
 
-	// Website
-	website, _ := gtk.LabelNew("")
-	website.SetMarkup("<a href='https://www.arkalinuxgui.org'>Visit our website</a>")
-	website.SetUseMarkup(true)
+	website, _ := gtk.LinkButtonNewWithLabel(
+		"https://www.arkalinuxgui.org", "Visit our website",
+	)
+	website.SetHAlign(gtk.ALIGN_CENTER)
 	content.Add(website)
 
-	// License
-	license, _ := gtk.LabelNew("This software is distributed under the MIT License.")
+	license, _ := gtk.LabelNew("Distributed under the MIT License.")
 	license.SetLineWrap(true)
-	license.SetMaxWidthChars(50)
+	license.SetMaxWidthChars(60)
 	license.SetJustify(gtk.JUSTIFY_CENTER)
 	content.Add(license)
 
