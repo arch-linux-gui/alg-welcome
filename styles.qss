@@ -1,0 +1,272 @@
+/* ALG Welcome Application Stylesheet */
+/* Modern dark theme with improved UI elements */
+/* Based on original GTK styles but adapted for Qt/PySide6 */
+
+QMainWindow {
+    background-color: #2b2b2b;
+    color: white;
+}
+
+/* Global Label Styling */
+QLabel {
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+}
+
+/* Group Box Styling */
+QGroupBox {
+    font-size: 14px;
+    font-weight: bold;
+    color: white;
+    border: 1px solid #404040;
+    border-radius: 8px;
+    margin-top: 10px;
+    padding-top: 10px;
+    background-color: #2b2b2b;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 5px 0 5px;
+    color: white;
+    font-weight: bold;
+}
+
+/* Action Buttons (Install ALG, Screen Resolution, Update System, Update Mirrorlist) */
+QPushButton#actionButton {
+    background-color: #404040;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: normal;
+    min-height: 24px;
+    min-width: 120px;
+    transition: background-color 0.2s ease;
+    outline: none;
+}
+
+QPushButton#actionButton:hover {
+    background-color: #505050;
+}
+
+QPushButton#actionButton:pressed {
+    background-color: #353535;
+}
+
+QPushButton#actionButton:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Social Media Buttons (GitHub, Discord) */
+QPushButton#socialButton {
+    background-color: #404040;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 10px;
+    font-weight: normal;
+    min-height: 24px;
+    min-width: 120px;
+    transition: background-color 0.2s ease;
+    outline: none;
+}
+
+QPushButton#socialButton:hover {
+    background-color: #505050;
+}
+
+QPushButton#socialButton:pressed {
+    background-color: #353535;
+}
+
+QPushButton#socialButton:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* About Us Button */
+QPushButton#aboutButton {
+    background-color: #404040;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    min-height: 30px;
+    margin: 10px 0px;
+    transition: background-color 0.2s ease;
+    outline: none;
+}
+
+QPushButton#aboutButton:hover {
+    background-color: #505050;
+}
+
+QPushButton#aboutButton:pressed {
+    background-color: #353535;
+}
+
+QPushButton#aboutButton:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Modern Toggle Switches */
+QCheckBox#toggleCheckbox {
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    spacing: 12px;
+}
+
+QCheckBox#toggleCheckbox::indicator {
+    width: 50px;
+    height: 26px;
+    border-radius: 13px;
+    background-color: #404040;
+    border: 2px solid #404040;
+}
+
+QCheckBox#toggleCheckbox::indicator:checked {
+    background-color: #6b22cc;
+    border: 2px solid #6b22cc;
+}
+
+QCheckBox#toggleCheckbox::indicator:checked:after {
+    content: "";
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: white;
+    margin: 1px;
+    position: absolute;
+    right: 1px;
+}
+
+QCheckBox#toggleCheckbox::indicator:unchecked:after {
+    content: "";
+    width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: white;
+    margin: 1px;
+    position: absolute;
+    left: 1px;
+}
+
+/* Header Label */
+QLabel#header {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 10px;
+}
+
+/* Regular Labels */
+QLabel {
+    color: white;
+    font-size: 12px;
+}
+
+/* Frame Styling */
+QFrame {
+    background-color: transparent;
+    border: none;
+}
+
+/* Scroll Area Styling */
+QScrollArea {
+    background-color: #2b2b2b;
+    border: none;
+}
+
+/* Scroll Bar Styling */
+QScrollBar:vertical {
+    background-color: #404040;
+    width: 12px;
+    border-radius: 6px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: #6b22cc;
+    border-radius: 6px;
+    min-height: 20px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background-color: #7c3aed;
+}
+
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+/* Tooltip Styling */
+QToolTip {
+    background-color: #404040;
+    color: white;
+    border: 1px solid #6b22cc;
+    border-radius: 4px;
+    padding: 4px;
+    font-size: 11px;
+}
+
+/* Message Box Styling */
+QMessageBox {
+    background-color: #2b2b2b;
+    color: white;
+}
+
+QMessageBox QPushButton {
+    background-color: #404040;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 12px;
+    min-width: 80px;
+}
+
+QMessageBox QPushButton:hover {
+    background-color: #505050;
+}
+
+/* Focus Styling */
+QPushButton:focus,
+QCheckBox:focus {
+    outline: none;
+}
+
+/* Disabled State */
+QPushButton:disabled {
+    background-color: #2a2a2a;
+    color: #666666;
+}
+
+QCheckBox:disabled {
+    color: #666666;
+}
+
+QCheckBox:disabled::indicator {
+    background-color: #2a2a2a;
+    border-color: #2a2a2a;
+}
+
+/* SVG Color Variables (Qt equivalent) */
+/* Note: Qt doesn't support CSS custom properties like GTK, 
+   but we can define consistent colors here */
+/* 
+   --svg-color: #000; (light mode)
+   --svg-color: #fff; (dark mode)
+   
+   For Qt, SVG colors are handled by the SVG files themselves
+   or through QIcon color properties
+*/

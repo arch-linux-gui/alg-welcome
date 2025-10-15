@@ -1,6 +1,6 @@
 # ALG Welcome
 
-Welcome to **ALG Welcome** – a fast, intuitive welcome application for Arch Linux built using GTK 3.0 and GoTK. Our application simplifies your Arch Linux experience by offering an easy-to-use graphical interface with features designed to help you get started and maintain your system with confidence.
+Welcome to **ALG Welcome** – a fast, intuitive welcome application for Arch Linux built using PySide6 (Qt for Python). Our application simplifies your Arch Linux experience by offering an easy-to-use graphical interface with features designed to help you get started and maintain your system with confidence.
 
 ## Table of Contents
 
@@ -14,26 +14,28 @@ Welcome to **ALG Welcome** – a fast, intuitive welcome application for Arch Li
 
 ## Features
 
-- **Tutorials:** Access step-by-step guides to help you set up and navigate the Arch Linux ecosystem.
+- **Install ALG:** Launch the Calamares installer for system installation (Live ISO only).
 - **System Updates:** Keep your system current using our built-in updater.
 - **Mirrorlist Updater:** Refresh your Arch Linux mirrorlist quickly to ensure efficient package downloads.
 - **Screen Resolution:** Adjust and manage your screen resolution settings directly from the application.
-- **User-Friendly GUI:** Enjoy an intuitive and responsive interface built with GTK 3.0.
-- **Offline Functionality:** Designed to work even in offline scenarios, allowing you to perform essential tasks without an internet connection.
+- **Social Media Links:** Quick access to GitHub and Discord communities.
+- **AutoStart Management:** Enable or disable automatic startup of the welcome application.
+- **Theme Management:** Toggle between light and dark themes for supported desktop environments.
+- **Modern UI:** Enjoy an intuitive and responsive interface built with PySide6 and Qt.
+- **Cross-Platform:** Works on Windows, macOS, and Linux systems.
 
 ## Installation
 
 ### Prerequisites
 
-- **Operating System:** Arch Linux or an Arch-based distribution.
-- **GTK 3.0:** Ensure GTK 3.0 is installed. You can install it via:
+- **Python:** Version 3.8 or later is recommended.
+- **PySide6:** Qt for Python bindings. Install via pip:
   ```bash
-  sudo pacman -S gtk3
+  pip install PySide6
   ```
-- **Go:** Version 1.23 or later is recommended. You can download Go from [golang.org](https://golang.org/dl/).
-- **Additional Dependencies:** Other build tools and libraries might be required. Check your package manager's documentation if needed.
+- **Operating System:** Cross-platform support for Windows, macOS, and Linux.
 
-### Building from Source
+### Installation
 
 1. **Clone the Repository:**
    ```bash
@@ -42,30 +44,24 @@ Welcome to **ALG Welcome** – a fast, intuitive welcome application for Arch Li
    ```
 
 2. **Install Dependencies:**
-   For Arch Linux, you can install GTK 3.0 using:
    ```bash
-   sudo pacman -S gtk3
+   pip install -r requirements.txt
    ```
 
-3. **Build the Application:**
+3. **Run the Application:**
    ```bash
-   go build -o welcome .
-   ```
-
-4. **Run the Application:**
-   ```bash
-   ./welcome
+   python main.py
    ```
 
 ## Usage
 
-When you launch **ALG Welcome**, you'll be greeted by a welcoming interface that provides:
+When you launch **ALG Welcome**, you'll be greeted by a modern interface that provides:
 
-- **Tutorials:** Learn how to install, configure, and use Arch Linux with our comprehensive guides.
-- **System Updater:** Easily update your system to the latest packages and improvements.
-- **Mirrorlist Management:** Update your mirrorlist to optimize package download speeds.
-- **Screen Resolution Control:** Adjust display settings to suit your hardware and preferences.
-- **Additional Tools:** Explore other features and options designed to enhance your overall experience.
+- **Install & Setup:** Install ALG system or adjust screen resolution settings.
+- **Basic Utilities:** Update your system packages or refresh the mirrorlist for faster downloads.
+- **Social Media Links:** Quick access to GitHub repository and Discord community.
+- **Get Started:** Toggle autostart functionality and switch between light/dark themes.
+- **About Us:** Learn more about the Arka Linux GUI project and its developers.
 
 ## Contributing
 
