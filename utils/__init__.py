@@ -1,10 +1,27 @@
 """
-Utils package for ALG Welcome application.
-Contains utility modules for system operations, theme management, and autostart.
+Utils package for Welcome to ALG application
 """
 
-from .system_utils import SystemUtils
-from .theme_manager import ThemeManager
-from .autostart_manager import AutostartManager
+from .extras import get_desktop_environment, open_url, check_if_live_iso, run_calamares_if_live_iso
+from .autostart import toggle_autostart, check_file_exists
+from .themes import toggle_theme, current_theme, is_dark_theme
+from .resolution import screen_resolution
+from .updates import update_system
+from .mirrorlist import MirrorListDialog
+from .aboutus import AboutUsDialog
 
-__all__ = ['SystemUtils', 'ThemeManager', 'AutostartManager']
+__all__ = [
+    'get_desktop_environment',
+    'open_url',
+    'check_if_live_iso',
+    'run_calamares_if_live_iso',
+    'toggle_autostart',
+    'check_file_exists',
+    'toggle_theme',
+    'current_theme',
+    'is_dark_theme',
+    'screen_resolution',
+    'update_system',
+    'MirrorListDialog',
+    'AboutUsDialog',
+]
