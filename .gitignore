@@ -2,5 +2,5 @@
 build/
 out/
 dir-struct.txt
-utis/__pycaache__
-__pycaache__
+utils/__pycache__/
+__pycache__/
