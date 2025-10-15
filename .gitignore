@@ -2,3 +2,4 @@
 build/
 out/
 dir-struct.txt
+utis/__pycaache__
