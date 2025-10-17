@@ -1,159 +1,159 @@
-/* Qt Stylesheet for Welcome to ALG Application */
+    /* Qt Stylesheet for Welcome to ALG Application */
 
-/* Labels */
-QLabel {
-    font-size: 14px;
-    font-weight: bold;
-}
+    /* Labels */
+    QLabel {
+        font-size: 14px;
+        font-weight: bold;
+    }
 
-/* Buttons */
-QPushButton {
-    font-size: 10px;
-    border-radius: 6px;
-    padding: 5px 10px;
-    outline: none;
-    border: 1px solid #ccc;
-    background-color: #f0f0f0;
-}
+    /* Buttons */
+    QPushButton {
+        font-size: 10px;
+        border-radius: 6px;
+        padding: 5px 10px;
+        outline: none;
+        border: 1px solid #1b020200;
+        background-color: #2906061c;
+    }
 
-QPushButton:hover {
-    background-color: #e0e0e0;
-}
+    QPushButton:hover {
+        background-color: #07194254;
+    }
 
-QPushButton:pressed {
-    background-color: #d0d0d0;
-}
+    QPushButton:pressed {
+        background-color: #d0d0d0;
+    }
 
-QPushButton:focus {
-    outline: none;
-    border: 1px solid #6b22cc;
-}
+    QPushButton:focus {
+        outline: none;
+        border: 1px solid #0c8b5bb2;
+    }
 
-/* Header */
-QLabel#header {
-    font-size: 20px;
-    font-weight: bold;
-}
+    /* Header */
+    QLabel#header {
+        font-size: 20px;
+        font-weight: bold;
+    }
 
-/* CheckBox as Switch */
-QCheckBox {
-    spacing: 5px;
-}
+    /* CheckBox as Switch */
+    QCheckBox {
+        spacing: 5px;
+    }
 
-QCheckBox::indicator {
-    width: 40px;
-    height: 20px;
-    border-radius: 10px;
-    border: 1px solid #ccc;
-    background-color: #ddd;
-}
+    QCheckBox::indicator {
+        width: 40px;
+        height: 20px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        background-color: #ddd;
+    }
 
-QCheckBox::indicator:checked {
-    background-color: #6b22cc;
-}
+    QCheckBox::indicator:checked {
+        background-color: #30cc22;
+    }
 
-QCheckBox::indicator:hover {
-    border: 1px solid #999;
-}
+    QCheckBox::indicator:hover {
+        border: 1px solid #999;
+    }
 
-/* Frame */
-QFrame {
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 5px;
-}
+    /* Frame */
+    QFrame {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 5px;
+    }
 
-/* ComboBox */
-QComboBox {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
-}
+    /* ComboBox */
+    QComboBox {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: white;
+    }
 
-QComboBox:hover {
-    border: 1px solid #999;
-}
+    QComboBox:hover {
+        border: 1px solid #999;
+    }
 
-QComboBox::drop-down {
-    border: none;
-}
+    QComboBox::drop-down {
+        border: none;
+    }
 
-/* SpinBox */
-QSpinBox {
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
-}
+    /* SpinBox */
+    QSpinBox {
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: white;
+    }
 
-QSpinBox:hover {
-    border: 1px solid #999;
-}
+    QSpinBox:hover {
+        border: 1px solid #999;
+    }
 
-/* TreeView for mirror list */
-QTreeView {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
-    alternate-background-color: #f5f5f5;
-}
+    /* TreeView for mirror list */
+    QTreeView {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: white;
+        alternate-background-color: #f5f5f5;
+    }
 
-QTreeView::item {
-    padding: 5px;
-}
+    QTreeView::item {
+        padding: 5px;
+    }
 
-QTreeView::item:selected {
-    background-color: #6b22cc;
-    color: white;
-}
+    QTreeView::item:selected {
+        background-color: #6b22cc;
+        color: white;
+    }
 
-QTreeView::item:hover {
-    background-color: #e0e0e0;
-}
+    QTreeView::item:hover {
+        background-color: #e0e0e0;
+    }
 
-/* Headers for TreeView */
-QHeaderView::section {
-    background-color: #f0f0f0;
-    padding: 5px;
-    border: 1px solid #ccc;
-    font-weight: bold;
-}
+    /* Headers for TreeView */
+    QHeaderView::section {
+        background-color: #f0f0f0;
+        padding: 5px;
+        border: 1px solid #ccc;
+        font-weight: bold;
+    }
 
-/* ScrollBar */
-QScrollBar:vertical {
-    border: none;
-    background-color: #f0f0f0;
-    width: 12px;
-    border-radius: 6px;
-}
+    /* ScrollBar */
+    QScrollBar:vertical {
+        border: none;
+        background-color: #f0f0f0;
+        width: 12px;
+        border-radius: 6px;
+    }
 
-QScrollBar::handle:vertical {
-    background-color: #ccc;
-    border-radius: 6px;
-    min-height: 20px;
-}
+    QScrollBar::handle:vertical {
+        background-color: #ccc;
+        border-radius: 6px;
+        min-height: 20px;
+    }
 
-QScrollBar::handle:vertical:hover {
-    background-color: #999;
-}
+    QScrollBar::handle:vertical:hover {
+        background-color: #999;
+    }
 
-QScrollBar::add-line:vertical,
-QScrollBar::sub-line:vertical {
-    height: 0px;
-}
+    QScrollBar::add-line:vertical,
+    QScrollBar::sub-line:vertical {
+        height: 0px;
+    }
 
-/* GroupBox / Frame for sections */
-QGroupBox {
-    font-weight: bold;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    margin-top: 10px;
-    padding-top: 10px;
-}
+    /* GroupBox / Frame for sections */
+    QGroupBox {
+        font-weight: bold;
+        border: 0px solid #ccc;
+        border-radius: 0px;
+        margin-top: 10px;
+        padding-top: 10px;
+    }
 
-QGroupBox::title {
-    subcontrol-origin: margin;
-    subcontrol-position: top left;
-    padding: 0 5px;
-}
+    QGroupBox::title {
+        subcontrol-origin: margin;
+        subcontrol-position: top left;
+        padding: 0 5px;
+    }
