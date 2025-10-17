@@ -56,12 +56,12 @@
         border: 1px solid #999;
     }
 
-    /* Frame */
+    /* Frame
     QFrame {
-        border: 1px solid #ddd;
+        border: 0px solid #ddd;
         border-radius: 4px;
         padding: 5px;
-    }
+    } */
 
     /* ComboBox */
     QComboBox {
@@ -146,8 +146,8 @@
     /* GroupBox / Frame for sections */
     QGroupBox {
         font-weight: bold;
-        border: 0px solid #ccc;
-        border-radius: 0px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
         margin-top: 10px;
         padding-top: 10px;
     }
