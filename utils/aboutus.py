@@ -43,9 +43,7 @@ class AboutUsDialog(QDialog):
         
         # Description
         description = QLabel(
-            "Welcome to Arka Linux GUI, formerly Arch Linux GUI. "
-            "We simplify Arch Linux installation with a fast, offline graphical installer. "
-            "Our mission is to make Arch accessible to both beginners and power users."
+            "ALG Welcome was made to help you onboard quickly"
         )
         description.setWordWrap(True)
         description.setAlignment(Qt.AlignJustify)
