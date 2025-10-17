@@ -85,7 +85,7 @@ class WelcomeWindow(QMainWindow):
         header_layout.setSpacing(10)
         
         # Logo
-        logo_path = "/usr/share/pixmaps/welcome.png"
+        logo_path = "assets/welcome.png"
         if Path(logo_path).exists():
             logo_label = QLabel()
             pixmap = QPixmap(logo_path)
