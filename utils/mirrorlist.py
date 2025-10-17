@@ -70,9 +70,15 @@ class MirrorListDialog(QDialog):
         grid = QGridLayout()
         grid.setSpacing(10)
         
+        # countries = [
+        #     "United States", "United Kingdom", "Brazil", "Japan", "Sweden", "France",
+        #     "Canada", "India", "Australia", "China", "Germany", "Netherlands", "Russia",
+        #     "Russia"
+        # ]
+
         countries = [
-            "United States", "Brazil", "Japan", "Sweden", "France",
-            "Norway", "India", "Australia", "China", "United Kingdom"
+            "Australia", "Brazil", "Canada", "China", "France", "Germany", "India",
+            "Japan", "Netherlands", "Russia", "Sweden", "United Kingdom", "United States", "Worldwide"
         ]
         
         self.country_checkboxes = {}
