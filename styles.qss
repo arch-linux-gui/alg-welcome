@@ -2,13 +2,13 @@
 
     /* Labels */
     QLabel {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: bold;
     }
 
     /* Buttons */
     QPushButton {
-        font-size: 10px;
+        font-size: 14px;
         border-radius: 6px;
         padding: 5px 10px;
         outline: none;
@@ -36,24 +36,38 @@
     }
 
     /* CheckBox as Switch */
+    /* Modern Toggle Switch using QCheckBox */
     QCheckBox {
-        spacing: 5px;
+        spacing: 10px; /* Space between text and toggle */
     }
 
     QCheckBox::indicator {
-        width: 40px;
-        height: 20px;
-        border-radius: 10px;
-        border: 1px solid #ccc;
-        background-color: #ddd;
-    }
-
-    QCheckBox::indicator:checked {
-        background-color: #30cc22;
+        width: 42px;
+        height: 22px;
+        border-radius: 11px;
+        background-color: #d0d0d0; /* Light gray = OFF */
+        border: none;
     }
 
     QCheckBox::indicator:hover {
-        border: 1px solid #999;
+        background-color: #c0c0c0;
+    }
+
+    QCheckBox::indicator:checked {
+        background-color: #4a86e8; /* Blue = ON (Google-style) */
+    }
+
+    QCheckBox::indicator:checked:hover {
+        background-color: #3a76d8;
+    }
+
+    /* Optional: Add a "knob" effect using a smaller inner circle */
+    QCheckBox::indicator:unchecked {
+        /* You can add an inner circle if desired, but often not needed */
+    }
+
+    QCheckBox::indicator {
+        /* Ensure smooth transitions (if supported by Qt version) */
     }
 
     /* Frame
@@ -68,7 +82,7 @@
         padding: 5px;
         border: 1px solid #ccc;
         border-radius: 4px;
-        background-color: white;
+        background-color: #2c2b36;
     }
 
     QComboBox:hover {
@@ -81,10 +95,10 @@
 
     /* SpinBox */
     QSpinBox {
-        padding: 5px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background-color: white;
+        padding: 2px;
+        border: 0px solid #ccc;
+        border-radius: 2px;
+        background-color: 2c2b36;
     }
 
     QSpinBox:hover {
@@ -104,7 +118,7 @@
     }
 
     QTreeView::item:selected {
-        background-color: #6b22cc;
+        background-color: #2c2b36;
         color: white;
     }
 
