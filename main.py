@@ -76,7 +76,7 @@ class WelcomeWindow(QMainWindow):
         self.add_header(main_layout)
         self.add_install_setup_section(main_layout)
         self.add_social_media_section(main_layout)
-        self.add_get_started_section(main_layout)
+        self.add_more_options_section(main_layout)
         self.add_about_us_section(main_layout)
         
     def add_header(self, layout):
@@ -107,7 +107,7 @@ class WelcomeWindow(QMainWindow):
     def add_install_setup_section(self, layout):
         """Add Install & Setup section with buttons"""
         section_label = QLabel("Install & Setup")
-        section_label.setAlignment(Qt.AlignLeft)
+        section_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(section_label)
         
         # Create grid for buttons
@@ -142,7 +142,7 @@ class WelcomeWindow(QMainWindow):
     def add_social_media_section(self, layout):
         """Add Social Media Links section"""
         section_label = QLabel("Social Media Links")
-        section_label.setAlignment(Qt.AlignLeft)
+        section_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(section_label)
         
         # Create grid for social buttons
@@ -161,10 +161,10 @@ class WelcomeWindow(QMainWindow):
         
         layout.addLayout(grid)
         
-    def add_get_started_section(self, layout):
-        """Add Get Started section with toggles"""
-        section_label = QLabel("Get Started")
-        section_label.setAlignment(Qt.AlignLeft)
+    def add_more_options_section(self, layout):
+        """Add More Options section with toggles"""
+        section_label = QLabel("More Options")
+        section_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(section_label)
         
         hbox = QHBoxLayout()
