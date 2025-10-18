@@ -22,18 +22,19 @@ Welcome to **ALG Welcome** – a fast, intuitive welcome application for Arch Li
 - **AutoStart Management:** Enable or disable automatic startup of the welcome application.
 - **Theme Management:** Toggle between light and dark themes for supported desktop environments.
 - **Modern UI:** Enjoy an intuitive and responsive interface built with PySide6 and Qt.
-- **Cross-Platform:** Works on Windows, macOS, and Linux systems.
 
 ## Installation
 
 ### Prerequisites
 
 - **Python:** Version 3.8 or later is recommended.
-- **PySide6:** Qt for Python bindings. Install via pip:
+- **PySide6:** Qt for Python bindings. On Arch Linux, install via pip:
   ```bash
-  pip install PySide6
+  sudo pacman -S pyside6
   ```
-- **Operating System:** Cross-platform support for Windows, macOS, and Linux.
+  On non-Qt DEs like GNOME, you may need to install the Qt6 package.
+
+- **Operating System:** Made for ALG. Should work on Arch Linux, and it's derivative distributions.
 
 ### Installation
 
@@ -45,7 +46,7 @@ Welcome to **ALG Welcome** – a fast, intuitive welcome application for Arch Li
 
 2. **Install Dependencies:**
    ```bash
-   pip install -r requirements.txt
+   sudo pacman -S pyside6
    ```
 
 3. **Run the Application:**
