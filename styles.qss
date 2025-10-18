@@ -3,7 +3,8 @@
     /* Labels */
     QLabel {
         font-size: 16px;
-        font-weight: bold;
+        font-weight: normal;
+        color: #333333;
     }
 
     /* Buttons */
