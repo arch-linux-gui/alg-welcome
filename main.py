@@ -26,7 +26,7 @@ class WelcomeWindow(QMainWindow):
     """Main Welcome Application Window"""
     
     WINDOW_TITLE = "Welcome to ALG"
-    WINDOW_WIDTH = 500
+    WINDOW_WIDTH = 480
     WINDOW_HEIGHT = 400
     LOGO_SIZE = 60
     ICON_SIZE = 20
@@ -117,17 +117,17 @@ class WelcomeWindow(QMainWindow):
         # Define buttons based on whether it's Live ISO
         if self.is_live_iso:
             buttons = [
-                ("Install ALG", "system-software-install", self.on_install_alg),
-                ("Screen Resolution", "video-display", self.on_screen_resolution),
-                ("Update System", "system-software-update", self.on_update_system),
-                ("Update Mirrorlist", "view-refresh", self.on_update_mirrorlist),
+                ("Install ALG ", "system-software-install", self.on_install_alg),
+                ("Screen Resolution ", "video-display", self.on_screen_resolution),
+                ("Update System ", "system-software-update", self.on_update_system),
+                ("Update Mirrorlist ", "view-refresh", self.on_update_mirrorlist),
             ]
         else:
             buttons = [
-                ("Tutorials", "help-contents", self.on_tutorials),
-                ("Screen Resolution", "video-display", self.on_screen_resolution),
-                ("Update System", "system-software-update", self.on_update_system),
-                ("Update Mirrorlist", "view-refresh", self.on_update_mirrorlist),
+                ("Tutorials ", "help-contents", self.on_tutorials),
+                ("Screen Resolution ", "video-display", self.on_screen_resolution),
+                ("Update System ", "system-software-update", self.on_update_system),
+                ("Update Mirrorlist ", "view-refresh", self.on_update_mirrorlist),
             ]
         
         # Add buttons to grid (2 columns)
@@ -150,8 +150,8 @@ class WelcomeWindow(QMainWindow):
         grid.setSpacing(10)
         
         buttons = [
-            ("GitHub", "assets/github.svg", lambda: open_url("https://github.com/arch-linux-gui")),
-            ("Discord", "assets/discord.svg", lambda: open_url("https://discord.gg/NgAFEw9Tkf")),
+            ("GitHub  ", "assets/github.svg", lambda: open_url("https://github.com/arch-linux-gui")),
+            ("Discord ", "assets/discord.svg", lambda: open_url("https://discord.gg/NgAFEw9Tkf")),
         ]
         
         for i, (label, icon_path, callback) in enumerate(buttons):
