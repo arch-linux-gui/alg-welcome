@@ -1,172 +1,172 @@
-    /* Qt Stylesheet for Welcome to ALG Application */
+/* Qt Stylesheet for Welcome to ALG Application */
 
-    /* Labels */
-    QLabel {
-        font-size: 16px;
-        font-weight: normal;
-    }
+/* Labels */
+QLabel {
+    font-size: 16px;
+    font-weight: normal;
+}
 
-    /* Buttons */
-    QPushButton {
-        font-size: 14px;
-        border-radius: 6px;
-        padding: 5px 10px;
-        outline: none;
-        border: 1px solid #444444;
-        background-color: #2a2a2a;
-        color: #ffffff;
-    }
+/* Buttons */
+QPushButton {
+    font-size: 14px;
+    border-radius: 6px;
+    padding: 5px 10px;
+    outline: none;
+    border: 1px solid #444444;
+    background-color: #2a2a2a;
+    color: #ffffff;
+}
 
-    QPushButton:hover {
-        background-color: #3a3a3a;   
-        border: 1px solid #555555;  
-    }
-    
-    QPushButton:pressed {
-        background-color: #1a1a1a;
-        border: 1px solid #333333;
-    }
-    
-    QPushButton:disabled {
-        background-color: #3a3a3a;
-        color: #888888;
-        border: 1px solid #4a4a4a;
-    }
+QPushButton:hover {
+    background-color: #3a3a3a;   
+    border: 1px solid #555555;  
+}
 
-    QPushButton:focus {
-        outline: none;
-        border: 1px solid #0c8b5bb2;
-    }
+QPushButton:pressed {
+    background-color: #1a1a1a;
+    border: 1px solid #333333;
+}
 
-    /* Header */
-    QLabel#header {
-        font-size: 20px;
-        font-weight: bold;
-    }
+QPushButton:disabled {
+    background-color: #3a3a3a;
+    color: #888888;
+    border: 1px solid #4a4a4a;
+}
 
-    /* CheckBox as Switch */
-    QCheckBox {
-        spacing: 10px;
-    }
+QPushButton:focus {
+    outline: none;
+    border: 1px solid #0c8b5bb2;
+}
 
-    QCheckBox::indicator {
-        width: 42px;
-        height: 22px;
-        border-radius: 11px;
-        background-color: #d0d0d0;
-        border: none;
-    }
+/* Header */
+QLabel#header {
+    font-size: 20px;
+    font-weight: bold;
+}
 
-    QCheckBox::indicator:hover {
-        background-color: #c0c0c0;
-    }
+/* CheckBox as Switch */
+QCheckBox {
+    spacing: 10px;
+}
 
-    QCheckBox::indicator:checked {
-        background-color: #4a86e8;
-    }
+QCheckBox::indicator {
+    width: 42px;
+    height: 22px;
+    border-radius: 11px;
+    background-color: #d0d0d0;
+    border: none;
+}
 
-    QCheckBox::indicator:checked:hover {
-        background-color: #3a76d8;
-    }
+QCheckBox::indicator:hover {
+    background-color: #c0c0c0;
+}
 
-    /* Frame
-    QFrame {
-        border: 0px solid #ddd;
-        border-radius: 4px;
-        padding: 5px;
-    } */
+QCheckBox::indicator:checked {
+    background-color: #4a86e8;
+}
 
-    /* ComboBox */
-    QComboBox {
-        padding: 5px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background-color: #2c2b36;
-    }
+QCheckBox::indicator:checked:hover {
+    background-color: #3a76d8;
+}
 
-    QComboBox:hover {
-        border: 1px solid #999;
-    }
+/* Frame
+QFrame {
+    border: 0px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+} */
 
-    QComboBox::drop-down {
-        border: none;
-    }
+/* ComboBox */
+QComboBox {
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #2c2b36;
+}
 
-    /* SpinBox */
-    QSpinBox {
-        padding: 2px;
-        border: 0px solid #ccc;
-        border-radius: 2px;
-        background-color: 2a2a2a;
-    }
+QComboBox:hover {
+    border: 1px solid #999;
+}
 
-    QSpinBox:hover {
-        border: 1px solid #999;
-    }
+QComboBox::drop-down {
+    border: none;
+}
 
-    /* TreeView for mirror list */
-    QTreeView {
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background-color: white;
-        alternate-background-color: #f5f5f5;
-    }
+/* SpinBox */
+QSpinBox {
+    padding: 2px;
+    border: 0px solid #ccc;
+    border-radius: 2px;
+    background-color: 2a2a2a;
+}
 
-    QTreeView::item {
-        padding: 5px;
-    }
+QSpinBox:hover {
+    border: 1px solid #999;
+}
 
-    QTreeView::item:selected {
-        background-color: #2c2b36;
-        color: white;
-    }
+/* TreeView for mirror list */
+QTreeView {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    alternate-background-color: #f5f5f5;
+}
 
-    QTreeView::item:hover {
-        background-color: #e0e0e0;
-    }
+QTreeView::item {
+    padding: 5px;
+}
 
-    /* Headers for TreeView */
-    QHeaderView::section {
-        background-color: #f0f0f0;
-        padding: 5px;
-        border: 1px solid #ccc;
-        font-weight: bold;
-    }
+QTreeView::item:selected {
+    background-color: #2c2b36;
+    color: white;
+}
 
-    /* ScrollBar */
-    QScrollBar:vertical {
-        border: none;
-        background-color: #f0f0f0;
-        width: 12px;
-        border-radius: 6px;
-    }
+QTreeView::item:hover {
+    background-color: #e0e0e0;
+}
 
-    QScrollBar::handle:vertical {
-        background-color: #ccc;
-        border-radius: 6px;
-        min-height: 20px;
-    }
+/* Headers for TreeView */
+QHeaderView::section {
+    background-color: #f0f0f0;
+    padding: 5px;
+    border: 1px solid #ccc;
+    font-weight: bold;
+}
 
-    QScrollBar::handle:vertical:hover {
-        background-color: #999;
-    }
+/* ScrollBar */
+QScrollBar:vertical {
+    border: none;
+    background-color: #f0f0f0;
+    width: 12px;
+    border-radius: 6px;
+}
 
-    QScrollBar::add-line:vertical,
-    QScrollBar::sub-line:vertical {
-        height: 0px;
-    }
+QScrollBar::handle:vertical {
+    background-color: #ccc;
+    border-radius: 6px;
+    min-height: 20px;
+}
 
-    /* GroupBox / Frame for sections */
-    QGroupBox {
-        font-weight: bold;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        margin-top: 10px;
-        padding-top: 10px;
-    }
+QScrollBar::handle:vertical:hover {
+    background-color: #999;
+}
 
-    QGroupBox::title {
-        subcontrol-origin: margin;
-        subcontrol-position: top left;
-        padding: 0 5px;
-    }
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+/* GroupBox / Frame for sections */
+QGroupBox {
+    font-weight: bold;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 5px;
+}
