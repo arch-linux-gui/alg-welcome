@@ -97,7 +97,7 @@
         padding: 2px;
         border: 0px solid #ccc;
         border-radius: 2px;
-        background-color: 2c2b36;
+        background-color: 2a2a2a;
     }
 
     QSpinBox:hover {
