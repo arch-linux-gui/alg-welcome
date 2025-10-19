@@ -4,7 +4,6 @@
     QLabel {
         font-size: 16px;
         font-weight: normal;
-        color: #333333;
     }
 
     /* Buttons */
@@ -46,16 +45,15 @@
     }
 
     /* CheckBox as Switch */
-    /* Modern Toggle Switch using QCheckBox */
     QCheckBox {
-        spacing: 10px; /* Space between text and toggle */
+        spacing: 10px;
     }
 
     QCheckBox::indicator {
         width: 42px;
         height: 22px;
         border-radius: 11px;
-        background-color: #d0d0d0; /* Light gray = OFF */
+        background-color: #d0d0d0;
         border: none;
     }
 
@@ -64,20 +62,11 @@
     }
 
     QCheckBox::indicator:checked {
-        background-color: #4a86e8; /* Blue = ON (Google-style) */
+        background-color: #4a86e8;
     }
 
     QCheckBox::indicator:checked:hover {
         background-color: #3a76d8;
-    }
-
-    /* Optional: Add a "knob" effect using a smaller inner circle */
-    QCheckBox::indicator:unchecked {
-        /* You can add an inner circle if desired, but often not needed */
-    }
-
-    QCheckBox::indicator {
-        /* Ensure smooth transitions (if supported by Qt version) */
     }
 
     /* Frame
