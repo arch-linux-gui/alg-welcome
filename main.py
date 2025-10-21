@@ -33,6 +33,11 @@ class WelcomeWindow(QMainWindow):
     
     def __init__(self):
         super().__init__()
+
+        # Setup window logo
+        self.setWindowTitle(self.WINDOW_TITLE)
+        self.resize(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
+        self.setWindowIcon(QIcon("/usr/share/pixmaps/welcome.png"))
         
         # Get system information
         self.desktop_env = get_desktop_environment()
@@ -85,7 +90,7 @@ class WelcomeWindow(QMainWindow):
         header_layout.setSpacing(10)
         
         # Logo
-        logo_path = "assets/welcome.png"
+        logo_path = "/usr/share/pixmaps/welcome.png"
         if Path(logo_path).exists():
             logo_label = QLabel()
             pixmap = QPixmap(logo_path)
