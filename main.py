@@ -25,7 +25,7 @@ from utils.aboutus import AboutUsDialog
 class WelcomeWindow(QMainWindow):
     """Main Welcome Application Window"""
     
-    WINDOW_TITLE = "Welcome to ALG"
+    WINDOW_TITLE = "ALG Welcome"
     WINDOW_WIDTH = 480
     WINDOW_HEIGHT = 400
     LOGO_SIZE = 60
@@ -102,7 +102,7 @@ class WelcomeWindow(QMainWindow):
             header_layout.addWidget(logo_label)
         
         # Welcome text
-        welcome_label = QLabel("Welcome")
+        welcome_label = QLabel("Welcome to ALG!")
         welcome_label.setObjectName("header")
         welcome_label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         header_layout.addWidget(welcome_label, 1)
