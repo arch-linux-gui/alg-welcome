@@ -3,6 +3,7 @@ Mirror list update dialog with reflector integration
 """
 
 import subprocess
+import os
 import re
 import threading
 from PySide6.QtWidgets import (
@@ -233,12 +234,19 @@ class MirrorListDialog(QDialog):
         
         def run_update():
             try:
+                env = os.environ.copy()
+            
+                env.pop('LD_LIBRARY_PATH', None)
+                env.pop('QT_PLUGIN_PATH', None)
+                env.pop('QT_QPA_PLATFORM_THEME', None)
+                
                 process = subprocess.Popen(
                     ['sh', '-c', command],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     text=True,
-                    bufsize=1
+                    bufsize=1,
+                    env=env
                 )
                 
                 self.line_counter = 0
