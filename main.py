@@ -37,7 +37,9 @@ class WelcomeWindow(QMainWindow):
         # Setup window logo
         self.setWindowTitle(self.WINDOW_TITLE)
         self.resize(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
-        self.setWindowIcon(QIcon("assets/welcome.png"))
+        base_path = Path(__file__).resolve().parent
+        icon_path = base_path / "assets" / "welcome.png"
+        self.setWindowIcon(QIcon(str(icon_path)))
         
         # Get system information
         self.desktop_env = get_desktop_environment()
