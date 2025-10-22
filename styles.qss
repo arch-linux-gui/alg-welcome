@@ -114,6 +114,7 @@ QTreeView {
 
 QTreeView::item {
     padding: 5px;
+    color: black;
 }
 
 QTreeView::item:selected {
@@ -131,6 +132,7 @@ QHeaderView::section {
     padding: 5px;
     border: 1px solid #ccc;
     font-weight: bold;
+    color: black;
 }
 
 /* ScrollBar */
