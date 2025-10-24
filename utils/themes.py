@@ -187,15 +187,15 @@ class GNOMETheme(ThemeManager):
     # Theme configurations
     DARK_THEME = {
         'icons': 'Tela-circle-dark',
-        'shell': 'Orchis-Dark',
-        'gtk': 'Orchis-Dark',
+        'shell': 'Orchis-Red-Dark',
+        'gtk': 'Orchis-Red-Dark',
         'color_scheme': 'prefer-dark'
     }
     
     LIGHT_THEME = {
         'icons': 'Tela-circle',
-        'shell': 'Orchis-Light',
-        'gtk': 'Orchis-Light',
+        'shell': 'Orchis-Red-Light',
+        'gtk': 'Orchis-Red-Light',
         'color_scheme': 'prefer-light'
     }
     
