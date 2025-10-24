@@ -42,6 +42,15 @@ def check_if_live_iso():
     return Path('/run/archiso').exists()
 
 
+def is_calamares_running():
+    """
+    Check if Calamares is currently running
+    Returns: bool - True if Calamares is running, False otherwise
+    """
+    global _calamares_running
+    return _calamares_running
+
+
 def run_calamares_if_live_iso(is_live_iso):
     """
     Run Calamares installer if on Live ISO

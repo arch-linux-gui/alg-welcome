@@ -10,10 +10,10 @@ from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
     QLabel, QPushButton, QGridLayout, QFrame, QSizePolicy
 )
-from PySide6.QtCore import Qt, QSize
+from PySide6.QtCore import Qt, QSize, QTimer
 from PySide6.QtGui import QPixmap, QIcon
 
-from utils.extras import get_desktop_environment, check_if_live_iso, open_url
+from utils.extras import get_desktop_environment, check_if_live_iso, open_url, is_calamares_running
 from utils.autostart import toggle_autostart, check_file_exists
 from utils.themes import toggle_theme, current_theme, is_dark_theme
 from utils.resolution import screen_resolution
@@ -45,10 +45,16 @@ class WelcomeWindow(QMainWindow):
         self.desktop_env = get_desktop_environment()
         self.is_live_iso = check_if_live_iso()
         
+        # Initialize install button reference
+        self.install_button = None
+        
         # Setup UI
         self.setup_window()
         self.apply_stylesheet()
         self.setup_ui()
+        
+        # Setup Calamares monitoring
+        self.setup_calamares_monitoring()
         
     def setup_window(self):
         """Configure main window properties"""
@@ -142,6 +148,11 @@ class WelcomeWindow(QMainWindow):
         for i, (label, icon, callback) in enumerate(buttons):
             button = self.create_button_with_icon(label, icon, False)
             button.clicked.connect(callback)
+            
+            # Store reference to install button for Calamares monitoring
+            if label == "Install ALG ":
+                self.install_button = button
+                
             grid.addWidget(button, i // 2, i % 2)
         
         layout.addLayout(grid)
@@ -240,6 +251,33 @@ class WelcomeWindow(QMainWindow):
         layout.addWidget(switch)
         
         return widget, switch
+        
+    def setup_calamares_monitoring(self):
+        """Setup timer to monitor Calamares status"""
+        if not self.is_live_iso or not self.install_button:
+            return
+            
+        # Create timer to check Calamares status every 2 seconds
+        self.calamares_timer = QTimer()
+        self.calamares_timer.timeout.connect(self.check_calamares_status)
+        self.calamares_timer.start(2000)  # Check every 2 seconds
+        
+        # Initial check
+        self.check_calamares_status()
+        
+    def check_calamares_status(self):
+        """Check if Calamares is running and update install button accordingly"""
+        if not self.install_button:
+            return
+            
+        is_running = is_calamares_running()
+        
+        if self.install_button:
+            self.install_button.setEnabled(not is_running)
+            if is_running:
+                self.install_button.setText("Installing... ")
+            else:
+                self.install_button.setText("Install ALG ")
         
     # Callback methods
     def on_install_alg(self):
