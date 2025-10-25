@@ -33,6 +33,7 @@ class WelcomeWindow(QMainWindow):
     
     def __init__(self):
         super().__init__()
+        self.mirror_list_dialog = None
 
         # Setup window logo
         self.setWindowTitle(self.WINDOW_TITLE)
@@ -152,6 +153,13 @@ class WelcomeWindow(QMainWindow):
             # Store reference to install button for Calamares monitoring
             if label == "Install ALG ":
                 self.install_button = button
+
+            # Store reference for Updating Mirrorlist
+            if label == "Update System ":
+                self.update_system_button = button
+            
+            if label == "Update Mirrorlist ":
+                self.update_mirrorlist_button = button
                 
             grid.addWidget(button, i // 2, i % 2)
         
@@ -295,8 +303,34 @@ class WelcomeWindow(QMainWindow):
         
     def on_update_mirrorlist(self):
         """Handle Update Mirrorlist button click"""
-        dialog = MirrorListDialog(self)
-        dialog.exec()
+        # dialog = MirrorListDialog(self)
+        # dialog.show()
+
+        """Handle Update Mirrorlist button click"""
+        if self.mirror_list_dialog is None or not self.mirror_list_dialog.isVisible():
+            self.mirror_list_dialog = MirrorListDialog(self)
+            
+            # Disable buttons when dialog opens
+            if self.update_system_button:
+                self.update_system_button.setEnabled(False)
+            if self.update_mirrorlist_button:
+                self.update_mirrorlist_button.setEnabled(False)
+            
+            # Re-enable buttons when dialog closes
+            self.mirror_list_dialog.finished.connect(self.on_mirrorlist_dialog_closed)
+            
+            self.mirror_list_dialog.show()
+        else:
+            self.mirror_list_dialog.activateWindow()
+            self.mirror_list_dialog.raise_()
+
+    def on_mirrorlist_dialog_closed(self):
+        """Re-enable buttons when mirrorlist dialog is closed"""
+        if self.update_system_button:
+            self.update_system_button.setEnabled(True)
+        if self.update_mirrorlist_button:
+            self.update_mirrorlist_button.setEnabled(True)
+        print("Mirrorlist dialog closed, buttons re-enabled")
         
     def on_tutorials(self):
         """Handle Tutorials button click"""

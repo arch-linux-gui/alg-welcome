@@ -36,15 +36,31 @@ class MirrorListDialog(QDialog):
         self.signals.update_finished.connect(self._on_update_finished)
         
         self.setup_ui()
+
+
+        if self.parent():
+            parent_geo = self.parent().geometry()
+            if parent_geo.isValid():
+                self.move(
+                    parent_geo.x() + parent_geo.width() + 10, 
+                    parent_geo.y()
+                )
+                
         print("MirrorListDialog initialized")
         
     def setup_ui(self):
         """Setup the mirror list dialog UI"""
         self.setWindowTitle("Update MirrorList")
         self.setMinimumSize(500, 450)
-        self.setModal(True)
+        self.setModal(False)
+        
         self.setWindowFlags(
-            Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint
+            self.windowFlags()
+            | Qt.WindowType.Window 
+            | Qt.WindowType.WindowTitleHint 
+            | Qt.WindowType.WindowSystemMenuHint 
+            | Qt.WindowType.WindowMinMaxButtonsHint 
+            | Qt.WindowType.WindowCloseButtonHint
         )
         
         layout = QVBoxLayout(self)
