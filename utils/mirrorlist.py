@@ -231,6 +231,13 @@ class MirrorListDialog(QDialog):
         self.log_tree.setAlternatingRowColors(True)
         
         layout.addWidget(self.log_tree)
+
+        # Add Close button at the bottom
+        self.close_button = QPushButton("Close")
+        self.close_button.setEnabled(False)  # Disabled during update
+        self.close_button.clicked.connect(self.log_dialog.close)
+        self.close_button.setMinimumHeight(35)
+        layout.addWidget(self.close_button)
         
         # Position next to parent
         parent_geo = self.geometry()
@@ -384,6 +391,10 @@ class MirrorListDialog(QDialog):
         self.is_updating = False
         self.update_button.setEnabled(True)
         
-        # Keep the log dialog open so user can review
+        # Enable the Close button now that update is complete
+        if hasattr(self, 'close_button') and self.close_button:
+            self.close_button.setEnabled(True)
+            print("Close button enabled")
+        
         print("Update complete. Log dialog remains open for review.")
         print("=== Mirror Update Completed ===\n")
