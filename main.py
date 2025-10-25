@@ -33,6 +33,7 @@ class WelcomeWindow(QMainWindow):
     
     def __init__(self):
         super().__init__()
+        self.mirror_list_dialog = None
 
         # Setup window logo
         self.setWindowTitle(self.WINDOW_TITLE)
@@ -295,8 +296,15 @@ class WelcomeWindow(QMainWindow):
         
     def on_update_mirrorlist(self):
         """Handle Update Mirrorlist button click"""
-        dialog = MirrorListDialog(self)
-        dialog.exec()
+        # dialog = MirrorListDialog(self)
+        # dialog.show()
+
+        if self.mirror_list_dialog is None or not self.mirror_list_dialog.isVisible():
+            self.mirror_list_dialog = MirrorListDialog(self)
+            self.mirror_list_dialog.show()
+        else:
+            self.mirror_list_dialog.activateWindow()
+            self.mirror_list_dialog.raise_()
         
     def on_tutorials(self):
         """Handle Tutorials button click"""
