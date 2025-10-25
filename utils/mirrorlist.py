@@ -43,6 +43,9 @@ class MirrorListDialog(QDialog):
         self.setWindowTitle("Update MirrorList")
         self.setMinimumSize(500, 450)
         self.setModal(True)
+        self.setWindowFlags(
+            Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint
+        )
         
         layout = QVBoxLayout(self)
         layout.setSpacing(10)
@@ -214,7 +217,7 @@ class MirrorListDialog(QDialog):
         self.log_dialog.setMinimumSize(600, 400)
         self.log_dialog.setModal(False)
         self.log_dialog.setWindowFlags(
-            Qt.Dialog | Qt.WindowTitleHint | Qt.CustomizeWindowHint
+            Qt.Window | Qt.WindowTitleHint | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint | Qt.WindowCloseButtonHint
         )
         
         layout = QVBoxLayout(self.log_dialog)
