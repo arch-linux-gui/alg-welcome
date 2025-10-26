@@ -34,7 +34,7 @@ Welcome to **ALG Welcome** – a fast, intuitive welcome application for Arch Li
   ```
   On non-Qt DEs like GNOME, you may need to install the Qt6 package.
 
-- **Operating System:** Made for ALG. Should work on Arch Linux, and it's derivative distributions.
+- **Operating System:** Made for ALG. Should work on Arch Linux, and its derivative distributions.
 
 ### Installation
 
