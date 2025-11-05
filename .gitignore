@@ -21,6 +21,7 @@ moc_*.h
 qrc_*.cpp
 ui_*.h
 Makefile*
+DEVELOPMENT.md
 
 # C++ objects and libs
 *.o
