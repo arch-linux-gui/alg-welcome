@@ -30,7 +30,6 @@ Welcome to **ALG Welcome** – a fast, lightweight welcome application for ALG b
 - **C++ Compiler:** GCC 7+ or Clang 5+ with C++17 support
 - **CMake:** Version 3.16 or later
 - **Qt6:** Qt6 Core, Widgets, and Gui modules
-- **Build Tools:** Make or Ninja build system
 - **Operating System:** Arch Linux or Arch-based distributions (ALG, Manjaro, EndeavourOS, etc.)
 
 ### Dependencies
