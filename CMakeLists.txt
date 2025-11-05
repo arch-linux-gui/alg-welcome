@@ -90,6 +90,23 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src/dialogs
 )
 
+# --- Tests ---
+option(BUILD_TESTS "Build test utilities" ON)
+if(BUILD_TESTS)
+    add_executable(calamares_status_test
+        tests/calamares_status.cpp
+        src/utils/Extras.cpp
+    )
+    target_compile_definitions(calamares_status_test PRIVATE ENABLE_TEST_HOOKS)
+    target_include_directories(calamares_status_test PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+    )
+    target_link_libraries(calamares_status_test
+        Qt6::Core
+        Threads::Threads
+    )
+endif()
+
 # Find threads package (for std::thread)
 find_package(Threads REQUIRED)
 

@@ -31,7 +31,15 @@ bool isCalamaresRunning() {
     return calamaresRunning.load();
 }
 
+#ifdef ENABLE_TEST_HOOKS
+void setCalamaresRunningForTest(bool running) {
+    std::lock_guard<std::mutex> lock(calamaresLock);
+    calamaresRunning = running;
+}
+#endif
+
 void runCalamaresIfLiveISO(bool isLiveISO) {
+
     if (!isLiveISO) {
         return;
     }
