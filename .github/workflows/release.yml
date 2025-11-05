@@ -4,9 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag (e.g., v1.0.0)'
+        description: 'Release tag (e., v2.1.8)'
         required: true
-        default: 'v1.0.0'
+        default: 'v3.0.1'
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build:
@@ -15,24 +18,45 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23'
-
-      - name: Install GTK dependencies
+      - name: Install Qt6 and build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libcairo2-dev libglib2.0-dev
+          sudo apt-get install -y \
+            qt6-base-dev \
+            cmake \
+            make \
+            g++ \
+            libgl1-mesa-dev
+
+      - name: Configure CMake
+        run: |
+          mkdir -p build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Release ..
 
       - name: Build binary
-        run: go build -o welcome .
+        run: |
+          cd build
+          make -j$(nproc)
+
+      - name: Strip binary
+        run: |
+          strip build/alg-welcome
+
+      - name: Package artifacts
+        run: |
+          mkdir -p release
+          cp build/alg-welcome release/
+          cp styles.qss release/
+          cp -r assets release/
+          cd release
+          tar -czf alg-welcome-linux-x86_64.tar.gz alg-welcome styles.qss assets/
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: welcome-binary
-          path: welcome
+          name: alg-welcome-binary
+          path: release/alg-welcome-linux-x86_64.tar.gz
 
   release:
     needs: build
@@ -44,21 +68,33 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: welcome-binary
+          name: alg-welcome-binary
 
       - name: Create Release
-        id: create_release
-        uses: elgohr/Github-Release-Action@v2
-        with:
-          title: ${{ github.event.inputs.tag }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
         with:
-          files: welcome
-          name: "Release ${{ github.event.inputs.tag }}"
+          files: alg-welcome-linux-x86_64.tar.gz
+          name: "ALG Welcome ${{ github.event.inputs.tag || github.ref_name }}"
+          body: |
+            ## ALG Welcome Release ${{ github.event.inputs.tag || github.ref_name }}
+            
+            ### What's Changed
+            - Built with Qt6 and modern C++17
+            - Optimized with Link Time Optimization (LTO)
+            
+            ### Installation
+            ```bash
+            tar -xzf alg-welcome-linux-x86_64.tar.gz
+            cd release
+            sudo install -Dm755 alg-welcome /usr/local/bin/alg-welcome
+            sudo install -Dm644 styles.qss /usr/local/share/alg-welcome/styles.qss
+            sudo install -Dm644 assets/welcome.png /usr/local/share/pixmaps/welcome.png
+            sudo install -Dm644 assets/welcome.desktop /usr/local/share/applications/welcome.desktop
+            ```
+            
+            ### Requirements
+            - Qt6 Base (qt6-base on Arch Linux)
+            - Arch Linux or Arch-based distribution
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
