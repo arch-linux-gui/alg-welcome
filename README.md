@@ -90,3 +90,21 @@ Options:
   --debug      Enable debug logging output
   -h, --help   Show help information
 ```
+
+## License
+
+This project is distributed under the MIT License. See the [LICENSE](LICENSE) file for complete details.
+
+## Authors
+
+- **DemonKiller** – Core Team Developer
+- **Akash6222** – Core Team Developer
+- **harshau007** – Core Team Developer
+
+## Contact
+
+For support or inquiries, please visit our [website](https://www.arkalinuxgui.org) or open an issue on our GitHub repository.
+
+---
+
+*Arka Linux GUI: Simplifying the Arch Linux Experience, One Click at a Time.*
