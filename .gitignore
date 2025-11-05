@@ -1,6 +1,49 @@
-.idea
+# Build directories
 build/
+build-*/
+cmake-build-*/
 out/
-dir-struct.txt
-utils/__pycache__/
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+
+# Qt related
+*.autosave
+*.qm
+*.pro.user
+moc_*.cpp
+moc_*.h
+qrc_*.cpp
+ui_*.h
+Makefile*
+
+# C++ objects and libs
+*.o
+*.a
+*.so
+*.so.*
+
+# Executables
+alg-welcome
+*.exe
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+
+# Python bytecode (from old version)
 __pycache__/
+utils/__pycache__/
+*.py[cod]
+*.pyc
+
+# Misc
+dir-struct.txt
