@@ -67,6 +67,7 @@ private:
     QSpinBox *mirrorSpin = nullptr;
     QSpinBox *timeoutSpin = nullptr;
     QPushButton *updateButton = nullptr;
+    QPushButton *mainCloseButton = nullptr;
     
     // Log dialog
     QDialog *logDialog = nullptr;

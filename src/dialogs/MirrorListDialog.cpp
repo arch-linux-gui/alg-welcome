@@ -78,12 +78,21 @@ void MirrorListDialog::setupUI() {
     // Settings (max mirrors and timeout)
     setupSettingsSection(layout);
     
-    // Update button
+    // Buttons (Update and Close)
+    auto *buttonLayout = new QHBoxLayout();
+    
     updateButton = new QPushButton("Update");
     updateButton->setEnabled(false);
     connect(updateButton, &QPushButton::clicked, 
             this, &MirrorListDialog::onUpdateClicked);
-    layout->addWidget(updateButton);
+    
+    mainCloseButton = new QPushButton("Close");
+    connect(mainCloseButton, &QPushButton::clicked, 
+            this, &QDialog::close);
+    
+    buttonLayout->addWidget(updateButton);
+    buttonLayout->addWidget(mainCloseButton);
+    layout->addLayout(buttonLayout);
 }
 
 void MirrorListDialog::setupCountriesSection(QVBoxLayout *layout) {
