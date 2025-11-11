@@ -21,6 +21,7 @@
 #include <QFile>
 #include <QDir>
 #include <QStandardPaths>
+#include <QProcess>
 
 WelcomeWindow::WelcomeWindow(QWidget *parent) 
     : QMainWindow(parent)
@@ -143,9 +144,9 @@ void WelcomeWindow::addInstallSetupSection(QVBoxLayout *layout) {
         grid->addWidget(updateMirrorlistButton, 1, 1);
     } else {
         // Row 0
-        auto *tutorialsBtn = createButtonWithIcon("Tutorials ", "help-contents", false);
-        connect(tutorialsBtn, &QPushButton::clicked, this, &WelcomeWindow::onTutorials);
-        grid->addWidget(tutorialsBtn, 0, 0);
+        auto *appStoreBtn = createButtonWithIcon("Launch App Store ", "system-software-install", false);
+        connect(appStoreBtn, &QPushButton::clicked, this, &WelcomeWindow::onLaunchAppStore);
+        grid->addWidget(appStoreBtn, 0, 0);
         
         auto *resolutionBtn = createButtonWithIcon("Screen Resolution ", "video-display", false);
         connect(resolutionBtn, &QPushButton::clicked, this, &WelcomeWindow::onScreenResolution);
@@ -335,6 +336,10 @@ void WelcomeWindow::onMirrorlistDialogClosed() {
     if (updateMirrorlistButton) {
         updateMirrorlistButton->setEnabled(true);
     }
+}
+
+void WelcomeWindow::onLaunchAppStore() {
+    QProcess::startDetached("alg-app-store", QStringList());
 }
 
 void WelcomeWindow::onTutorials() {

@@ -49,6 +49,7 @@ private:
     void onScreenResolution();
     void onUpdateSystem();
     void onUpdateMirrorlist();
+    void onLaunchAppStore();
     void onTutorials();
     void onAutostartToggled(bool checked);
     void onThemeToggled(bool checked);
