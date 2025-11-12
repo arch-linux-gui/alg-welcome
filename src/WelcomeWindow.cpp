@@ -62,16 +62,24 @@ void WelcomeWindow::setupWindow() {
 }
 
 void WelcomeWindow::applyStylesheet() {
-    const QString qssPath = QDir::currentPath() + "/styles.qss";
-    QFile file(qssPath);
+    // Try installed location first, then fall back to current directory
+    QStringList paths = {
+        "/usr/share/alg-welcome/styles.qss",
+        QDir::currentPath() + "/styles.qss"
+    };
     
-    if (file.open(QFile::ReadOnly | QFile::Text)) {
-        const QString styleSheet = QString::fromUtf8(file.readAll());
-        setStyleSheet(styleSheet);
-        file.close();
-    } else {
-        Logger::warning("Could not load stylesheet from: " + qssPath);
+    for (const QString &qssPath : paths) {
+        QFile file(qssPath);
+        if (file.open(QFile::ReadOnly | QFile::Text)) {
+            const QString styleSheet = QString::fromUtf8(file.readAll());
+            setStyleSheet(styleSheet);
+            file.close();
+            Logger::info("Loaded stylesheet from: " + qssPath);
+            return;
+        }
     }
+    
+    Logger::warning("Could not load stylesheet from any location");
 }
 
 void WelcomeWindow::setupUI() {
