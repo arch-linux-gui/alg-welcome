@@ -116,7 +116,7 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 # Install desktop file and assets
-install(FILES welcome.desktop
+install(FILES alg-welcome.desktop
     DESTINATION share/applications
 )
 
