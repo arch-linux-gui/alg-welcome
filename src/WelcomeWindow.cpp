@@ -44,12 +44,17 @@ void WelcomeWindow::setupWindow() {
     setWindowTitle("ALG Welcome");
     setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     
-    // Set window icon
-    const QString iconPath = QDir::currentPath() + "/assets/welcome.png";
-    if (QFile::exists(iconPath)) {
-        setWindowIcon(QIcon(iconPath));
-    } else {
-        Logger::warning("Window icon not found at: " + iconPath);
+    // Set window icon - try installed location first, then fall back to current directory
+    QStringList iconPaths = {
+        "/usr/share/pixmaps/welcome.png",
+        QDir::currentPath() + "/assets/welcome.png"
+    };
+    
+    for (const QString &iconPath : iconPaths) {
+        if (QFile::exists(iconPath)) {
+            setWindowIcon(QIcon(iconPath));
+            break;
+        }
     }
     
     // Center window on screen
@@ -102,16 +107,23 @@ void WelcomeWindow::addHeader(QVBoxLayout *layout) {
     auto *headerLayout = new QHBoxLayout();
     headerLayout->setSpacing(10);
     
-    // Logo
-    const QString logoPath = QDir::currentPath() + "/assets/welcome.png";
-    if (QFile::exists(logoPath)) {
-        auto *logoLabel = new QLabel();
-        QPixmap pixmap(logoPath);
-        auto scaledPixmap = pixmap.scaled(LOGO_SIZE, LOGO_SIZE, 
-                                          Qt::KeepAspectRatio, 
-                                          Qt::SmoothTransformation);
-        logoLabel->setPixmap(scaledPixmap);
-        headerLayout->addWidget(logoLabel);
+    // Logo - try installed location first, then fall back to current directory
+    QStringList logoPaths = {
+        "/usr/share/pixmaps/welcome.png",
+        QDir::currentPath() + "/assets/welcome.png"
+    };
+    
+    for (const QString &logoPath : logoPaths) {
+        if (QFile::exists(logoPath)) {
+            auto *logoLabel = new QLabel();
+            QPixmap pixmap(logoPath);
+            auto scaledPixmap = pixmap.scaled(LOGO_SIZE, LOGO_SIZE, 
+                                              Qt::KeepAspectRatio, 
+                                              Qt::SmoothTransformation);
+            logoLabel->setPixmap(scaledPixmap);
+            headerLayout->addWidget(logoLabel);
+            break;
+        }
     }
     
     // Welcome text
