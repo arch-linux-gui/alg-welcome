@@ -1,13 +1,13 @@
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=Welcome to ALG
+Name=ALG Welcome
 GenericName=Welcome
 Keywords=utility;system;welcome;
 Encoding=UTF-8
 Terminal=false
 Exec=alg-welcome
-Icon=/usr/share/pixmaps/welcome.png
-Comment=ALG - Welcome App
-Categories=System;Go;
+Icon=welcome
+Comment=ALG Onboarding & Maintenance tool
+Categories=System;Install;
 StartupNotify=true
