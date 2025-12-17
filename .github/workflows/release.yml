@@ -2,21 +2,28 @@ name: Build and Release
 
 on:
   workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Release tag (e., v2.1.8)'
-        required: true
-        default: 'v3.0.1'
   push:
     tags:
       - 'v*'
+    branches:
+      - main
+    paths:
+      - 'src/version.h'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Get version from version.h
+        id: get_version
+        run: |
+          VERSION=$(grep 'ALG_WELCOME_VERSION "' src/version.h | sed 's/.*"\(.*\)".*/\1/')
+          echo "version=v${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Install Qt6 and build dependencies
         run: |
@@ -73,10 +80,11 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ needs.build.outputs.version }}
           files: alg-welcome-linux-x86_64.tar.gz
-          name: "ALG Welcome ${{ github.event.inputs.tag || github.ref_name }}"
+          name: "ALG Welcome ${{ needs.build.outputs.version }}"
           body: |
-            ## ALG Welcome Release ${{ github.event.inputs.tag || github.ref_name }}
+            ## ALG Welcome Release ${{ needs.build.outputs.version }}
             
             ### What's Changed
             - Built with Qt6 and modern C++17
@@ -94,7 +102,7 @@ jobs:
             
             ### Requirements
             - Qt6 Base (qt6-base on Arch Linux)
-            - Arch Linux or Arch-based distribution
+            - Arch-based distribution
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
