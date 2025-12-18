@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(alg-welcome VERSION 2.1.8 LANGUAGES CXX)
+project(alg-welcome VERSION 3.0.0 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
