@@ -50,24 +50,18 @@ QCheckBox {
 }
 
 QCheckBox::indicator {
-    width: 42px;
-    height: 22px;
-    border-radius: 11px;
-    background-color: #d0d0d0;
-    border: none;
+    width: 48px;
+    height: 24px;
 }
 
-QCheckBox::indicator:hover {
-    background-color: #c0c0c0;
+QCheckBox::indicator:unchecked {
+    image: url(assets/switch_off.svg);
 }
 
 QCheckBox::indicator:checked {
-    background-color: #4a86e8;
+    image: url(assets/switch_on.svg);
 }
 
-QCheckBox::indicator:checked:hover {
-    background-color: #3a76d8;
-}
 
 /* Frame
 QFrame {

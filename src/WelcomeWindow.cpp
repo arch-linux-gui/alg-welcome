@@ -33,7 +33,7 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
     
     // Setup UI
     setupWindow();
-    // applyStylesheet();
+    applyStylesheet();
     setupUI();
     
     // Setup Calamares monitoring
