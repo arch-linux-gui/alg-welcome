@@ -55,11 +55,11 @@ QCheckBox::indicator {
 }
 
 QCheckBox::indicator:unchecked {
-    image: url(assets/switch_off.svg);
+    image: url(assets:switch_off.svg);
 }
 
 QCheckBox::indicator:checked {
-    image: url(assets/switch_on.svg);
+    image: url(assets:switch_on.svg);
 }
 
 

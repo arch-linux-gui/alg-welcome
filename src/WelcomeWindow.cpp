@@ -27,6 +27,13 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
     : QMainWindow(parent)
     , calamaresTimer(std::make_unique<QTimer>())
 {
+    // Setup search paths for assets
+    QDir::setSearchPaths("assets", {
+        "/usr/share/alg-welcome/assets",
+        QDir::currentPath() + "/assets",
+        QDir::currentPath() + "/../assets" // Support running from build directory
+    });
+
     // Get system information
     desktopEnv = Extras::getDesktopEnvironment();
     isLiveISO = Extras::checkIfLiveISO();
@@ -250,7 +257,17 @@ QPushButton* WelcomeWindow::createButtonWithIcon(const QString &label,
     
     // Set icon
     if (fromFile) {
-        const QString iconPath = QDir::currentPath() + "/" + iconName;
+        // Use search path prefix if iconName doesn't already have it
+        QString iconPath = iconName;
+        if (!iconPath.startsWith("assets:")) {
+            // Strip leading 'assets/' if present since we use the 'assets:' search path
+            if (iconPath.startsWith("assets/")) {
+                iconPath = "assets:" + iconPath.mid(7);
+            } else {
+                iconPath = "assets:" + iconPath;
+            }
+        }
+
         if (QFile::exists(iconPath)) {
             button->setIcon(QIcon(iconPath));
             button->setIconSize(QSize(ICON_SIZE, ICON_SIZE));
