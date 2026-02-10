@@ -1,5 +1,6 @@
 #include "WelcomeWindow.h"
 #include "version.h"
+#include "utils/Autostart.h"
 #include <QApplication>
 #include <QCommandLineParser>
 #include <QDebug>
@@ -39,6 +40,10 @@ int main(int argc, char *argv[]) {
         qDebug() << "ALG Welcome version:" << ALG_WELCOME_VERSION;
     }
     
+    // Always ensure autostart is enabled so the welcome app
+    // displays on boot (important for the live ISO)
+    Autostart::toggleAutostart(true);
+
     WelcomeWindow window;
     window.show();
     
