@@ -1,8 +1,6 @@
 name: Build ALG Welcome - Test Build
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
 

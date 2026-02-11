@@ -1,54 +1,67 @@
 name: Build and Release
 
 on:
-  workflow_dispatch:
   push:
-    tags:
-      - 'v*'
-    branches:
-      - main
+    branches: [main]
     paths:
-      - 'src/version.h'
+      - '**.cpp'
+      - '**.h'
+      - 'CMakeLists.txt'
+      - '.github/workflows/**'
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    container: archlinux:latest
     outputs:
       version: ${{ steps.get_version.outputs.version }}
+      should_release: ${{ steps.check_release.outputs.should_release }}
     steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm --needed base-devel git cmake qt6-base
+
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-      - name: Get version from version.h
+      - name: Mark git directory as safe
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: Extract version from CMakeLists.txt
         id: get_version
         run: |
-          VERSION=$(grep 'ALG_WELCOME_VERSION "' src/version.h | sed 's/.*"\(.*\)".*/\1/')
-          echo "version=v${VERSION}" >> $GITHUB_OUTPUT
+          VERSION=$(grep -oP 'project\(alg-welcome VERSION \K[0-9]+\.[0-9]+\.[0-9]+' CMakeLists.txt)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
 
-      - name: Install Qt6 and build dependencies
+      - name: Check if this should trigger a release
+        id: check_release
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            qt6-base-dev \
-            cmake \
-            make \
-            g++ \
-            libgl1-mesa-dev
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            if git diff --name-only HEAD~1 HEAD | grep -q "CMakeLists.txt"; then
+              echo "should_release=true" >> $GITHUB_OUTPUT
+              echo "Release triggered: CMakeLists.txt changed on main branch"
+            else
+              echo "should_release=false" >> $GITHUB_OUTPUT
+              echo "No release: CMakeLists.txt not changed"
+            fi
+          else
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            echo "No release: not a push event"
+          fi
 
       - name: Configure CMake
-        run: |
-          mkdir -p build
-          cd build
-          cmake -DCMAKE_BUILD_TYPE=Release ..
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build binary
-        run: |
-          cd build
-          make -j$(nproc)
+      - name: Build
+        run: cmake --build build -j$(nproc)
 
       - name: Strip binary
-        run: |
-          strip build/alg-welcome
+        run: strip build/alg-welcome
 
       - name: Package artifacts
         run: |
@@ -64,10 +77,14 @@ jobs:
         with:
           name: alg-welcome-binary
           path: release/alg-welcome-linux-x86_64.tar.gz
+          retention-days: 30
 
   release:
     needs: build
     runs-on: ubuntu-latest
+    if: needs.build.outputs.should_release == 'true'
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -80,26 +97,20 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ needs.build.outputs.version }}
+          tag_name: v${{ needs.build.outputs.version }}
+          name: "ALG Welcome v${{ needs.build.outputs.version }}"
           files: alg-welcome-linux-x86_64.tar.gz
-          name: "ALG Welcome ${{ needs.build.outputs.version }}"
           body: |
-            ## ALG Welcome Release ${{ needs.build.outputs.version }}
-            
-            ### What's Changed
-            - Built with Qt6 and modern C++17
-            - Optimized with Link Time Optimization (LTO)
-            
+            ## ALG Welcome v${{ needs.build.outputs.version }}
+
             ### Installation
             ```bash
             tar -xzf alg-welcome-linux-x86_64.tar.gz
-            cd release
             sudo install -Dm755 alg-welcome /usr/local/bin/alg-welcome
             sudo install -Dm644 styles.qss /usr/local/share/alg-welcome/styles.qss
             sudo install -Dm644 assets/welcome.png /usr/local/share/pixmaps/welcome.png
-            sudo install -Dm644 assets/welcome.desktop /usr/local/share/applications/welcome.desktop
             ```
-            
+
             ### Requirements
             - Qt6 Base (qt6-base on Arch Linux)
             - Arch-based distribution
