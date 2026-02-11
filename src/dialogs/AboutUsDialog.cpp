@@ -1,5 +1,4 @@
 #include "AboutUsDialog.h"
-#include "version.h"
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>

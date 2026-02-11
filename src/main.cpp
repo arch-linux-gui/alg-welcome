@@ -1,5 +1,4 @@
 #include "WelcomeWindow.h"
-#include "version.h"
 #include "utils/Autostart.h"
 #include <QApplication>
 #include <QCommandLineParser>

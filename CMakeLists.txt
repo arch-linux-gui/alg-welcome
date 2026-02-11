@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(alg-welcome VERSION 2.1.8 LANGUAGES CXX)
+project(alg-welcome VERSION 3.1.4 LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -82,6 +82,11 @@ target_link_libraries(${PROJECT_NAME}
     Qt6::Widgets
     Qt6::Gui
     Threads::Threads
+)
+
+# Pass version from CMake to C++ as a compile definition
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    ALG_WELCOME_VERSION="${PROJECT_VERSION}"
 )
 
 # Include directories
