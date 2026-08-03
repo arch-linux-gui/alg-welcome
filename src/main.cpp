@@ -6,8 +6,9 @@
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
-    app.setApplicationName("Welcome to ALG");
+    // app.setApplicationName("Welcome to ALG");
     app.setApplicationVersion(ALG_WELCOME_VERSION);
+    app.setDesktopFileName("alg-welcome");
     app.setOrganizationName("Arch Linux GUI");
     app.setOrganizationDomain("arkalinuxgui.org");
     
