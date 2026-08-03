@@ -11,7 +11,7 @@ void updateSystem(const QString &desktopEnv) {
             << "-x" << "pkexec" << "pacman" << "--noconfirm" << "-Syu");
         
     } else if (desktopEnv == "gnome") {
-        QProcess::startDetached("gnome-terminal", QStringList() 
+        QProcess::startDetached("kgx", QStringList() 
             << "--" << "sudo" << "pacman" << "--noconfirm" << "-Syu");
         
     } else if (desktopEnv == "kde") {
