@@ -7,6 +7,7 @@ on:
       - '**.cpp'
       - '**.h'
       - 'CMakeLists.txt'
+      - 'VERSION'
       - '.github/workflows/**'
   workflow_dispatch:
 
@@ -31,10 +32,10 @@ jobs:
       - name: Mark git directory as safe
         run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: Extract version from CMakeLists.txt
+      - name: Extract version from VERSION file
         id: get_version
         run: |
-          VERSION=$(grep -oP 'project\(alg-welcome VERSION \K[0-9]+\.[0-9]+\.[0-9]+' CMakeLists.txt)
+          VERSION=$(tr -d '[:space:]' < VERSION)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION"
 
@@ -42,12 +43,12 @@ jobs:
         id: check_release
         run: |
           if [[ "${{ github.event_name }}" == "push" ]]; then
-            if git diff --name-only HEAD~1 HEAD | grep -q "CMakeLists.txt"; then
+            if git diff --name-only HEAD~1 HEAD | grep -q "^VERSION$"; then
               echo "should_release=true" >> $GITHUB_OUTPUT
-              echo "Release triggered: CMakeLists.txt changed on main branch"
+              echo "Release triggered: VERSION changed on main branch"
             else
               echo "should_release=false" >> $GITHUB_OUTPUT
-              echo "No release: CMakeLists.txt not changed"
+              echo "No release: VERSION not changed"
             fi
           else
             echo "should_release=false" >> $GITHUB_OUTPUT
