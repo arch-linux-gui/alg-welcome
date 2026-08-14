@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(alg-welcome VERSION 3.1.4 LANGUAGES CXX)
+
+# Read version from the VERSION file (single source of truth)
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" ALG_WELCOME_VERSION_STRING LIMIT_COUNT 1)
+
+project(alg-welcome VERSION ${ALG_WELCOME_VERSION_STRING} LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
