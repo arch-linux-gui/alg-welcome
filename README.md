@@ -1,86 +1,55 @@
 # Archer (ALG Welcome App)
 
-**Archer** is a fast, lightweight welcome application for ALG built with **Qt6 and modern C++**. This application simplifies your ALG experience by offering an intuitive graphical interface with features designed to help you get started and maintain your system with confidence.
+**Archer** is a fast, lightweight welcome/onboarding application for ALG, built with Qt6 and
+modern C++. It launches the Calamares installer on the live ISO, launches the ALG app store post
+install, and provides a few onboarding utilities (mirrorlist refresh, screen resolution, system
+updates, autostart, light/dark theme toggling).
 
-The name is part of a wider push across ALG apps toward recognizable, HPC-cluster-inspired codenames (mirrors `alg-installer` → *Challenger*).
-
-## Table of Contents
-
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
-- [Authors](#authors)
-- [Contact](#contact)
-
-## Features
-
-- **Install ALG:** Launch the Calamares installer for system installation (Live ISO only).
-- **System Updates:** Keep your system current with the built-in Pacman updater.
-- **Mirrorlist Updater:** Refresh your Arch Linux mirrorlist using reflector to ensure optimal package download speeds.
-- **Screen Resolution:** Adjust and manage your screen resolution settings directly from the application.
-- **Social Media Links:** Quick access to GitHub and Discord communities.
-- **AutoStart Management:** Enable or disable automatic startup of the welcome application on login.
-- **Theme Management:** Toggle between light and dark themes for KDE Plasma, GNOME, and Xfce desktop environments.
-- **Modern UI:** Enjoy a fast, native interface built with Qt6 and optimized C++17 with LTO (Link Time Optimization).
-
-## Installation
-
-### Prerequisites
+## Prerequisites
 
 - **C++ Compiler:** GCC 7+ or Clang 5+ with C++17 support
-- **CMake:** Version 3.16 or later
-- **Qt6:** Qt6 Core, Widgets, and Gui modules
-- **spdlog** and **fmt:** used for logging
-- **Operating System:** Made for ALG. Should work on Arch Linux, and its derivative distributions.
+- **CMake:** 3.16+
+- **Qt6:** Core, Widgets, Gui modules
+- **spdlog** and **fmt:** logging
+- **Catch2** (v3): test suite only, needed with the default `-DBUILD_TESTS=ON` (falls back to
+  CMake `FetchContent` if not installed locally)
 
-On Arch Linux, install the required dependencies:
+On Arch Linux:
 
 ```bash
-sudo pacman -S qt6-base spdlog fmt cmake make gcc
+sudo pacman -S qt6-base spdlog fmt catch2 cmake make gcc
 ```
 
-### Building from Source
+## Building
 
-1. **Clone the Repository:**
-   ```bash
-   git clone https://github.com/arch-linux-gui/alg-welcome.git
-   cd alg-welcome
-   ```
+```bash
+git clone https://github.com/arch-linux-gui/alg-welcome.git
+cd alg-welcome
+./build.sh              # or: cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j$(nproc)
+./build/archer
+```
 
-2. **Build the Application:**
-   ```bash
-   ./build.sh
-   ```
+Install system-wide:
 
-3. **Run the Application:**
-   ```bash
-   ./archer
-   ```
+```bash
+sudo cmake --install build
+```
 
-4. **Install System-Wide (Optional):**
-   ```bash
-   sudo make install
-   ```
+This installs the binary to `bin/archer`, the desktop file to `share/applications/archer.desktop`,
+the icon to `share/pixmaps/archer.png`, and the stylesheet to `share/archer/styles.qss`, relative
+to the install prefix (`/usr/local` by default).
 
-   This installs:
-   - Binary to `/usr/local/bin/archer`
-   - Desktop file to `/usr/local/share/applications/archer.desktop`
-   - Icon to `/usr/local/share/pixmaps/archer.png`
-   - Stylesheet to `/usr/local/share/archer/styles.qss`
+## Testing
 
-## Usage
+```bash
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j$(nproc)
+ctest --test-dir build --output-on-failure
+```
 
-When you launch **Archer**, you'll be greeted by a modern Qt interface that provides:
+Pass `-DBUILD_TESTS=OFF` to `cmake -B build` to skip building the test suite entirely.
 
-- **Install & Setup:** Install the ALG system (Live ISO only) or adjust screen resolution settings.
-- **Basic Utilities:** Update your system packages with Pacman or refresh the mirrorlist using reflector for faster downloads.
-- **Social Media Links:** Quick access to the GitHub repository and Discord community.
-- **Get Started:** Toggle autostart functionality and switch between light/dark themes for your desktop environment.
-- **About Us:** Learn more about the Arka Linux GUI project and its developers.
-
-### Command-Line Options
+## Command-Line Options
 
 ```bash
 archer [options]
@@ -96,23 +65,13 @@ Options:
 ```
 
 Logs are written to stderr and to a log file — `/var/log/archer/archer.log` if writable, falling
-back to a temp location (e.g. `/tmp/archer.log`) otherwise. The chosen path is printed at
-debug level on startup.
+back to a temp location (e.g. `/tmp/archer.log`) otherwise. The chosen path is printed at debug
+level on startup.
 
 ## License
 
-This project is distributed under the MIT License. See the [LICENSE](LICENSE) file for complete details.
+MIT — see [LICENSE](LICENSE).
 
 ## Authors
 
-- **DemonKiller** – Core Team Developer
-- **Akash6222** – Core Team Developer
-- **harshau007** – Core Team Developer
-
-## Contact
-
-For support or inquiries, please visit our [website](https://www.arkalinuxgui.org) or open an issue on our GitHub repository.
-
----
-
-*Arka Linux GUI: Simplifying the Arch Linux Experience, One Click at a Time.*
+DemonKiller, Akash6222, harshau007 — ALG Core Team. Website: https://www.arkalinuxgui.org
