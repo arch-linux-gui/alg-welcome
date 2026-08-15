@@ -1,10 +1,10 @@
 # Maintainer: Arka Linux GUI <https://www.arkalinuxgui.org>
 pkgname=archer
-pkgver=4.1.8
+pkgver=4.2.7
 pkgrel=1
 pkgdesc="ALG Welcome App - onboarding and maintenance utility for Arka Linux GUI"
 arch=('x86_64')
-url="https://github.com/arch-linux-gui/alg-welcome"
+url="https://github.com/arch-linux-gui/archer"
 license=('MIT')
 
 # `depends` covers only what's needed regardless of desktop environment: pkexec (autostart
