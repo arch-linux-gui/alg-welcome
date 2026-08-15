@@ -81,3 +81,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   matching `spdlog` level.
 - `KDETheme::getColorSchemeFromFile()` and `KDETheme::formatColorScheme()` made `public static`
   (neither touched instance state) so they're unit-testable without a live KDE session.
+- Root `CMakeLists.txt` split by directory: it now only declares the project/version, runs
+  `find_package()`, creates the `archer` target from `src/main.cpp`, links libraries, and
+  `add_subdirectory(src)`/`add_subdirectory(tests)`s. `src/CMakeLists.txt`,
+  `src/dialogs/CMakeLists.txt`, and `src/utils/CMakeLists.txt` each own a
+  `target_sources(archer PRIVATE ...)` block for their own files. Pure build-system
+  reorganization — no source, target, or install-rule behavior changed; verified via a clean
+  rebuild, a full `ctest` pass, and an equivalent `compile_commands.json`.

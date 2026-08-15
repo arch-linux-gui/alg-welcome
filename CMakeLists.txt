@@ -43,50 +43,11 @@ find_package(Threads REQUIRED)
 find_package(spdlog REQUIRED)
 find_package(fmt REQUIRED)
 
-# Source files
-set(SOURCES
-    src/main.cpp
-    src/WelcomeWindow.cpp
-    src/dialogs/AboutUsDialog.cpp
-    src/dialogs/MirrorListDialog.cpp
-    src/dialogs/MirrorListParsing.cpp
-)
+# Create executable (remaining sources added by src/CMakeLists.txt and its subdirectories,
+# via target_sources)
+add_executable(${PROJECT_NAME} src/main.cpp)
 
-# Header files
-set(HEADERS
-    src/WelcomeWindow.h
-    src/dialogs/AboutUsDialog.h
-    src/dialogs/MirrorListDialog.h
-    src/dialogs/MirrorListParsing.h
-)
-
-# Utils source files
-set(UTILS_SOURCES
-    src/utils/Extras.cpp
-    src/utils/Autostart.cpp
-    src/utils/Themes.cpp
-    src/utils/Resolution.cpp
-    src/utils/Updates.cpp
-    src/utils/Logging.cpp
-)
-
-# Utils header files
-set(UTILS_HEADERS
-    src/utils/Extras.h
-    src/utils/Autostart.h
-    src/utils/Themes.h
-    src/utils/Resolution.h
-    src/utils/Updates.h
-    src/utils/Logging.h
-)
-
-# Create executable
-add_executable(${PROJECT_NAME}
-    ${SOURCES}
-    ${HEADERS}
-    ${UTILS_SOURCES}
-    ${UTILS_HEADERS}
-)
+add_subdirectory(src)
 
 # Link Qt6 libraries
 target_link_libraries(${PROJECT_NAME}
