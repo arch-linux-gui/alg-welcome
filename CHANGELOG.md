@@ -140,6 +140,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   Linux:", the `archlinux:latest` CI container images, the reflector mirror path in the test
   fixture) and the `arch-linux-gui` GitHub org slug in repo URLs, which is confirmed live via
   `git remote -v` and not a branding string to rewrite.
+- Stale `alg-welcome` repo-name references in the GitHub URLs updated to `archer` (the repo itself
+  was renamed upstream as part of M2, but `PKGBUILD`'s `url=`/`source=` and `README.md`'s
+  `git clone`/`cd` instructions still pointed at the old name). `WelcomeWindow.cpp`'s GitHub button
+  links to the org page (no repo name in the URL), so it needed no change.
 
 ### Removed
 

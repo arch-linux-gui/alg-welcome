@@ -23,8 +23,8 @@ sudo pacman -S qt6-base spdlog fmt catch2 cmake make gcc
 ## Building
 
 ```bash
-git clone https://github.com/arch-linux-gui/alg-welcome.git
-cd alg-welcome
+git clone https://github.com/arch-linux-gui/archer.git
+cd archer
 ./build.sh              # or: cmake -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j$(nproc)
 ./build/archer
 ```

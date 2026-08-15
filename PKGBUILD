@@ -37,7 +37,7 @@ optdepends=(
     'xfce4-terminal: Xfce system-update terminal'
 )
 
-source=("archer::git+https://github.com/arch-linux-gui/alg-welcome.git#tag=v$pkgver")
+source=("archer::git+https://github.com/arch-linux-gui/archer.git#tag=v$pkgver")
 sha256sums=('SKIP')
 
 # The `VERSION` file (see project_management.md) is this project's single source of truth
