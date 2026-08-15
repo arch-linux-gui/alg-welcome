@@ -2,7 +2,7 @@
 pkgname=archer
 pkgver=4.1.8
 pkgrel=1
-pkgdesc="ALG Welcome App - onboarding and maintenance utility for Arch Linux GUI"
+pkgdesc="ALG Welcome App - onboarding and maintenance utility for Arka Linux GUI"
 arch=('x86_64')
 url="https://github.com/arch-linux-gui/alg-welcome"
 license=('MIT')

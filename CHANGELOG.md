@@ -134,6 +134,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `-n`/`--no-autostart` (registered on the CLI parser since M1 but never actually checked) is now
   wired up: `main()` skips the boot-time `Autostart::toggleAutostart(true)` call when the flag is
   set, matching the option's own `--help` description.
+- Remaining "Arch Linux GUI" branding text replaced with "Arka Linux GUI" in `main.cpp`
+  (`QApplication::setOrganizationName()`, `setApplicationDescription()`) and `PKGBUILD`'s
+  `pkgdesc`. Left unchanged: mentions of the Arch Linux *distribution* itself (README's "On Arch
+  Linux:", the `archlinux:latest` CI container images, the reflector mirror path in the test
+  fixture) and the `arch-linux-gui` GitHub org slug in repo URLs, which is confirmed live via
+  `git remote -v` and not a branding string to rewrite.
 
 ### Removed
 

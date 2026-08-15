@@ -20,13 +20,13 @@ main( int argc, char* argv[] )
     QApplication app( argc, argv );
     app.setApplicationVersion( ARCHER_VERSION );
     app.setDesktopFileName( "archer" );
-    app.setOrganizationName( "Arch Linux GUI" );
+    app.setOrganizationName( "Arka Linux GUI" );
     app.setOrganizationDomain( "arkalinuxgui.org" );
 
     // Setup command line parser. -v is reclaimed for verbosity (see below), so --version is
     // registered manually instead of via addVersionOption().
     QCommandLineParser parser;
-    parser.setApplicationDescription( "Archer - A welcome screen for Arch Linux GUI" );
+    parser.setApplicationDescription( "Archer - A welcome screen for Arka Linux GUI" );
     parser.addHelpOption();
 
     QCommandLineOption versionOption( QStringList() << "version", "Display version information" );
