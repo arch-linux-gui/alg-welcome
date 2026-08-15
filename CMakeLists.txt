@@ -49,6 +49,7 @@ set(SOURCES
     src/WelcomeWindow.cpp
     src/dialogs/AboutUsDialog.cpp
     src/dialogs/MirrorListDialog.cpp
+    src/dialogs/MirrorListParsing.cpp
 )
 
 # Header files
@@ -56,6 +57,7 @@ set(HEADERS
     src/WelcomeWindow.h
     src/dialogs/AboutUsDialog.h
     src/dialogs/MirrorListDialog.h
+    src/dialogs/MirrorListParsing.h
 )
 
 # Utils source files
@@ -110,24 +112,9 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 # --- Tests ---
 option(BUILD_TESTS "Build test utilities" ON)
 if(BUILD_TESTS)
-    add_executable(calamares_status_test
-        tests/calamares_status.cpp
-        src/utils/Extras.cpp
-    )
-    target_compile_definitions(calamares_status_test PRIVATE ENABLE_TEST_HOOKS)
-    target_include_directories(calamares_status_test PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-    )
-    target_link_libraries(calamares_status_test
-        Qt6::Core
-        Threads::Threads
-        spdlog::spdlog
-        fmt::fmt
-    )
+    enable_testing()
+    add_subdirectory(tests)
 endif()
-
-# Find threads package (for std::thread)
-find_package(Threads REQUIRED)
 
 # Install target
 install(TARGETS ${PROJECT_NAME}

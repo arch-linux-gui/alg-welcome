@@ -34,16 +34,19 @@ public:
     KDETheme();
     QString getCurrentTheme() override;
     void setTheme(bool dark) override;
-    
+
+    // Public and static: neither touches instance state, and exposing them lets unit tests
+    // exercise the parsing logic directly without needing a KDETheme instance or a live KDE.
+    static QString getColorSchemeFromFile(const QString &configFile,
+                                           const QString &sectionName,
+                                           const QString &keyName);
+    static QString formatColorScheme(const QString &colorScheme);
+
 private:
     static constexpr const char* DEFAULT_COLOR_SCHEME = "org.kde.breeze.desktop";
-    
-    QString getColorSchemeFromFile(const QString &configFile, 
-                                   const QString &sectionName, 
-                                   const QString &keyName);
-    QString formatColorScheme(const QString &colorScheme);
+
     QString getLookAndFeelPackage();
-    
+
     QString homeDir;
     QStringList configFiles;
 };

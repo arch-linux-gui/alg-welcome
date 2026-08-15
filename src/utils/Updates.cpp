@@ -7,29 +7,38 @@
 
 namespace Updates {
 
-void updateSystem(const QString &desktopEnv) {
+Command commandFor(const QString &desktopEnv) {
     if (desktopEnv == "xfce") {
-        QProcess::startDetached("xfce4-terminal", QStringList() 
-            << "-x" << "pkexec" << "pacman" << "--noconfirm" << "-Syu");
-        
-    } else if (desktopEnv == "gnome") {
-        QProcess::startDetached("kgx", QStringList() 
-            << "--" << "sudo" << "pacman" << "--noconfirm" << "-Syu");
-        
-    } else if (desktopEnv == "kde") {
+        return {"xfce4-terminal", {"-x", "pkexec", "pacman", "--noconfirm", "-Syu"}};
+    }
+    if (desktopEnv == "gnome") {
+        return {"kgx", {"--", "sudo", "pacman", "--noconfirm", "-Syu"}};
+    }
+    if (desktopEnv == "kde") {
+        return {"konsole", {"-e", "sudo", "pacman", "--noconfirm", "-Syu"}};
+    }
+    return {};
+}
+
+void updateSystem(const QString &desktopEnv) {
+    const auto command = commandFor(desktopEnv);
+    if (command.program.isEmpty()) {
+        spdlog::warn("Unsupported desktop environment: {}", desktopEnv.toStdString());
+        return;
+    }
+
+    if (desktopEnv == "kde") {
         // Remove problematic environment variables for KDE
         auto env = QProcessEnvironment::systemEnvironment();
         env.remove("LD_LIBRARY_PATH");
         env.remove("QT_PLUGIN_PATH");
         env.remove("QT_QPA_PLATFORM_THEME");
-        
+
         QProcess process;
         process.setProcessEnvironment(env);
-        process.startDetached("konsole", QStringList() 
-            << "-e" << "sudo" << "pacman" << "--noconfirm" << "-Syu");
-        
+        process.startDetached(command.program, command.arguments);
     } else {
-        spdlog::warn("Unsupported desktop environment: {}", desktopEnv.toStdString());
+        QProcess::startDetached(command.program, command.arguments);
     }
 }
 

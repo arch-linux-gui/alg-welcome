@@ -1,4 +1,5 @@
 #include "MirrorListDialog.h"
+#include "MirrorListParsing.h"
 
 #include <spdlog/spdlog.h>
 
@@ -14,7 +15,6 @@
 #include <QTreeWidget>
 #include <QHeaderView>
 #include <QProcess>
-#include <QRegularExpression>
 #include <QMetaObject>
 #include <QProcessEnvironment>
 
@@ -378,60 +378,22 @@ void MirrorListDialog::processLogLine(const QString &logLine) {
     
     spdlog::trace("Processing log line #{}: {}", lineCounter, logLine.left(100).toStdString());
 
-    // Regular expression to match the log line format
-    // Example: [2024-01-15 10:30:45] INFO: https://mirror.example.com 5.2 MiB/s 0.5 s
-    static QRegularExpression logPattern(R"(^\[.*?\]\s+(INFO|WARNING|ERROR):\s+(.+)$)");
-    auto matches = logPattern.match(logLine);
+    const auto parsed = MirrorListParsing::parseLine(logLine);
 
-    if (matches.hasMatch()) {
-        const QString logType = matches.captured(1);
-        const QString content = matches.captured(2);
-
-        if (logType == "INFO") {
-            // Try to parse server info
-            static QRegularExpression serverPattern(R"(^(https?://\S+)\s+(\S+\s+\S+/s)\s+(\S+\s+s)$)");
-            auto serverMatches = serverPattern.match(content);
-
-            if (serverMatches.hasMatch()) {
-                const QString server = serverMatches.captured(1);
-                const QString rate = serverMatches.captured(2);
-                const QString time = serverMatches.captured(3);
-                spdlog::trace("Server match: {}, {}, {}", server.toStdString(), rate.toStdString(), time.toStdString());
-
-                QMetaObject::invokeMethod(workerSignals, "logAppended",
-                    Qt::QueuedConnection,
-                    Q_ARG(QString, server),
-                    Q_ARG(QString, rate),
-                    Q_ARG(QString, time));
-            } else {
-                spdlog::trace("INFO without server pattern: {}", content.toStdString());
-                QMetaObject::invokeMethod(workerSignals, "logAppended",
-                    Qt::QueuedConnection,
-                    Q_ARG(QString, content),
-                    Q_ARG(QString, ""),
-                    Q_ARG(QString, ""));
-            }
-        } else {  // WARNING or ERROR
-            if (logType == "WARNING") {
-                spdlog::warn("reflector: {}", content.toStdString());
-            } else {
-                spdlog::error("reflector: {}", content.toStdString());
-            }
-            QMetaObject::invokeMethod(workerSignals, "logAppended",
-                Qt::QueuedConnection,
-                Q_ARG(QString, content),
-                Q_ARG(QString, logType),
-                Q_ARG(QString, "N/A"));
-        }
+    if (parsed.logType == "WARNING") {
+        spdlog::warn("reflector: {}", parsed.server.toStdString());
+    } else if (parsed.logType == "ERROR") {
+        spdlog::error("reflector: {}", parsed.server.toStdString());
     } else {
-        // If no pattern match, still display the line
-        spdlog::trace("No pattern match, displaying raw: {}", logLine.left(80).toStdString());
-        QMetaObject::invokeMethod(workerSignals, "logAppended",
-            Qt::QueuedConnection,
-            Q_ARG(QString, logLine),
-            Q_ARG(QString, ""),
-            Q_ARG(QString, ""));
+        spdlog::trace("Parsed -> server: {}, rate: {}, time: {}",
+                       parsed.server.toStdString(), parsed.rate.toStdString(), parsed.time.toStdString());
     }
+
+    QMetaObject::invokeMethod(workerSignals, "logAppended",
+        Qt::QueuedConnection,
+        Q_ARG(QString, parsed.server),
+        Q_ARG(QString, parsed.rate),
+        Q_ARG(QString, parsed.time));
 }
 
 void MirrorListDialog::appendLogToUI(const QString &server, const QString &rate, const QString &time) {

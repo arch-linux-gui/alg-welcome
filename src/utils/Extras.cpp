@@ -2,6 +2,7 @@
 
 #include <spdlog/spdlog.h>
 
+#include <QDir>
 #include <QProcess>
 #include <QFile>
 #include <QProcessEnvironment>
@@ -28,8 +29,36 @@ bool checkIfLiveISO() {
     return QFile::exists("/run/archiso");
 }
 
+bool isProcessRunning(const QString &processName) {
+    QDir procDir("/proc");
+    const auto entries = procDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    for (const QString &entry : entries) {
+        bool isPid = false;
+        entry.toLongLong(&isPid);
+        if (!isPid) {
+            continue;
+        }
+
+        QFile commFile("/proc/" + entry + "/comm");
+        if (!commFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            // Process likely exited between listing /proc and reading its comm file; skip it.
+            continue;
+        }
+
+        if (QString::fromUtf8(commFile.readAll()).trimmed() == processName) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool isCalamaresRunning() {
-    return calamaresRunning.load();
+    // OR the in-process flag (set around this app's own launch of Calamares) with a real OS
+    // process probe, so a Calamares instance started outside this app's own launch path (or
+    // still running across an app restart) is still detected correctly.
+    return calamaresRunning.load() || isProcessRunning("calamares");
 }
 
 #ifdef ENABLE_TEST_HOOKS
