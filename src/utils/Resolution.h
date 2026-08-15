@@ -4,19 +4,21 @@
 #include <QString>
 #include <QStringList>
 
-namespace Resolution {
+namespace Resolution
+{
 
-struct Command {
+struct Command
+{
     QString program;
     QStringList arguments;
 };
 
 // Pure: selects the display-settings command for a desktop environment, without running it.
 // Returns a Command with an empty `program` for an unsupported desktopEnv.
-Command commandFor(const QString &desktopEnv);
+Command commandFor( const QString& desktopEnv );
 
-void screenResolution(const QString &desktopEnv);
+void screenResolution( const QString& desktopEnv );
 
-} // namespace Resolution
+}  // namespace Resolution
 
-#endif // RESOLUTION_H
+#endif  // RESOLUTION_H

@@ -3,15 +3,16 @@
 
 #include <QDialog>
 
-class AboutUsDialog : public QDialog {
+class AboutUsDialog : public QDialog
+{
     Q_OBJECT
 
 public:
-    explicit AboutUsDialog(QWidget *parent = nullptr);
+    explicit AboutUsDialog( QWidget* parent = nullptr );
     ~AboutUsDialog() override = default;
 
 private:
     void setupUI();
 };
 
-#endif // ABOUTUSDIALOG_H
+#endif  // ABOUTUSDIALOG_H

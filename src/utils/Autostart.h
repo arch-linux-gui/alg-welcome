@@ -1,9 +1,10 @@
 #ifndef AUTOSTART_H
 #define AUTOSTART_H
 
-namespace Autostart {
-    void toggleAutostart(bool enable);
-    bool checkFileExists();
-}
+namespace Autostart
+{
+void toggleAutostart( bool enable );
+bool checkFileExists();
+}  // namespace Autostart
 
-#endif // AUTOSTART_H
+#endif  // AUTOSTART_H

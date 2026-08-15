@@ -2,26 +2,29 @@
 
 #include <spdlog/spdlog.h>
 
-#include <QProcess>
-#include <QFile>
-#include <QTextStream>
-#include <QStandardPaths>
 #include <QDir>
+#include <QFile>
+#include <QProcess>
+#include <QStandardPaths>
+#include <QTextStream>
 
-namespace Themes {
+namespace Themes
+{
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
-bool isDarkTheme(const QString &theme) {
+bool
+isDarkTheme( const QString& theme )
+{
     const auto themeLower = theme.toLower();
-    const QStringList darkKeywords = {
-        "dark", "breezedark", "qogirdark", "prefer-dark", "orchis-dark"
-    };
-    
-    for (const auto &keyword : darkKeywords) {
-        if (themeLower.contains(keyword)) {
+    const QStringList darkKeywords = { "dark", "breezedark", "qogirdark", "prefer-dark", "orchis-dark" };
+
+    for ( const auto& keyword : darkKeywords )
+    {
+        if ( themeLower.contains( keyword ) )
+        {
             return true;
         }
     }
@@ -32,133 +35,156 @@ bool isDarkTheme(const QString &theme) {
 // KDETheme Implementation
 // ============================================================================
 
-KDETheme::KDETheme() {
-    homeDir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-    configFiles = {
-        homeDir + "/.config/kdeglobals",
-        homeDir + "/.kde4/share/config/kdeglobals",
-        "/etc/kde/kdeglobals"
-    };
+KDETheme::KDETheme()
+{
+    homeDir = QStandardPaths::writableLocation( QStandardPaths::HomeLocation );
+    configFiles
+        = { homeDir + "/.config/kdeglobals", homeDir + "/.kde4/share/config/kdeglobals", "/etc/kde/kdeglobals" };
 }
 
-QString KDETheme::getColorSchemeFromFile(const QString &configFile,
-                                         const QString &sectionName,
-                                         const QString &keyName) {
-    QFile file(configFile);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+QString
+KDETheme::getColorSchemeFromFile( const QString& configFile, const QString& sectionName, const QString& keyName )
+{
+    QFile file( configFile );
+    if ( !file.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    {
         return QString();
     }
-    
-    QTextStream in(&file);
+
+    QTextStream in( &file );
     QString currentSection;
-    
-    while (!in.atEnd()) {
+
+    while ( !in.atEnd() )
+    {
         QString line = in.readLine().trimmed();
-        
+
         // Skip empty lines and comments
-        if (line.isEmpty() || line.startsWith('#')) {
+        if ( line.isEmpty() || line.startsWith( '#' ) )
+        {
             continue;
         }
-        
+
         // Check for section headers
-        if (line.startsWith('[') && line.endsWith(']')) {
+        if ( line.startsWith( '[' ) && line.endsWith( ']' ) )
+        {
             currentSection = line;
             continue;
         }
-        
+
         // Check if we're in the target section and found the key
-        if (currentSection == sectionName && line.startsWith(keyName + "=")) {
-            const auto value = line.section('=', 1);
+        if ( currentSection == sectionName && line.startsWith( keyName + "=" ) )
+        {
+            const auto value = line.section( '=', 1 );
             file.close();
             return value;
         }
     }
-    
+
     file.close();
     return QString();
 }
 
-QString KDETheme::formatColorScheme(const QString &colorScheme) {
-    static const QMap<QString, QString> schemeMap = {
-        {"org.kde.breeze.desktop", "org.kde.breeze.desktop"},
-        {"org.kde.breezedark.desktop", "org.kde.breezedark.desktop"},
-        {"breeze", "org.kde.breeze.desktop"},
-        {"breezedark", "org.kde.breezedark.desktop"}
-    };
-    
-    if (schemeMap.contains(colorScheme)) {
-        return schemeMap[colorScheme];
+QString
+KDETheme::formatColorScheme( const QString& colorScheme )
+{
+    static const QMap< QString, QString > schemeMap = { { "org.kde.breeze.desktop", "org.kde.breeze.desktop" },
+                                                        { "org.kde.breezedark.desktop", "org.kde.breezedark.desktop" },
+                                                        { "breeze", "org.kde.breeze.desktop" },
+                                                        { "breezedark", "org.kde.breezedark.desktop" } };
+
+    if ( schemeMap.contains( colorScheme ) )
+    {
+        return schemeMap[ colorScheme ];
     }
-    
+
     // Handle themed KDE
-    if (colorScheme.endsWith(".colors")) {
-        return QFileInfo(colorScheme).baseName();
+    if ( colorScheme.endsWith( ".colors" ) )
+    {
+        return QFileInfo( colorScheme ).baseName();
     }
-    
+
     return colorScheme;
 }
 
-QString KDETheme::getLookAndFeelPackage() {
-    for (const auto &configFile : configFiles) {
+QString
+KDETheme::getLookAndFeelPackage()
+{
+    for ( const auto& configFile : configFiles )
+    {
         // Try pure KDE approach
-        auto colorScheme = getColorSchemeFromFile(configFile, "[KDE]", "LookAndFeelPackage");
-        if (!colorScheme.isEmpty()) {
-            const auto formatted = formatColorScheme(colorScheme);
-            if (formatted != "org.kde.breeze.desktop" && formatted != "org.kde.breezedark.desktop") {
+        auto colorScheme = getColorSchemeFromFile( configFile, "[KDE]", "LookAndFeelPackage" );
+        if ( !colorScheme.isEmpty() )
+        {
+            const auto formatted = formatColorScheme( colorScheme );
+            if ( formatted != "org.kde.breeze.desktop" && formatted != "org.kde.breezedark.desktop" )
+            {
                 // Try themed approach
-                colorScheme = getColorSchemeFromFile(configFile, "[General]", "ColorScheme");
-                if (!colorScheme.isEmpty()) {
-                    return formatColorScheme(colorScheme);
+                colorScheme = getColorSchemeFromFile( configFile, "[General]", "ColorScheme" );
+                if ( !colorScheme.isEmpty() )
+                {
+                    return formatColorScheme( colorScheme );
                 }
-            } else {
+            }
+            else
+            {
                 return formatted;
             }
         }
-        
+
         // Try themed KDE approach
-        colorScheme = getColorSchemeFromFile(configFile, "[General]", "ColorScheme");
-        if (!colorScheme.isEmpty()) {
-            return formatColorScheme(colorScheme);
+        colorScheme = getColorSchemeFromFile( configFile, "[General]", "ColorScheme" );
+        if ( !colorScheme.isEmpty() )
+        {
+            return formatColorScheme( colorScheme );
         }
     }
-    
+
     return DEFAULT_COLOR_SCHEME;
 }
 
-QString KDETheme::getCurrentTheme() {
+QString
+KDETheme::getCurrentTheme()
+{
     const auto theme = getLookAndFeelPackage();
-    spdlog::debug("Current KDE Theme: {}", theme.toStdString());
+    spdlog::debug( "Current KDE Theme: {}", theme.toStdString() );
     return theme;
 }
 
-void KDETheme::setTheme(bool dark) {
+void
+KDETheme::setTheme( bool dark )
+{
     const auto currentPackage = getLookAndFeelPackage();
 
-    if (currentPackage.contains("org.kde.breeze")) {
+    if ( currentPackage.contains( "org.kde.breeze" ) )
+    {
         // Pure breeze theme
         const QString style = dark ? "org.kde.breezedark.desktop" : "org.kde.breeze.desktop";
-        QProcess::execute("lookandfeeltool", QStringList() << "--apply" << style);
-        spdlog::info("KDE theme changed to {}", style.toStdString());
-    } else {
+        QProcess::execute( "lookandfeeltool", QStringList() << "--apply" << style );
+        spdlog::info( "KDE theme changed to {}", style.toStdString() );
+    }
+    else
+    {
         // Themed KDE (Qogir)
         QString style, winDeco;
-        if (dark) {
+        if ( dark )
+        {
             style = "Qogirdark";
             winDeco = "__aurorae__svg__Qogir-dark-circle";
-        } else {
+        }
+        else
+        {
             style = "Qogirlight";
             winDeco = "__aurorae__svg__Qogir-light-circle";
         }
-        
-        const QString cmd = QString(
-            "plasma-apply-colorscheme %1 && "
-            "kwriteconfig6 --file %2/.config/kwinrc "
-            "--group org.kde.kdecoration2 --key theme %3 && "
-            "qdbus6 org.kde.KWin /KWin reconfigure"
-        ).arg(style, homeDir, winDeco);
-        
-        QProcess::execute("sh", QStringList() << "-c" << cmd);
-        spdlog::info("KDE theme changed to {}", style.toStdString());
+
+        const QString cmd = QString( "plasma-apply-colorscheme %1 && "
+                                     "kwriteconfig6 --file %2/.config/kwinrc "
+                                     "--group org.kde.kdecoration2 --key theme %3 && "
+                                     "qdbus6 org.kde.KWin /KWin reconfigure" )
+                                .arg( style, homeDir, winDeco );
+
+        QProcess::execute( "sh", QStringList() << "-c" << cmd );
+        spdlog::info( "KDE theme changed to {}", style.toStdString() );
     }
 }
 
@@ -166,129 +192,151 @@ void KDETheme::setTheme(bool dark) {
 // GNOMETheme Implementation
 // ============================================================================
 
-const GNOMETheme::ThemeConfig GNOMETheme::DARK_THEME = {
-    "Tela-circle-dark",
-    "Orchis-Red-Dark",
-    "Orchis-Red-Dark",
-    "prefer-dark"
-};
+const GNOMETheme::ThemeConfig GNOMETheme::DARK_THEME
+    = { "Tela-circle-dark", "Orchis-Red-Dark", "Orchis-Red-Dark", "prefer-dark" };
 
-const GNOMETheme::ThemeConfig GNOMETheme::LIGHT_THEME = {
-    "Tela-circle",
-    "Orchis-Red-Light",
-    "Orchis-Red-Light",
-    "prefer-light"
-};
+const GNOMETheme::ThemeConfig GNOMETheme::LIGHT_THEME
+    = { "Tela-circle", "Orchis-Red-Light", "Orchis-Red-Light", "prefer-light" };
 
-GNOMETheme::GNOMETheme() {
+GNOMETheme::GNOMETheme()
+{
     // Constructor
 }
 
-QString GNOMETheme::getGSetting(const QString &schema, const QString &key) {
+QString
+GNOMETheme::getGSetting( const QString& schema, const QString& key )
+{
     QProcess process;
-    process.start("gsettings", QStringList() << "get" << schema << key);
+    process.start( "gsettings", QStringList() << "get" << schema << key );
     process.waitForFinished();
-    
-    auto output = QString::fromUtf8(process.readAllStandardOutput()).trimmed();
+
+    auto output = QString::fromUtf8( process.readAllStandardOutput() ).trimmed();
     // Remove quotes
-    output.remove('\'');
-    output.remove('\"');
+    output.remove( '\'' );
+    output.remove( '\"' );
     return output;
 }
 
-void GNOMETheme::setGSetting(const QString &schema, const QString &key, const QString &value) {
-    QProcess::execute("gsettings", QStringList() << "set" << schema << key << value);
+void
+GNOMETheme::setGSetting( const QString& schema, const QString& key, const QString& value )
+{
+    QProcess::execute( "gsettings", QStringList() << "set" << schema << key << value );
 }
 
-QString GNOMETheme::getCurrentTheme() {
-    const auto colorScheme = getGSetting("org.gnome.desktop.interface", "color-scheme");
-    const auto gtkTheme = getGSetting("org.gnome.desktop.interface", "gtk-theme");
-    
+QString
+GNOMETheme::getCurrentTheme()
+{
+    const auto colorScheme = getGSetting( "org.gnome.desktop.interface", "color-scheme" );
+    const auto gtkTheme = getGSetting( "org.gnome.desktop.interface", "gtk-theme" );
+
     // Determine theme based on color scheme or GTK theme
     const auto theme = !colorScheme.isEmpty() ? colorScheme : gtkTheme;
-    spdlog::debug("Current GNOME Theme: {}", theme.toStdString());
+    spdlog::debug( "Current GNOME Theme: {}", theme.toStdString() );
     return theme;
 }
 
-void GNOMETheme::setTheme(bool dark) {
-    const auto &themeConfig = dark ? DARK_THEME : LIGHT_THEME;
+void
+GNOMETheme::setTheme( bool dark )
+{
+    const auto& themeConfig = dark ? DARK_THEME : LIGHT_THEME;
 
     // Set icon theme
-    setGSetting("org.gnome.desktop.interface", "icon-theme", themeConfig.icons);
-    spdlog::debug("GNOME icons set to: {}", themeConfig.icons.toStdString());
+    setGSetting( "org.gnome.desktop.interface", "icon-theme", themeConfig.icons );
+    spdlog::debug( "GNOME icons set to: {}", themeConfig.icons.toStdString() );
 
     // Set GTK theme (Legacy Applications)
-    setGSetting("org.gnome.desktop.interface", "gtk-theme", themeConfig.gtk);
-    spdlog::debug("GNOME GTK theme set to: {}", themeConfig.gtk.toStdString());
+    setGSetting( "org.gnome.desktop.interface", "gtk-theme", themeConfig.gtk );
+    spdlog::debug( "GNOME GTK theme set to: {}", themeConfig.gtk.toStdString() );
 
     // Set color scheme
-    setGSetting("org.gnome.desktop.interface", "color-scheme", themeConfig.colorScheme);
-    spdlog::debug("GNOME color scheme set to: {}", themeConfig.colorScheme.toStdString());
+    setGSetting( "org.gnome.desktop.interface", "color-scheme", themeConfig.colorScheme );
+    spdlog::debug( "GNOME color scheme set to: {}", themeConfig.colorScheme.toStdString() );
 
     // Set shell theme (requires user-theme extension)
-    setGSetting("org.gnome.shell.extensions.user-theme", "name", themeConfig.shell);
-    spdlog::info("GNOME theme changed to {} ({})", dark ? "dark" : "light", themeConfig.gtk.toStdString());
+    setGSetting( "org.gnome.shell.extensions.user-theme", "name", themeConfig.shell );
+    spdlog::info( "GNOME theme changed to {} ({})", dark ? "dark" : "light", themeConfig.gtk.toStdString() );
 }
 
 // ============================================================================
 // XFCETheme Implementation
 // ============================================================================
 
-XFCETheme::XFCETheme() {
+XFCETheme::XFCETheme()
+{
     // Constructor
 }
 
-QString XFCETheme::getXfconfValue(const QString &channel, const QString &propertyPath) {
+QString
+XFCETheme::getXfconfValue( const QString& channel, const QString& propertyPath )
+{
     QProcess process;
-    process.start("xfconf-query", QStringList() << "-c" << channel << "-p" << propertyPath);
+    process.start( "xfconf-query", QStringList() << "-c" << channel << "-p" << propertyPath );
     process.waitForFinished();
-    
-    return QString::fromUtf8(process.readAllStandardOutput()).trimmed();
+
+    return QString::fromUtf8( process.readAllStandardOutput() ).trimmed();
 }
 
-void XFCETheme::setXfconfValue(const QString &channel, const QString &propertyPath, const QString &value) {
-    QProcess::execute("xfconf-query", QStringList() << "-c" << channel << "-p" << propertyPath << "-s" << value);
+void
+XFCETheme::setXfconfValue( const QString& channel, const QString& propertyPath, const QString& value )
+{
+    QProcess::execute( "xfconf-query", QStringList() << "-c" << channel << "-p" << propertyPath << "-s" << value );
 }
 
-QString XFCETheme::getCurrentTheme() {
-    const auto theme = getXfconfValue("xsettings", "/Net/ThemeName");
-    spdlog::debug("Current XFCE Theme: {}", theme.toStdString());
+QString
+XFCETheme::getCurrentTheme()
+{
+    const auto theme = getXfconfValue( "xsettings", "/Net/ThemeName" );
+    spdlog::debug( "Current XFCE Theme: {}", theme.toStdString() );
     return theme;
 }
 
-void XFCETheme::setTheme(bool dark) {
+void
+XFCETheme::setTheme( bool dark )
+{
     const auto currentTheme = getCurrentTheme();
 
     // Determine theme based on current theme
     QString style;
-    if (currentTheme.contains("Qogir")) {
+    if ( currentTheme.contains( "Qogir" ) )
+    {
         style = dark ? "Qogir-Dark" : "Qogir-Light";
-    } else {
+    }
+    else
+    {
         style = dark ? "Adwaita-dark" : "Adwaita";
     }
 
     // Set GTK theme
-    setXfconfValue("xsettings", "/Net/ThemeName", style);
-    spdlog::debug("XFCE GTK theme set to: {}", style.toStdString());
+    setXfconfValue( "xsettings", "/Net/ThemeName", style );
+    spdlog::debug( "XFCE GTK theme set to: {}", style.toStdString() );
 
     // Set window manager theme
-    setXfconfValue("xfwm4", "/general/theme", style);
-    spdlog::info("XFCE theme changed to {}", style.toStdString());
+    setXfconfValue( "xfwm4", "/general/theme", style );
+    spdlog::info( "XFCE theme changed to {}", style.toStdString() );
 }
 
 // ============================================================================
 // Factory Function
 // ============================================================================
 
-std::unique_ptr<ThemeManager> getThemeManager(const QString &desktopEnv) {
-    if (desktopEnv == "kde") {
-        return std::make_unique<KDETheme>();
-    } else if (desktopEnv == "gnome") {
-        return std::make_unique<GNOMETheme>();
-    } else if (desktopEnv == "xfce") {
-        return std::make_unique<XFCETheme>();
-    } else {
-        spdlog::warn("Unsupported desktop environment: {}", desktopEnv.toStdString());
+std::unique_ptr< ThemeManager >
+getThemeManager( const QString& desktopEnv )
+{
+    if ( desktopEnv == "kde" )
+    {
+        return std::make_unique< KDETheme >();
+    }
+    else if ( desktopEnv == "gnome" )
+    {
+        return std::make_unique< GNOMETheme >();
+    }
+    else if ( desktopEnv == "xfce" )
+    {
+        return std::make_unique< XFCETheme >();
+    }
+    else
+    {
+        spdlog::warn( "Unsupported desktop environment: {}", desktopEnv.toStdString() );
         return nullptr;
     }
 }
@@ -297,21 +345,29 @@ std::unique_ptr<ThemeManager> getThemeManager(const QString &desktopEnv) {
 // Public API Functions
 // ============================================================================
 
-QString getCurrentTheme(const QString &desktopEnv) {
-    auto manager = getThemeManager(desktopEnv);
-    if (manager) {
+QString
+getCurrentTheme( const QString& desktopEnv )
+{
+    auto manager = getThemeManager( desktopEnv );
+    if ( manager )
+    {
         return manager->getCurrentTheme();
     }
     return QString();
 }
 
-void toggleTheme(bool dark, const QString &desktopEnv) {
-    auto manager = getThemeManager(desktopEnv);
-    if (manager) {
-        manager->setTheme(dark);
-    } else {
-        spdlog::warn("Cannot toggle theme for unsupported desktop environment: {}", desktopEnv.toStdString());
+void
+toggleTheme( bool dark, const QString& desktopEnv )
+{
+    auto manager = getThemeManager( desktopEnv );
+    if ( manager )
+    {
+        manager->setTheme( dark );
+    }
+    else
+    {
+        spdlog::warn( "Cannot toggle theme for unsupported desktop environment: {}", desktopEnv.toStdString() );
     }
 }
 
-} // namespace Themes
+}  // namespace Themes

@@ -3,9 +3,11 @@
 
 #include <QString>
 
-namespace MirrorListParsing {
+namespace MirrorListParsing
+{
 
-struct ParsedLine {
+struct ParsedLine
+{
     // "Server" UI column: a mirror URL, an INFO message, or the raw line if nothing matched.
     QString server;
     // "Rate" UI column: an actual rate (e.g. "5.2 MiB/s") for a matched server line, or the
@@ -21,8 +23,8 @@ struct ParsedLine {
 //   [2024-01-15 10:30:45] INFO: https://mirror.example.com 5.2 MiB/s 0.5 s
 //   [2024-01-15 10:30:45] WARNING: some message
 // Falls back to logType="" with the raw line in `server` if nothing matches.
-ParsedLine parseLine(const QString &logLine);
+ParsedLine parseLine( const QString& logLine );
 
-} // namespace MirrorListParsing
+}  // namespace MirrorListParsing
 
-#endif // MIRRORLISTPARSING_H
+#endif  // MIRRORLISTPARSING_H

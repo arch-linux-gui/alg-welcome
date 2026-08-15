@@ -1,46 +1,48 @@
 #ifndef THEMES_H
 #define THEMES_H
 
-#include <QString>
 #include <QMap>
+#include <QString>
 #include <memory>
 
-namespace Themes {
+namespace Themes
+{
 
 // Forward declarations
 class ThemeManager;
 
 // Check if a theme name indicates a dark theme
-bool isDarkTheme(const QString &theme);
+bool isDarkTheme( const QString& theme );
 
 // Get current theme for the desktop environment
-QString getCurrentTheme(const QString &desktopEnv);
+QString getCurrentTheme( const QString& desktopEnv );
 
 // Toggle between light and dark theme
-void toggleTheme(bool dark, const QString &desktopEnv);
+void toggleTheme( bool dark, const QString& desktopEnv );
 
 // Abstract base class for theme managers
-class ThemeManager {
+class ThemeManager
+{
 public:
     virtual ~ThemeManager() = default;
-    
+
     virtual QString getCurrentTheme() = 0;
-    virtual void setTheme(bool dark) = 0;
+    virtual void setTheme( bool dark ) = 0;
 };
 
 // KDE Plasma theme manager
-class KDETheme : public ThemeManager {
+class KDETheme : public ThemeManager
+{
 public:
     KDETheme();
     QString getCurrentTheme() override;
-    void setTheme(bool dark) override;
+    void setTheme( bool dark ) override;
 
     // Public and static: neither touches instance state, and exposing them lets unit tests
     // exercise the parsing logic directly without needing a KDETheme instance or a live KDE.
-    static QString getColorSchemeFromFile(const QString &configFile,
-                                           const QString &sectionName,
-                                           const QString &keyName);
-    static QString formatColorScheme(const QString &colorScheme);
+    static QString
+    getColorSchemeFromFile( const QString& configFile, const QString& sectionName, const QString& keyName );
+    static QString formatColorScheme( const QString& colorScheme );
 
 private:
     static constexpr const char* DEFAULT_COLOR_SCHEME = "org.kde.breeze.desktop";
@@ -52,42 +54,45 @@ private:
 };
 
 // GNOME theme manager
-class GNOMETheme : public ThemeManager {
+class GNOMETheme : public ThemeManager
+{
 public:
     GNOMETheme();
     QString getCurrentTheme() override;
-    void setTheme(bool dark) override;
-    
+    void setTheme( bool dark ) override;
+
 private:
-    struct ThemeConfig {
+    struct ThemeConfig
+    {
         QString icons;
         QString shell;
         QString gtk;
         QString colorScheme;
     };
-    
+
     static const ThemeConfig DARK_THEME;
     static const ThemeConfig LIGHT_THEME;
-    
-    QString getGSetting(const QString &schema, const QString &key);
-    void setGSetting(const QString &schema, const QString &key, const QString &value);
+
+    QString getGSetting( const QString& schema, const QString& key );
+    void setGSetting( const QString& schema, const QString& key, const QString& value );
 };
 
 // XFCE theme manager
-class XFCETheme : public ThemeManager {
+class XFCETheme : public ThemeManager
+{
 public:
     XFCETheme();
     QString getCurrentTheme() override;
-    void setTheme(bool dark) override;
-    
+    void setTheme( bool dark ) override;
+
 private:
-    QString getXfconfValue(const QString &channel, const QString &propertyPath);
-    void setXfconfValue(const QString &channel, const QString &propertyPath, const QString &value);
+    QString getXfconfValue( const QString& channel, const QString& propertyPath );
+    void setXfconfValue( const QString& channel, const QString& propertyPath, const QString& value );
 };
 
 // Factory function to get appropriate theme manager
-std::unique_ptr<ThemeManager> getThemeManager(const QString &desktopEnv);
+std::unique_ptr< ThemeManager > getThemeManager( const QString& desktopEnv );
 
-} // namespace Themes
+}  // namespace Themes
 
-#endif // THEMES_H
+#endif  // THEMES_H

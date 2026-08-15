@@ -4,19 +4,21 @@
 #include <QString>
 #include <QStringList>
 
-namespace Updates {
+namespace Updates
+{
 
-struct Command {
+struct Command
+{
     QString program;
     QStringList arguments;
 };
 
 // Pure: selects the system-update command for a desktop environment, without running it.
 // Returns a Command with an empty `program` for an unsupported desktopEnv.
-Command commandFor(const QString &desktopEnv);
+Command commandFor( const QString& desktopEnv );
 
-void updateSystem(const QString &desktopEnv);
+void updateSystem( const QString& desktopEnv );
 
-} // namespace Updates
+}  // namespace Updates
 
-#endif // UPDATES_H
+#endif  // UPDATES_H
