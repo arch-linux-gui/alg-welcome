@@ -32,12 +32,13 @@ The name is part of a wider push across ALG apps toward recognizable, HPC-cluste
 - **C++ Compiler:** GCC 7+ or Clang 5+ with C++17 support
 - **CMake:** Version 3.16 or later
 - **Qt6:** Qt6 Core, Widgets, and Gui modules
+- **spdlog** and **fmt:** used for logging
 - **Operating System:** Made for ALG. Should work on Arch Linux, and its derivative distributions.
 
 On Arch Linux, install the required dependencies:
 
 ```bash
-sudo pacman -S qt6-base cmake make gcc
+sudo pacman -S qt6-base spdlog fmt cmake make gcc
 ```
 
 ### Building from Source
@@ -85,10 +86,18 @@ When you launch **Archer**, you'll be greeted by a modern Qt interface that prov
 archer [options]
 
 Options:
-  --version    Display version information
-  --debug      Enable debug logging output
-  -h, --help   Show help information
+  --version             Display version information
+  -h, --help            Show help information
+  -n, --no-autostart    Don't check autostart status on launch
+  -d, --debug           Enable debug-level logging (equivalent to -v)
+  -v, --verbose         Increase log verbosity (-v for debug, -vv for trace)
+  --log-level <level>   Set the log level explicitly (trace, debug, info,
+                         warn, error, critical, off)
 ```
+
+Logs are written to stderr and to a log file — `/var/log/archer/archer.log` if writable, falling
+back to a temp location (e.g. `/tmp/archer.log`) otherwise. The chosen path is printed at
+debug level on startup.
 
 ## License
 
