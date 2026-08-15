@@ -38,3 +38,26 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
+
+  sanitize:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+
+    steps:
+      - name: Install dependencies
+        run: pacman -Syu --noconfirm base-devel cmake qt6-base spdlog fmt catch2 git
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure (ASan + UBSan)
+        run: |
+          cmake -B build -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer" \
+            -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+
+      - name: Build
+        run: cmake --build build -j$(nproc)
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
