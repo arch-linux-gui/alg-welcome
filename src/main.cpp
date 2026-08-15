@@ -18,7 +18,6 @@ main( int argc, char* argv[] )
     spdlog::debug( "Archer version: {}", ARCHER_VERSION );
 
     QApplication app( argc, argv );
-    // app.setApplicationName("Welcome to ALG");
     app.setApplicationVersion( ARCHER_VERSION );
     app.setDesktopFileName( "archer" );
     app.setOrganizationName( "Arch Linux GUI" );
@@ -58,9 +57,12 @@ main( int argc, char* argv[] )
         return 0;
     }
 
-    // Always ensure autostart is enabled so the welcome app
-    // displays on boot (important for the live ISO)
-    Autostart::toggleAutostart( true );
+    // Always ensure autostart is enabled so the welcome app displays on boot (important for the
+    // live ISO), unless the caller explicitly opted out.
+    if ( !parser.isSet( noAutostartOption ) )
+    {
+        Autostart::toggleAutostart( true );
+    }
 
     WelcomeWindow window;
     window.show();

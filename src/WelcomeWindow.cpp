@@ -49,6 +49,19 @@ WelcomeWindow::WelcomeWindow( QWidget* parent )
     setupCalamaresMonitoring();
 }
 
+QString
+WelcomeWindow::resolveExistingPath( const QStringList& candidates )
+{
+    for ( const QString& path : candidates )
+    {
+        if ( QFile::exists( path ) )
+        {
+            return path;
+        }
+    }
+    return QString();
+}
+
 void
 WelcomeWindow::setupWindow()
 {
@@ -56,15 +69,11 @@ WelcomeWindow::setupWindow()
     setFixedSize( WINDOW_WIDTH, WINDOW_HEIGHT );
 
     // Set window icon - try installed location first, then fall back to current directory
-    QStringList iconPaths = { "/usr/share/pixmaps/archer.png", QDir::currentPath() + "/assets/archer.png" };
-
-    for ( const QString& iconPath : iconPaths )
+    const QString iconPath
+        = resolveExistingPath( { "/usr/share/pixmaps/archer.png", QDir::currentPath() + "/assets/archer.png" } );
+    if ( !iconPath.isEmpty() )
     {
-        if ( QFile::exists( iconPath ) )
-        {
-            setWindowIcon( QIcon( iconPath ) );
-            break;
-        }
+        setWindowIcon( QIcon( iconPath ) );
     }
 
     // Center window on screen
@@ -81,19 +90,17 @@ void
 WelcomeWindow::applyStylesheet()
 {
     // Try installed location first, then fall back to current directory
-    QStringList paths = { "/usr/share/archer/styles.qss", QDir::currentPath() + "/styles.qss" };
+    const QString qssPath
+        = resolveExistingPath( { "/usr/share/archer/styles.qss", QDir::currentPath() + "/styles.qss" } );
 
-    for ( const QString& qssPath : paths )
+    QFile file( qssPath );
+    if ( !qssPath.isEmpty() && file.open( QFile::ReadOnly | QFile::Text ) )
     {
-        QFile file( qssPath );
-        if ( file.open( QFile::ReadOnly | QFile::Text ) )
-        {
-            const QString styleSheet = QString::fromUtf8( file.readAll() );
-            setStyleSheet( styleSheet );
-            file.close();
-            spdlog::debug( "Loaded stylesheet from: {}", qssPath.toStdString() );
-            return;
-        }
+        const QString styleSheet = QString::fromUtf8( file.readAll() );
+        setStyleSheet( styleSheet );
+        file.close();
+        spdlog::debug( "Loaded stylesheet from: {}", qssPath.toStdString() );
+        return;
     }
 
     spdlog::warn( "Could not load stylesheet from any location" );
@@ -124,19 +131,15 @@ WelcomeWindow::addHeader( QVBoxLayout* layout )
     headerLayout->setSpacing( 10 );
 
     // Logo - try installed location first, then fall back to current directory
-    QStringList logoPaths = { "/usr/share/pixmaps/archer.png", QDir::currentPath() + "/assets/archer.png" };
-
-    for ( const QString& logoPath : logoPaths )
+    const QString logoPath
+        = resolveExistingPath( { "/usr/share/pixmaps/archer.png", QDir::currentPath() + "/assets/archer.png" } );
+    if ( !logoPath.isEmpty() )
     {
-        if ( QFile::exists( logoPath ) )
-        {
-            auto* logoLabel = new QLabel();
-            QPixmap pixmap( logoPath );
-            auto scaledPixmap = pixmap.scaled( LOGO_SIZE, LOGO_SIZE, Qt::KeepAspectRatio, Qt::SmoothTransformation );
-            logoLabel->setPixmap( scaledPixmap );
-            headerLayout->addWidget( logoLabel );
-            break;
-        }
+        auto* logoLabel = new QLabel();
+        QPixmap pixmap( logoPath );
+        auto scaledPixmap = pixmap.scaled( LOGO_SIZE, LOGO_SIZE, Qt::KeepAspectRatio, Qt::SmoothTransformation );
+        logoLabel->setPixmap( scaledPixmap );
+        headerLayout->addWidget( logoLabel );
     }
 
     // Welcome text
@@ -425,12 +428,6 @@ void
 WelcomeWindow::onLaunchAppStore()
 {
     QProcess::startDetached( "alg-app-store", QStringList() );
-}
-
-void
-WelcomeWindow::onTutorials()
-{
-    Extras::openUrl( "https://arkalinuxgui.org/tutorials" );
 }
 
 void

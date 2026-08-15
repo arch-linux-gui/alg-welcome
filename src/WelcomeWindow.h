@@ -26,6 +26,9 @@ private:
     static constexpr int LOGO_SIZE = 60;
     static constexpr int ICON_SIZE = 20;
 
+    // Returns the first path in `candidates` that exists, or an empty string if none do.
+    static QString resolveExistingPath( const QStringList& candidates );
+
     // Setup methods
     void setupWindow();
     void applyStylesheet();
@@ -48,7 +51,6 @@ private:
     void onUpdateSystem();
     void onUpdateMirrorlist();
     void onLaunchAppStore();
-    void onTutorials();
     void onAutostartToggled( bool checked );
     void onThemeToggled( bool checked );
     void onAboutUs();
