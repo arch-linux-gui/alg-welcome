@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
     
     // Setup command line parser
     QCommandLineParser parser;
-    parser.setApplicationDescription("ALG Welcome - A welcome screen for Arch Linux GUI");
+    parser.setApplicationDescription("Archer - A welcome screen for Arch Linux GUI");
     parser.addHelpOption();
     parser.addVersionOption();
     
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     // Handle debug option
     if (parser.isSet(debugOption)) {
         qDebug() << "Debug mode enabled";
-        qDebug() << "ALG Welcome version:" << ARCHER_VERSION;
+        qDebug() << "Archer version:" << ARCHER_VERSION;
     }
     
     // Always ensure autostart is enabled so the welcome app

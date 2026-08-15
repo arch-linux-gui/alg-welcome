@@ -22,7 +22,7 @@ void AboutUsDialog::setupUI() {
     layout->setContentsMargins(20, 20, 20, 20);
     
     // App name
-    auto *appName = new QLabel("Arka Linux GUI");
+    auto *appName = new QLabel("Archer");
     QFont font;
     font.setPointSize(18);
     font.setBold(true);

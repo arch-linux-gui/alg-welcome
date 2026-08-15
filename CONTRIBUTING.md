@@ -1,4 +1,4 @@
-# Contributing to ALG Welcome
+# Contributing to Archer
 
 Contributions are welcome and appreciated! To contribute:
 

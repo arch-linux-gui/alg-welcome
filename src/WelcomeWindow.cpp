@@ -48,7 +48,7 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
 }
 
 void WelcomeWindow::setupWindow() {
-    setWindowTitle("ALG Welcome");
+    setWindowTitle("Archer");
     setFixedSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     
     // Set window icon - try installed location first, then fall back to current directory

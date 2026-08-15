@@ -1,13 +1,13 @@
 [Desktop Entry]
 Type=Application
 Version=1.0
-Name=ALG Welcome
+Name=Archer
 GenericName=Welcome
 Keywords=utility;system;welcome;
 Encoding=UTF-8
 Terminal=false
 Exec=archer
 Icon=archer
-Comment=ALG Onboarding & Maintenance tool
+Comment=ALG Welcome App
 Categories=System;Install;
 StartupNotify=true
