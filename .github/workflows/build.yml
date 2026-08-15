@@ -5,6 +5,20 @@ on:
     branches: [main]
 
 jobs:
+  format:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+
+    steps:
+      - name: Install dependencies
+        run: pacman -Syu --noconfirm clang git
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check formatting
+        run: find src tests -regex '.*\.\(cpp\|h\)$' -print0 | xargs -0 clang-format --dry-run --Werror
+
   build:
     runs-on: ubuntu-latest
     container: archlinux:latest

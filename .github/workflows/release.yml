@@ -121,3 +121,57 @@ jobs:
           make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Optional/best-effort: builds a pacman-ingestible .pkg.tar.zst from PKGBUILD, in a clean
+  # chroot (via devtools' extra-x86_64-build) rather than the already-populated container, so
+  # the dependency list is verified against a minimal base. A failure here is reported but
+  # never blocks the plain-binary release above, which has already completed by this point.
+  package:
+    needs: [build, release]
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    if: needs.build.outputs.should_release == 'true'
+    continue-on-error: true
+    permissions:
+      contents: write
+    steps:
+      - name: Install devtools
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm --needed devtools base-devel git
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create unprivileged build user
+        run: |
+          useradd -m builduser
+          echo "builduser ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+          chown -R builduser:builduser "$GITHUB_WORKSPACE"
+
+      - name: Build package in a clean chroot
+        working-directory: ${{ github.workspace }}
+        run: su builduser -c "cd '$GITHUB_WORKSPACE' && extra-x86_64-build"
+
+      - name: Locate built package
+        id: locate_pkg
+        run: |
+          pkgfile=$(ls archer-*.pkg.tar.zst | head -n1)
+          echo "pkgfile=$pkgfile" >> "$GITHUB_OUTPUT"
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: archer-pkg
+          path: ${{ steps.locate_pkg.outputs.pkgfile }}
+          retention-days: 30
+
+      - name: Attach package to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ needs.build.outputs.version }}
+          files: ${{ steps.locate_pkg.outputs.pkgfile }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
