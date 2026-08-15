@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed base-devel git cmake qt6-base
+          pacman -S --noconfirm --needed base-devel git cmake qt6-base spdlog fmt
 
       - name: Checkout code
         uses: actions/checkout@v4
