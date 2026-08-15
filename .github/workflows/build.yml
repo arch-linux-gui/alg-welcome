@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Install dependencies
-        run: pacman -Syu --noconfirm base-devel cmake qt6-base spdlog fmt git
+        run: pacman -Syu --noconfirm base-devel cmake qt6-base spdlog fmt catch2 git
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,3 +21,6 @@ jobs:
 
       - name: Build
         run: cmake --build build -j$(nproc)
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure

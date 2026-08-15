@@ -22,7 +22,7 @@ jobs:
       - name: Install dependencies
         run: |
           pacman -Syu --noconfirm
-          pacman -S --noconfirm --needed base-devel git cmake qt6-base spdlog fmt
+          pacman -S --noconfirm --needed base-devel git cmake qt6-base spdlog fmt catch2
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,6 +60,9 @@ jobs:
 
       - name: Build
         run: cmake --build build -j$(nproc)
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
 
       - name: Strip binary
         run: strip build/archer
