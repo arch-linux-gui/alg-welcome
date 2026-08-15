@@ -30,4 +30,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   paths, `app.setDesktopFileName()`, and all CI/release artifact names and install instructions.
   This is a full rebrand, not just an internal codename: the window title, the About Us dialog's
   app-name label, and the desktop entry `Name=` are all now `Archer` (desktop `Comment=ALG Welcome
-  App`). The in-window header text ("Welcome to ALG!") is unchanged.
+  and onboarding utility`). The in-window header text ("Welcome to ALG!") is unchanged.

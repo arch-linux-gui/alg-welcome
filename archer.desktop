@@ -8,6 +8,6 @@ Encoding=UTF-8
 Terminal=false
 Exec=archer
 Icon=archer
-Comment=ALG Welcome App
+Comment=ALG Welcome and onboarding utility
 Categories=System;Install;
 StartupNotify=true
