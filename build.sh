@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# ALG Welcome - Build Script
-# This script builds the Qt6/C++ version of ALG Welcome
+# Archer (ALG Welcome) - Build Script
+# This script builds the Qt6/C++ version of Archer
 
 set -e  # Exit on error
 
 echo "================================"
-echo "ALG Welcome - Build Script"
+echo "Archer - Build Script"
 echo "================================"
 echo
 
@@ -46,7 +46,7 @@ if [ $? -eq 0 ]; then
     echo "================================"
     echo
     echo "To run the application:"
-    echo "  cd $BUILD_DIR && ./alg-welcome"
+    echo "  cd $BUILD_DIR && ./archer"
     echo
     echo "To install system-wide:"
     echo "  cd $BUILD_DIR && sudo make install"

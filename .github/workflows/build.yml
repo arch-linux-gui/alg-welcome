@@ -1,4 +1,4 @@
-name: Build ALG Welcome - Test Build
+name: Build Archer - Test Build
 
 on:
   pull_request:

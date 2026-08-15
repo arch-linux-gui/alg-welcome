@@ -29,7 +29,7 @@ WelcomeWindow::WelcomeWindow(QWidget *parent)
 {
     // Setup search paths for assets
     QDir::setSearchPaths("assets", {
-        "/usr/share/alg-welcome/assets",
+        "/usr/share/archer/assets",
         QDir::currentPath() + "/assets",
         QDir::currentPath() + "/../assets" // Support running from build directory
     });
@@ -53,8 +53,8 @@ void WelcomeWindow::setupWindow() {
     
     // Set window icon - try installed location first, then fall back to current directory
     QStringList iconPaths = {
-        "/usr/share/pixmaps/welcome.png",
-        QDir::currentPath() + "/assets/welcome.png"
+        "/usr/share/pixmaps/archer.png",
+        QDir::currentPath() + "/assets/archer.png"
     };
     
     for (const QString &iconPath : iconPaths) {
@@ -76,7 +76,7 @@ void WelcomeWindow::setupWindow() {
 void WelcomeWindow::applyStylesheet() {
     // Try installed location first, then fall back to current directory
     QStringList paths = {
-        "/usr/share/alg-welcome/styles.qss",
+        "/usr/share/archer/styles.qss",
         QDir::currentPath() + "/styles.qss"
     };
     
@@ -116,8 +116,8 @@ void WelcomeWindow::addHeader(QVBoxLayout *layout) {
     
     // Logo - try installed location first, then fall back to current directory
     QStringList logoPaths = {
-        "/usr/share/pixmaps/welcome.png",
-        QDir::currentPath() + "/assets/welcome.png"
+        "/usr/share/pixmaps/archer.png",
+        QDir::currentPath() + "/assets/archer.png"
     };
     
     for (const QString &logoPath : logoPaths) {

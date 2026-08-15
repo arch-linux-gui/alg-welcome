@@ -62,22 +62,22 @@ jobs:
         run: cmake --build build -j$(nproc)
 
       - name: Strip binary
-        run: strip build/alg-welcome
+        run: strip build/archer
 
       - name: Package artifacts
         run: |
           mkdir -p release
-          cp build/alg-welcome release/
+          cp build/archer release/
           cp styles.qss release/
           cp -r assets release/
           cd release
-          tar -czf alg-welcome-linux-x86_64.tar.gz alg-welcome styles.qss assets/
+          tar -czf archer-linux-x86_64.tar.gz archer styles.qss assets/
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: alg-welcome-binary
-          path: release/alg-welcome-linux-x86_64.tar.gz
+          name: archer-binary
+          path: release/archer-linux-x86_64.tar.gz
           retention-days: 30
 
   release:
@@ -93,23 +93,23 @@ jobs:
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
-          name: alg-welcome-binary
+          name: archer-binary
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.build.outputs.version }}
-          name: "ALG Welcome v${{ needs.build.outputs.version }}"
-          files: alg-welcome-linux-x86_64.tar.gz
+          name: "Archer v${{ needs.build.outputs.version }}"
+          files: archer-linux-x86_64.tar.gz
           body: |
-            ## ALG Welcome v${{ needs.build.outputs.version }}
+            ## Archer v${{ needs.build.outputs.version }}
 
             ### Installation
             ```bash
-            tar -xzf alg-welcome-linux-x86_64.tar.gz
-            sudo install -Dm755 alg-welcome /usr/local/bin/alg-welcome
-            sudo install -Dm644 styles.qss /usr/local/share/alg-welcome/styles.qss
-            sudo install -Dm644 assets/welcome.png /usr/local/share/pixmaps/welcome.png
+            tar -xzf archer-linux-x86_64.tar.gz
+            sudo install -Dm755 archer /usr/local/bin/archer
+            sudo install -Dm644 styles.qss /usr/local/share/archer/styles.qss
+            sudo install -Dm644 assets/archer.png /usr/local/share/pixmaps/archer.png
             ```
 
             ### Requirements

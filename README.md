@@ -1,6 +1,8 @@
-# ALG Welcome
+# ALG Welcome (Archer)
 
 Welcome to **ALG Welcome** – a fast, lightweight welcome application for ALG built with **Qt6 and modern C++**. This application simplifies your ALG experience by offering an intuitive graphical interface with features designed to help you get started and maintain your system with confidence.
+
+Internally, the project and its binary/package are named **archer** — part of a wider push across ALG apps toward recognizable, HPC-cluster-inspired codenames.
 
 ## Table of Contents
 
@@ -53,7 +55,7 @@ sudo pacman -S qt6-base cmake make gcc
 
 3. **Run the Application:**
    ```bash
-   ./alg-welcome
+   ./archer
    ```
 
 4. **Install System-Wide (Optional):**
@@ -62,10 +64,10 @@ sudo pacman -S qt6-base cmake make gcc
    ```
 
    This installs:
-   - Binary to `/usr/local/bin/alg-welcome`
-   - Desktop file to `/usr/local/share/applications/welcome.desktop`
-   - Icon to `/usr/local/share/pixmaps/welcome.png`
-   - Stylesheet to `/usr/local/share/alg-welcome/styles.qss`
+   - Binary to `/usr/local/bin/archer`
+   - Desktop file to `/usr/local/share/applications/archer.desktop`
+   - Icon to `/usr/local/share/pixmaps/archer.png`
+   - Stylesheet to `/usr/local/share/archer/styles.qss`
 
 ## Usage
 
@@ -80,7 +82,7 @@ When you launch **ALG Welcome**, you'll be greeted by a modern Qt interface that
 ### Command-Line Options
 
 ```bash
-alg-welcome [options]
+archer [options]
 
 Options:
   --version    Display version information

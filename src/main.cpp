@@ -7,8 +7,8 @@
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     // app.setApplicationName("Welcome to ALG");
-    app.setApplicationVersion(ALG_WELCOME_VERSION);
-    app.setDesktopFileName("alg-welcome");
+    app.setApplicationVersion(ARCHER_VERSION);
+    app.setDesktopFileName("archer");
     app.setOrganizationName("Arch Linux GUI");
     app.setOrganizationDomain("arkalinuxgui.org");
     
@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     // Handle debug option
     if (parser.isSet(debugOption)) {
         qDebug() << "Debug mode enabled";
-        qDebug() << "ALG Welcome version:" << ALG_WELCOME_VERSION;
+        qDebug() << "ALG Welcome version:" << ARCHER_VERSION;
     }
     
     // Always ensure autostart is enabled so the welcome app

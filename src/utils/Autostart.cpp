@@ -10,8 +10,8 @@ namespace Autostart {
 void toggleAutostart(bool enable) {
     const auto homeDir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
     const QString autostartDir = homeDir + "/.config/autostart";
-    const QString autostartFile = autostartDir + "/alg-welcome.desktop";
-    const QString sourceFile = "/usr/share/applications/alg-welcome.desktop";
+    const QString autostartFile = autostartDir + "/archer.desktop";
+    const QString sourceFile = "/usr/share/applications/archer.desktop";
     
     // Create autostart directory if it doesn't exist
     QDir dir(autostartDir);
@@ -55,7 +55,7 @@ void toggleAutostart(bool enable) {
 
 bool checkFileExists() {
     const auto homeDir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
-    const QString autostartFile = homeDir + "/.config/autostart/alg-welcome.desktop";
+    const QString autostartFile = homeDir + "/.config/autostart/archer.desktop";
     return QFile::exists(autostartFile);
 }
 

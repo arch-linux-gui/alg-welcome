@@ -31,7 +31,7 @@ void AboutUsDialog::setupUI() {
     layout->addWidget(appName);
     
     // Version
-    auto *version = new QLabel(QString("Version %1").arg(ALG_WELCOME_VERSION));
+    auto *version = new QLabel(QString("Version %1").arg(ARCHER_VERSION));
     version->setAlignment(Qt::AlignCenter);
     layout->addWidget(version);
     

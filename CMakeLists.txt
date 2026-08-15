@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 
 # Read version from the VERSION file (single source of truth)
-file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" ALG_WELCOME_VERSION_STRING LIMIT_COUNT 1)
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" ARCHER_VERSION_STRING LIMIT_COUNT 1)
 
-project(alg-welcome VERSION ${ALG_WELCOME_VERSION_STRING} LANGUAGES CXX)
+project(archer VERSION ${ARCHER_VERSION_STRING} LANGUAGES CXX)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -90,7 +90,7 @@ target_link_libraries(${PROJECT_NAME}
 
 # Pass version from CMake to C++ as a compile definition
 target_compile_definitions(${PROJECT_NAME} PRIVATE
-    ALG_WELCOME_VERSION="${PROJECT_VERSION}"
+    ARCHER_VERSION="${PROJECT_VERSION}"
 )
 
 # Include directories
@@ -125,16 +125,16 @@ install(TARGETS ${PROJECT_NAME}
 )
 
 # Install desktop file and assets
-install(FILES alg-welcome.desktop
+install(FILES archer.desktop
     DESTINATION share/applications
 )
 
-install(FILES assets/welcome.png
+install(FILES assets/archer.png
     DESTINATION share/pixmaps
 )
 
 # Copy stylesheet to build directory
 configure_file(styles.qss ${CMAKE_BINARY_DIR}/styles.qss COPYONLY)
 install(FILES styles.qss
-    DESTINATION share/alg-welcome
+    DESTINATION share/archer
 )

@@ -19,22 +19,13 @@ Contributions are welcome and appreciated! To contribute:
    ```
 5. **Open a Pull Request** describing your changes.
 
-### Development Documentation
-
-For detailed development information, migration notes, and quickstart guides, see:
-- [DEVELOPMENT.md](DEVELOPMENT.md) - Development setup and guidelines
-- [MIGRATION.md](MIGRATION.md) - PySide6 to Qt6/C++ migration notes
-- [QUICKSTART.md](QUICKSTART.md) - Quick start guide for contributors
-- [README_CPP.md](README_CPP.md) - C++ implementation details
-
 ## Project Structure
 
 ```
-alg-welcome/
+archer/
 ├── src/
 │   ├── main.cpp              # Application entry point
 │   ├── WelcomeWindow.cpp/h   # Main window implementation
-│   ├── version.h             # Version definitions
 │   ├── dialogs/              # Dialog implementations
 │   │   ├── AboutUsDialog.cpp/h
 │   │   └── MirrorListDialog.cpp/h
