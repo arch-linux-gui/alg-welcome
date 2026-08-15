@@ -1,6 +1,6 @@
 # Maintainer: Arka Linux GUI <https://www.arkalinuxgui.org>
 pkgname=archer
-pkgver=4.2.7
+pkgver=4.3.0
 pkgrel=1
 pkgdesc="ALG Welcome App - onboarding and maintenance utility for Arka Linux GUI"
 arch=('x86_64')
