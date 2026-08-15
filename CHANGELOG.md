@@ -34,6 +34,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   DE dispatch (see below); and `MirrorListParsing::parseLine`'s regex parsing (see below).
   `ctest --output-on-failure` wired into both `build.yml` and `release.yml`, and `catch2` added to
   both workflows' `pacman -S` lists and the README prerequisites/install line.
+- `PKGBUILD` for a proper pacman-managed install (`makepkg -si`). `depends` is derived from
+  auditing every external binary the app actually shells out to (`grep`-ing every
+  `QProcess::start`/`startDetached`/`execute` call site and the strings passed to `bash -c`/
+  `sh -c`): `qt6-base`, `spdlog`, `fmt` (this app's own libraries), `polkit` (`pkexec`),
+  `xdg-utils` (`xdg-open`), `reflector`, and `sudo`. Desktop-environment-specific tools
+  (`kcmshell6`/`qdbus6`/`lookandfeeltool`/`plasma-apply-colorscheme`/`kwriteconfig6`/`konsole` for
+  KDE; `gnome-control-center`/`kgx`/`gsettings` for GNOME; `xfce4-display-settings`/
+  `xfconf-query`/`xfce4-terminal` for Xfce) are `optdepends`, not `depends` — a given ALG edition
+  only needs its own DE's tools, and every edition already ships them as part of the desktop
+  install itself, so hard-depending on all three would bloat every install regardless of DE.
+  `pkgver()` derives from the repo's own `VERSION` file rather than a git-describe heuristic, since
+  `VERSION` is already this project's single source of truth (M1). `build.yml` gained a separate
+  `format` job (`clang-format --dry-run --Werror`, parallel to `build` so a formatting nit doesn't
+  wait behind a full build to be reported) now that the whole tree has been brought into
+  `.clang-format` compliance (see below). `release.yml` gained a `package` job (`needs: [build,
+  release]`, since the git tag the PKGBUILD's source pins to only exists once the `release` job
+  creates it) that builds the `.pkg.tar.zst` in a clean chroot via `devtools`' `extra-x86_64-build`
+  (not a bare `makepkg` in the already-populated CI container, so the `depends` list is verified
+  against a minimal base) and attaches it to the GitHub Release alongside the existing raw
+  `tar.gz`. Marked `continue-on-error: true` and gated on the release job having already
+  succeeded, so a package-build failure is reported but never blocks the plain-binary release.
 
 ### Changed
 
@@ -88,3 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `target_sources(archer PRIVATE ...)` block for their own files. Pure build-system
   reorganization — no source, target, or install-rule behavior changed; verified via a clean
   rebuild, a full `ctest` pass, and an equivalent `compile_commands.json`.
+- Reformatted every `.cpp`/`.h` under `src/` and `tests/` with `clang-format` per the existing
+  (previously unenforced) `.clang-format` config, so the new `format` CI job (see above) starts
+  from a clean baseline instead of being red from its first run. Whitespace/brace-style only — no
+  behavior change; verified via a clean rebuild and a full `ctest` pass before and after.
