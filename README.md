@@ -39,6 +39,18 @@ This installs the binary to `bin/archer`, the desktop file to `share/application
 the icon to `share/pixmaps/archer.png`, and the stylesheet to `share/archer/styles.qss`, relative
 to the install prefix (`/usr/local` by default).
 
+### Packaging (PKGBUILD)
+
+A `PKGBUILD` is provided for a proper pacman-managed install instead of `cmake --install`:
+
+```bash
+makepkg -si
+```
+
+Its `depends` are audited from every external binary the app actually shells out to; desktop-
+environment-specific tools (theme switching, display settings, terminal emulators) are
+`optdepends` rather than `depends`, since a given ALG edition only needs its own DE's tools.
+
 ## Testing
 
 ```bash
