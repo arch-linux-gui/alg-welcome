@@ -39,6 +39,10 @@ find_package(Qt6 REQUIRED COMPONENTS Core Widgets Gui)
 # Find threads package (for std::thread)
 find_package(Threads REQUIRED)
 
+# Find logging packages
+find_package(spdlog REQUIRED)
+find_package(fmt REQUIRED)
+
 # Source files
 set(SOURCES
     src/main.cpp
@@ -61,6 +65,7 @@ set(UTILS_SOURCES
     src/utils/Themes.cpp
     src/utils/Resolution.cpp
     src/utils/Updates.cpp
+    src/utils/Logging.cpp
 )
 
 # Utils header files
@@ -70,6 +75,7 @@ set(UTILS_HEADERS
     src/utils/Themes.h
     src/utils/Resolution.h
     src/utils/Updates.h
+    src/utils/Logging.h
 )
 
 # Create executable
@@ -86,6 +92,8 @@ target_link_libraries(${PROJECT_NAME}
     Qt6::Widgets
     Qt6::Gui
     Threads::Threads
+    spdlog::spdlog
+    fmt::fmt
 )
 
 # Pass version from CMake to C++ as a compile definition
@@ -113,6 +121,8 @@ if(BUILD_TESTS)
     target_link_libraries(calamares_status_test
         Qt6::Core
         Threads::Threads
+        spdlog::spdlog
+        fmt::fmt
     )
 endif()
 
