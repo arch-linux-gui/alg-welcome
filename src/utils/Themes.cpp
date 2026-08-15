@@ -1,10 +1,11 @@
 #include "Themes.h"
-#include "Logger.h"
+
+#include <spdlog/spdlog.h>
+
 #include <QProcess>
 #include <QFile>
 #include <QTextStream>
 #include <QStandardPaths>
-#include <QDebug>
 #include <QDir>
 
 namespace Themes {
@@ -126,18 +127,18 @@ QString KDETheme::getLookAndFeelPackage() {
 
 QString KDETheme::getCurrentTheme() {
     const auto theme = getLookAndFeelPackage();
-    Logger::info("Current KDE Theme: " + theme);
+    spdlog::debug("Current KDE Theme: {}", theme.toStdString());
     return theme;
 }
 
 void KDETheme::setTheme(bool dark) {
     const auto currentPackage = getLookAndFeelPackage();
-    
+
     if (currentPackage.contains("org.kde.breeze")) {
         // Pure breeze theme
         const QString style = dark ? "org.kde.breezedark.desktop" : "org.kde.breeze.desktop";
         QProcess::execute("lookandfeeltool", QStringList() << "--apply" << style);
-        Logger::info("KDE theme changed to " + style);
+        spdlog::info("KDE theme changed to {}", style.toStdString());
     } else {
         // Themed KDE (Qogir)
         QString style, winDeco;
@@ -157,7 +158,7 @@ void KDETheme::setTheme(bool dark) {
         ).arg(style, homeDir, winDeco);
         
         QProcess::execute("sh", QStringList() << "-c" << cmd);
-        Logger::info("KDE theme changed to " + style);
+        spdlog::info("KDE theme changed to {}", style.toStdString());
     }
 }
 
@@ -205,28 +206,28 @@ QString GNOMETheme::getCurrentTheme() {
     
     // Determine theme based on color scheme or GTK theme
     const auto theme = !colorScheme.isEmpty() ? colorScheme : gtkTheme;
-    Logger::info("Current GNOME Theme: " + theme);
+    spdlog::debug("Current GNOME Theme: {}", theme.toStdString());
     return theme;
 }
 
 void GNOMETheme::setTheme(bool dark) {
     const auto &themeConfig = dark ? DARK_THEME : LIGHT_THEME;
-    
+
     // Set icon theme
     setGSetting("org.gnome.desktop.interface", "icon-theme", themeConfig.icons);
-    Logger::info("GNOME icons set to: " + themeConfig.icons);
-    
+    spdlog::debug("GNOME icons set to: {}", themeConfig.icons.toStdString());
+
     // Set GTK theme (Legacy Applications)
     setGSetting("org.gnome.desktop.interface", "gtk-theme", themeConfig.gtk);
-    Logger::info("GNOME GTK theme set to: " + themeConfig.gtk);
-    
+    spdlog::debug("GNOME GTK theme set to: {}", themeConfig.gtk.toStdString());
+
     // Set color scheme
     setGSetting("org.gnome.desktop.interface", "color-scheme", themeConfig.colorScheme);
-    Logger::info("GNOME color scheme set to: " + themeConfig.colorScheme);
-    
+    spdlog::debug("GNOME color scheme set to: {}", themeConfig.colorScheme.toStdString());
+
     // Set shell theme (requires user-theme extension)
     setGSetting("org.gnome.shell.extensions.user-theme", "name", themeConfig.shell);
-    Logger::info("GNOME shell theme set to: " + themeConfig.shell);
+    spdlog::info("GNOME theme changed to {} ({})", dark ? "dark" : "light", themeConfig.gtk.toStdString());
 }
 
 // ============================================================================
@@ -251,13 +252,13 @@ void XFCETheme::setXfconfValue(const QString &channel, const QString &propertyPa
 
 QString XFCETheme::getCurrentTheme() {
     const auto theme = getXfconfValue("xsettings", "/Net/ThemeName");
-    Logger::info("Current XFCE Theme: " + theme);
+    spdlog::debug("Current XFCE Theme: {}", theme.toStdString());
     return theme;
 }
 
 void XFCETheme::setTheme(bool dark) {
     const auto currentTheme = getCurrentTheme();
-    
+
     // Determine theme based on current theme
     QString style;
     if (currentTheme.contains("Qogir")) {
@@ -265,14 +266,14 @@ void XFCETheme::setTheme(bool dark) {
     } else {
         style = dark ? "Adwaita-dark" : "Adwaita";
     }
-    
+
     // Set GTK theme
     setXfconfValue("xsettings", "/Net/ThemeName", style);
-    Logger::info("XFCE GTK theme set to: " + style);
-    
+    spdlog::debug("XFCE GTK theme set to: {}", style.toStdString());
+
     // Set window manager theme
     setXfconfValue("xfwm4", "/general/theme", style);
-    Logger::info("XFCE WM theme set to: " + style);
+    spdlog::info("XFCE theme changed to {}", style.toStdString());
 }
 
 // ============================================================================
@@ -287,7 +288,7 @@ std::unique_ptr<ThemeManager> getThemeManager(const QString &desktopEnv) {
     } else if (desktopEnv == "xfce") {
         return std::make_unique<XFCETheme>();
     } else {
-        Logger::warning("Unsupported desktop environment: " + desktopEnv);
+        spdlog::warn("Unsupported desktop environment: {}", desktopEnv.toStdString());
         return nullptr;
     }
 }
@@ -309,7 +310,7 @@ void toggleTheme(bool dark, const QString &desktopEnv) {
     if (manager) {
         manager->setTheme(dark);
     } else {
-        Logger::warning("Cannot toggle theme for unsupported desktop environment: " + desktopEnv);
+        spdlog::warn("Cannot toggle theme for unsupported desktop environment: {}", desktopEnv.toStdString());
     }
 }
 

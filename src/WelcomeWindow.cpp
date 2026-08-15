@@ -6,7 +6,8 @@
 #include "utils/Themes.h"
 #include "utils/Resolution.h"
 #include "utils/Updates.h"
-#include "utils/Logger.h"
+
+#include <spdlog/spdlog.h>
 
 #include <QApplication>
 #include <QVBoxLayout>
@@ -86,12 +87,12 @@ void WelcomeWindow::applyStylesheet() {
             const QString styleSheet = QString::fromUtf8(file.readAll());
             setStyleSheet(styleSheet);
             file.close();
-            Logger::info("Loaded stylesheet from: " + qssPath);
+            spdlog::debug("Loaded stylesheet from: {}", qssPath.toStdString());
             return;
         }
     }
-    
-    Logger::warning("Could not load stylesheet from any location");
+
+    spdlog::warn("Could not load stylesheet from any location");
 }
 
 void WelcomeWindow::setupUI() {

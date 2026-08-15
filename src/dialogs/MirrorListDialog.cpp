@@ -1,5 +1,6 @@
 #include "MirrorListDialog.h"
-#include "utils/Logger.h"
+
+#include <spdlog/spdlog.h>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -14,7 +15,6 @@
 #include <QHeaderView>
 #include <QProcess>
 #include <QRegularExpression>
-#include <QDebug>
 #include <QMetaObject>
 #include <QProcessEnvironment>
 
@@ -39,7 +39,7 @@ MirrorListDialog::MirrorListDialog(QWidget *parent)
         }
     }
     
-    Logger::info("MirrorListDialog initialized");
+    spdlog::debug("MirrorListDialog initialized");
 }
 
 MirrorListDialog::~MirrorListDialog() {
@@ -187,21 +187,20 @@ void MirrorListDialog::onCountryToggled(bool checked) {
     if (checked) {
         if (!selectedCountries.contains(country)) {
             selectedCountries.append(country);
-            qDebug() << "Country selected:" << country;
+            spdlog::trace("Country selected: {}", country.toStdString());
         }
     } else {
         selectedCountries.removeAll(country);
-        qDebug() << "Country deselected:" << country;
+        spdlog::trace("Country deselected: {}", country.toStdString());
     }
-    
+
     updateButton->setEnabled(!selectedCountries.isEmpty());
-    qDebug() << "Selected countries:" << selectedCountries;
-    qDebug() << "Update button enabled:" << !selectedCountries.isEmpty();
+    spdlog::trace("Selected countries: {}", selectedCountries.join(", ").toStdString());
 }
 
 void MirrorListDialog::onUpdateClicked() {
-    qDebug() << "\n=== Mirror Update Started ===";
-    
+    spdlog::info("Mirror update started");
+
     // Gather protocols
     QStringList protocols;
     if (httpsCheck->isChecked()) {
@@ -218,12 +217,10 @@ void MirrorListDialog::onUpdateClicked() {
     const int timeout = timeoutSpin->value();
     const QString sortBy = sortCombo->currentText().toLower();
     
-    qDebug() << "Selected countries:" << selectedCountries;
-    qDebug() << "Protocols:" << protocols;
-    qDebug() << "Max mirrors:" << maxMirrors;
-    qDebug() << "Timeout:" << timeout << "s";
-    qDebug() << "Sort by:" << sortBy;
-    
+    spdlog::debug("Selected countries: {}", selectedCountries.join(", ").toStdString());
+    spdlog::debug("Protocols: {}", protocols.join(", ").toStdString());
+    spdlog::debug("Max mirrors: {}, timeout: {}s, sort by: {}", maxMirrors, timeout, sortBy.toStdString());
+
     // Build reflector arguments for pkexec
     QStringList args;
     args << "reflector";
@@ -235,7 +232,7 @@ void MirrorListDialog::onUpdateClicked() {
     args << "--save" << "/etc/pacman.d/mirrorlist";
     args << "--verbose";
 
-    qDebug() << "Reflector args:" << args;
+    spdlog::debug("Reflector args: {}", args.join(" ").toStdString());
 
     // Show log dialog and start update
     showLogDialog();
@@ -244,12 +241,12 @@ void MirrorListDialog::onUpdateClicked() {
 
 void MirrorListDialog::showLogDialog() {
     if (logDialog) {
-        qDebug() << "Log dialog already exists, showing it";
+        spdlog::trace("Log dialog already exists, showing it");
         logDialog->show();
         return;
     }
-    
-    qDebug() << "Creating new log dialog";
+
+    spdlog::trace("Creating new log dialog");
     lineCounter = 0;
     
     logDialog = new QDialog(this);
@@ -286,27 +283,27 @@ void MirrorListDialog::showLogDialog() {
         parentGeometry.x() + parentGeometry.width() + 10,
         parentGeometry.y());
     
-    qDebug() << "Log dialog created and showing";
+    spdlog::trace("Log dialog created and showing");
     logDialog->show();
 }
 
 void MirrorListDialog::startMirrorListUpdate(const QStringList &args) {
-    qDebug() << "Starting mirror list update thread";
+    spdlog::debug("Starting mirror list update thread");
     isUpdating = true;
     updateButton->setEnabled(false);
-    
+
     // Start update in separate thread
     updateThread = std::make_unique<std::thread>([this, args]() {
-        qDebug() << "Update thread started";
-        
+        spdlog::trace("Update thread started");
+
         // Clean environment to avoid Qt library conflicts
         auto env = QProcessEnvironment::systemEnvironment();
         env.remove("LD_LIBRARY_PATH");
         env.remove("QT_PLUGIN_PATH");
         env.remove("QT_QPA_PLATFORM_THEME");
-        
-        qDebug() << "Executing: pkexec" << args;
-        
+
+        spdlog::debug("Executing: pkexec {}", args.join(" ").toStdString());
+
         // Add initial log entry
         QMetaObject::invokeMethod(workerSignals, "logAppended",
             Qt::QueuedConnection,
@@ -320,7 +317,7 @@ void MirrorListDialog::startMirrorListUpdate(const QStringList &args) {
         process.start("pkexec", args);
         process.waitForStarted();
         
-        qDebug() << "Process spawned, reading output...";
+        spdlog::trace("Process spawned, reading output...");
         
         // Read output line by line
         while (process.state() != QProcess::NotRunning || process.canReadLine()) {
@@ -343,8 +340,9 @@ void MirrorListDialog::startMirrorListUpdate(const QStringList &args) {
         }
         
         const int returnCode = process.exitCode();
-        qDebug() << "Process completed with return code:" << returnCode;
-        
+        spdlog::debug("Process completed with return code: {}", returnCode);
+
+
         if (returnCode == 0) {
             QMetaObject::invokeMethod(workerSignals, "logAppended",
                 Qt::QueuedConnection,
@@ -359,7 +357,7 @@ void MirrorListDialog::startMirrorListUpdate(const QStringList &args) {
                 Q_ARG(QString, ""));
         }
         
-        qDebug() << "Update thread finishing";
+        spdlog::trace("Update thread finishing");
         QMetaObject::invokeMethod(workerSignals, "updateFinished",
             Qt::QueuedConnection);
     });
@@ -378,36 +376,35 @@ void MirrorListDialog::processLogLine(const QString &logLine) {
         return;
     }
     
-    qDebug() << "Processing log line #" << lineCounter << ":" << logLine.left(100);
-    
+    spdlog::trace("Processing log line #{}: {}", lineCounter, logLine.left(100).toStdString());
+
     // Regular expression to match the log line format
     // Example: [2024-01-15 10:30:45] INFO: https://mirror.example.com 5.2 MiB/s 0.5 s
     static QRegularExpression logPattern(R"(^\[.*?\]\s+(INFO|WARNING|ERROR):\s+(.+)$)");
     auto matches = logPattern.match(logLine);
-    
+
     if (matches.hasMatch()) {
         const QString logType = matches.captured(1);
         const QString content = matches.captured(2);
-        qDebug() << "Matched log type:" << logType << ", content:" << content.left(80);
-        
+
         if (logType == "INFO") {
             // Try to parse server info
             static QRegularExpression serverPattern(R"(^(https?://\S+)\s+(\S+\s+\S+/s)\s+(\S+\s+s)$)");
             auto serverMatches = serverPattern.match(content);
-            
+
             if (serverMatches.hasMatch()) {
                 const QString server = serverMatches.captured(1);
                 const QString rate = serverMatches.captured(2);
                 const QString time = serverMatches.captured(3);
-                qDebug() << "Server match:" << server << "," << rate << "," << time;
-                
+                spdlog::trace("Server match: {}, {}, {}", server.toStdString(), rate.toStdString(), time.toStdString());
+
                 QMetaObject::invokeMethod(workerSignals, "logAppended",
                     Qt::QueuedConnection,
                     Q_ARG(QString, server),
                     Q_ARG(QString, rate),
                     Q_ARG(QString, time));
             } else {
-                qDebug() << "INFO without server pattern:" << content;
+                spdlog::trace("INFO without server pattern: {}", content.toStdString());
                 QMetaObject::invokeMethod(workerSignals, "logAppended",
                     Qt::QueuedConnection,
                     Q_ARG(QString, content),
@@ -415,7 +412,11 @@ void MirrorListDialog::processLogLine(const QString &logLine) {
                     Q_ARG(QString, ""));
             }
         } else {  // WARNING or ERROR
-            qDebug() << logType << ":" << content;
+            if (logType == "WARNING") {
+                spdlog::warn("reflector: {}", content.toStdString());
+            } else {
+                spdlog::error("reflector: {}", content.toStdString());
+            }
             QMetaObject::invokeMethod(workerSignals, "logAppended",
                 Qt::QueuedConnection,
                 Q_ARG(QString, content),
@@ -424,7 +425,7 @@ void MirrorListDialog::processLogLine(const QString &logLine) {
         }
     } else {
         // If no pattern match, still display the line
-        qDebug() << "No pattern match, displaying raw:" << logLine.left(80);
+        spdlog::trace("No pattern match, displaying raw: {}", logLine.left(80).toStdString());
         QMetaObject::invokeMethod(workerSignals, "logAppended",
             Qt::QueuedConnection,
             Q_ARG(QString, logLine),
@@ -434,31 +435,28 @@ void MirrorListDialog::processLogLine(const QString &logLine) {
 }
 
 void MirrorListDialog::appendLogToUI(const QString &server, const QString &rate, const QString &time) {
-    qDebug() << "Appending to UI:" << server.left(50) << "," << rate << "," << time;
-    
+    spdlog::trace("Appending to UI: {}, {}, {}", server.left(50).toStdString(), rate.toStdString(), time.toStdString());
+
     if (logTree) {
         auto *item = new QTreeWidgetItem(logTree);
         item->setText(0, server);
         item->setText(1, rate);
         item->setText(2, time);
         logTree->scrollToItem(item);
-        qDebug() << "Item added to tree widget";
     } else {
-        qDebug() << "ERROR: log_tree is nullptr!";
+        spdlog::error("appendLogToUI: logTree is nullptr");
     }
 }
 
 void MirrorListDialog::onUpdateFinished() {
-    qDebug() << "Update finished callback";
+    spdlog::trace("Update finished callback");
     isUpdating = false;
     updateButton->setEnabled(true);
-    
+
     // Enable the Close button now that update is complete
     if (closeButton) {
         closeButton->setEnabled(true);
-        qDebug() << "Close button enabled";
     }
-    
-    qDebug() << "Update complete. Log dialog remains open for review.";
-    qDebug() << "=== Mirror Update Completed ===\n";
+
+    spdlog::info("Mirror update finished. Log dialog remains open for review.");
 }

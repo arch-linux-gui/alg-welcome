@@ -1,7 +1,9 @@
 #include "Resolution.h"
+
+#include <spdlog/spdlog.h>
+
 #include <QProcess>
 #include <QProcessEnvironment>
-#include <QDebug>
 
 namespace Resolution {
 
@@ -22,7 +24,7 @@ void screenResolution(const QString &desktopEnv) {
         process.startDetached("kcmshell6", QStringList() << "kcm_kscreen");
         
     } else {
-        qDebug() << "Unsupported desktop environment:" << desktopEnv;
+        spdlog::warn("Unsupported desktop environment: {}", desktopEnv.toStdString());
     }
 }
 

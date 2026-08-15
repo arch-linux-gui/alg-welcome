@@ -1,7 +1,9 @@
 #include "Updates.h"
+
+#include <spdlog/spdlog.h>
+
 #include <QProcess>
 #include <QProcessEnvironment>
-#include <QDebug>
 
 namespace Updates {
 
@@ -27,7 +29,7 @@ void updateSystem(const QString &desktopEnv) {
             << "-e" << "sudo" << "pacman" << "--noconfirm" << "-Syu");
         
     } else {
-        qDebug() << "Unsupported desktop environment:" << desktopEnv;
+        spdlog::warn("Unsupported desktop environment: {}", desktopEnv.toStdString());
     }
 }
 

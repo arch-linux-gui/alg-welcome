@@ -1,9 +1,10 @@
 #include "Extras.h"
-#include "Logger.h"
+
+#include <spdlog/spdlog.h>
+
 #include <QProcess>
 #include <QFile>
 #include <QProcessEnvironment>
-#include <QDebug>
 #include <thread>
 #include <mutex>
 
@@ -47,23 +48,23 @@ void runCalamaresIfLiveISO(bool isLiveISO) {
     {
         std::lock_guard<std::mutex> lock(calamaresLock);
         if (calamaresRunning) {
-            Logger::info("Calamares is already running");
+            spdlog::debug("Calamares is already running");
             return;
         }
         calamaresRunning = true;
     }
-    
+
     // Run in separate thread to avoid blocking UI
     std::thread([]{
         QProcess process;
         process.start("bash", QStringList() << "-c" << "/etc/calamares/launch.sh");
         process.waitForFinished(-1); // Wait indefinitely
-        
+
         if (process.exitCode() != 0) {
-            Logger::error(QString("Calamares exit code: %1").arg(process.exitCode()));
-            Logger::error(QString("Error: %1").arg(QString::fromUtf8(process.readAllStandardError())));
+            spdlog::error("Calamares exit code: {}", process.exitCode());
+            spdlog::error("Calamares stderr: {}", QString::fromUtf8(process.readAllStandardError()).toStdString());
         } else {
-            Logger::info(QString::fromUtf8(process.readAllStandardOutput()));
+            spdlog::debug("Calamares stdout: {}", QString::fromUtf8(process.readAllStandardOutput()).toStdString());
         }
         
         {

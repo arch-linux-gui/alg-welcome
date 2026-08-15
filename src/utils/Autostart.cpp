@@ -1,9 +1,11 @@
 #include "Autostart.h"
+
+#include <spdlog/spdlog.h>
+
 #include <QDir>
 #include <QFile>
 #include <QStandardPaths>
 #include <QProcess>
-#include <QDebug>
 
 namespace Autostart {
 
@@ -17,39 +19,39 @@ void toggleAutostart(bool enable) {
     QDir dir(autostartDir);
     if (!dir.exists()) {
         if (!dir.mkpath(autostartDir)) {
-            qDebug() << "Error creating directory:" << autostartDir;
+            spdlog::error("Error creating directory: {}", autostartDir.toStdString());
             return;
         }
     }
-    
+
     if (enable) {
         // Enable autostart
         if (QFile::exists(autostartFile)) {
-            qDebug() << "Autostart is already enabled";
+            spdlog::debug("Autostart is already enabled");
             return;
         }
-        
-        qDebug() << "Enabling autostart...";
+
+        spdlog::debug("Enabling autostart...");
         if (QFile::exists(sourceFile)) {
             if (QFile::copy(sourceFile, autostartFile)) {
-                qDebug() << "Autostart enabled";
+                spdlog::info("Autostart enabled");
             } else {
-                qDebug() << "Error copying file";
+                spdlog::error("Error copying {} to {}", sourceFile.toStdString(), autostartFile.toStdString());
             }
         } else {
-            qDebug() << "Source file" << sourceFile << "not found";
+            spdlog::error("Source file {} not found", sourceFile.toStdString());
         }
     } else {
         // Disable autostart
         if (!QFile::exists(autostartFile)) {
-            qDebug() << "Autostart is already disabled";
+            spdlog::debug("Autostart is already disabled");
             return;
         }
-        
-        qDebug() << "Disabling autostart...";
+
+        spdlog::debug("Disabling autostart...");
         // Use pkexec to remove file (in case permissions needed)
         QProcess::execute("pkexec", QStringList() << "rm" << autostartFile);
-        qDebug() << "Autostart disabled";
+        spdlog::info("Autostart disabled");
     }
 }
 
