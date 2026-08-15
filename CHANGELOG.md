@@ -56,6 +56,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   `tar.gz`. Marked `continue-on-error: true` and gated on the release job having already
   succeeded, so a package-build failure is reported but never blocks the plain-binary release.
 
+- `sanitize` job in `build.yml`: a Debug build with `-fsanitize=address,undefined
+  -fno-omit-frame-pointer` (and the matching linker flag), running the full `ctest` suite under
+  ASan/UBSan on every PR. Parallel to `format`/`build`, not gating them, so a sanitizer regression
+  is reported without slowing down the plain build.
+
 ### Changed
 
 - `CMakeLists.txt` now reads `PROJECT_VERSION` from `VERSION` via `file(STRINGS ...)` instead of
@@ -113,3 +118,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   (previously unenforced) `.clang-format` config, so the new `format` CI job (see above) starts
   from a clean baseline instead of being red from its first run. Whitespace/brace-style only — no
   behavior change; verified via a clean rebuild and a full `ctest` pass before and after.
+- `CMAKE_CXX_STANDARD` bumped from 17 to 20, unlocking `std::jthread` for the RAII fix below. Built
+  clean with zero new warnings; nothing else in the codebase or its Qt6 dependency needed to
+  change.
+- `MirrorListDialog`'s two rule-of-zero violations (the only hand-written destructor in the
+  codebase) removed: `MirrorListSignals* workerSignals` (heap-allocated, manually `delete`d) is now
+  a plain value member — no allocation at all, since its lifetime is exactly the dialog's — and
+  `std::unique_ptr<std::thread> updateThread` (manually `join()`ed) is now a `std::jthread`, which
+  auto-joins on destruction. `~MirrorListDialog()` is gone entirely; the implicit destructor is
+  correct. Verified via a full rebuild and `ctest` pass under `-fsanitize=address,undefined` (see
+  the new `sanitize` CI job above).
+- `WelcomeWindow`'s three near-identical "try the installed path, fall back to the current
+  directory" loops (window icon, header logo, stylesheet) consolidated into one
+  `WelcomeWindow::resolveExistingPath()` helper.
+- `-n`/`--no-autostart` (registered on the CLI parser since M1 but never actually checked) is now
+  wired up: `main()` skips the boot-time `Autostart::toggleAutostart(true)` call when the flag is
+  set, matching the option's own `--help` description.
+
+### Removed
+
+- Dead code: `WelcomeWindow::onTutorials()` (defined, never connected to any widget), the
+  commented-out `app.setApplicationName("Welcome to ALG")` line in `main.cpp`, and the
+  explicitly-marked "backward-compat overload (unused)" `MirrorListDialog::startMirrorListUpdate(const
+  QString&)`.

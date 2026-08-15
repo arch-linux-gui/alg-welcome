@@ -20,11 +20,10 @@
 
 MirrorListDialog::MirrorListDialog( QWidget* parent )
     : QDialog( parent )
-    , workerSignals( new MirrorListSignals() )
 {
     // Connect signals for thread-safe UI updates
-    connect( workerSignals, &MirrorListSignals::logAppended, this, &MirrorListDialog::appendLogToUI );
-    connect( workerSignals, &MirrorListSignals::updateFinished, this, &MirrorListDialog::onUpdateFinished );
+    connect( &workerSignals, &MirrorListSignals::logAppended, this, &MirrorListDialog::appendLogToUI );
+    connect( &workerSignals, &MirrorListSignals::updateFinished, this, &MirrorListDialog::onUpdateFinished );
 
     setupUI();
 
@@ -39,16 +38,6 @@ MirrorListDialog::MirrorListDialog( QWidget* parent )
     }
 
     spdlog::debug( "MirrorListDialog initialized" );
-}
-
-MirrorListDialog::~MirrorListDialog()
-{
-    // Wait for update thread to finish if it's running
-    if ( updateThread && updateThread->joinable() )
-    {
-        updateThread->join();
-    }
-    delete workerSignals;
 }
 
 void
@@ -309,9 +298,9 @@ MirrorListDialog::startMirrorListUpdate( const QStringList& args )
     isUpdating = true;
     updateButton->setEnabled( false );
 
-    // Start update in separate thread
-    updateThread = std::make_unique< std::thread >(
-        [ this, args ]()
+    // Start update in separate thread (jthread requests-stop-and-joins any previous one on assignment)
+    updateThread = std::jthread(
+        [ this, args ]( std::stop_token )
         {
             spdlog::trace( "Update thread started" );
 
@@ -324,7 +313,7 @@ MirrorListDialog::startMirrorListUpdate( const QStringList& args )
             spdlog::debug( "Executing: pkexec {}", args.join( " " ).toStdString() );
 
             // Add initial log entry
-            QMetaObject::invokeMethod( workerSignals,
+            QMetaObject::invokeMethod( &workerSignals,
                                        "logAppended",
                                        Qt::QueuedConnection,
                                        Q_ARG( QString, "Starting reflector..." ),
@@ -372,7 +361,7 @@ MirrorListDialog::startMirrorListUpdate( const QStringList& args )
 
             if ( returnCode == 0 )
             {
-                QMetaObject::invokeMethod( workerSignals,
+                QMetaObject::invokeMethod( &workerSignals,
                                            "logAppended",
                                            Qt::QueuedConnection,
                                            Q_ARG( QString, "Update completed successfully!" ),
@@ -381,7 +370,7 @@ MirrorListDialog::startMirrorListUpdate( const QStringList& args )
             }
             else
             {
-                QMetaObject::invokeMethod( workerSignals,
+                QMetaObject::invokeMethod( &workerSignals,
                                            "logAppended",
                                            Qt::QueuedConnection,
                                            Q_ARG( QString, QString( "Update failed with code %1" ).arg( returnCode ) ),
@@ -390,16 +379,8 @@ MirrorListDialog::startMirrorListUpdate( const QStringList& args )
             }
 
             spdlog::trace( "Update thread finishing" );
-            QMetaObject::invokeMethod( workerSignals, "updateFinished", Qt::QueuedConnection );
+            QMetaObject::invokeMethod( &workerSignals, "updateFinished", Qt::QueuedConnection );
         } );
-}
-
-// Backward-compat overload (unused): keep for now
-void
-MirrorListDialog::startMirrorListUpdate( const QString& command )
-{
-    // Fallback: run via shell and merged channels
-    startMirrorListUpdate( QStringList { QStringLiteral( "sh" ), QStringLiteral( "-c" ), command } );
 }
 
 void
@@ -432,7 +413,7 @@ MirrorListDialog::processLogLine( const QString& logLine )
                        parsed.time.toStdString() );
     }
 
-    QMetaObject::invokeMethod( workerSignals,
+    QMetaObject::invokeMethod( &workerSignals,
                                "logAppended",
                                Qt::QueuedConnection,
                                Q_ARG( QString, parsed.server ),

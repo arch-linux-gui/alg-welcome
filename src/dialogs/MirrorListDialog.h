@@ -7,7 +7,6 @@
 #include <QString>
 #include <QStringList>
 #include <atomic>
-#include <memory>
 #include <thread>
 
 class QCheckBox;
@@ -39,7 +38,6 @@ class MirrorListDialog : public QDialog
 
 public:
     explicit MirrorListDialog( QWidget* parent = nullptr );
-    ~MirrorListDialog() override;
 
 private:
     void setupUI();
@@ -50,7 +48,6 @@ private:
 
     void showLogDialog();
     void startMirrorListUpdate( const QStringList& args );
-    void startMirrorListUpdate( const QString& command );
     void processLogLine( const QString& logLine );
 
     // Slots
@@ -80,10 +77,10 @@ private:
     QPushButton* closeButton = nullptr;
 
     // Signals object for thread communication
-    MirrorListSignals* workerSignals;
+    MirrorListSignals workerSignals;
 
-    // Update thread
-    std::unique_ptr< std::thread > updateThread;
+    // Update thread (jthread auto-joins on destruction, including mid-update teardown)
+    std::jthread updateThread;
 };
 
 #endif  // MIRRORLISTDIALOG_H
