@@ -22,8 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - `release.yml` now extracts the release version from `VERSION` instead of grepping
   `CMakeLists.txt`, and the release-trigger check and path filter both watch `VERSION` instead of
   `CMakeLists.txt`.
-- Renamed the project/binary/package identity from `alg-welcome` to `archer` (internal codename,
-  mirrors `alg-installer` → *Challenger*). Affects: CMake project/target name, the
+- Renamed the project/binary/package identity from `alg-welcome` to `archer` (part of the
+  ALG-wide push toward recognizable, HPC-cluster-inspired codenames, mirroring
+  `alg-installer` → *Challenger*). Affects: CMake project/target name, the
   `ARCHER_VERSION` compile definition (was `ALG_WELCOME_VERSION`), the desktop file
   (`alg-welcome.desktop` → `archer.desktop`), the app icon (`welcome.png` → `archer.png`), install
   destinations (`share/alg-welcome` → `share/archer`), the autostart source/target desktop-file

@@ -36,7 +36,8 @@ void AboutUsDialog::setupUI() {
     layout->addWidget(version);
     
     // Description
-    auto *description = new QLabel("ALG Welcome was made to help you onboard quickly");
+    auto *description = new QLabel("The Archer application was made to help you install ALG "
+        "and onboard quickly. It also serves as a tool for simple utility tasks.");
     description->setWordWrap(true);
     description->setAlignment(Qt::AlignJustify);
     layout->addWidget(description);
@@ -48,9 +49,7 @@ void AboutUsDialog::setupUI() {
     
     // Developer names
     auto *devNames = new QLabel(
-        "• DemonKiller (Core Team)\n"
-        "• Akash6222 (Core Team)\n"
-        "• harshau007 (Core Team)"
+        "ALG Core Team"
     );
     devNames->setAlignment(Qt::AlignLeft);
     layout->addWidget(devNames);
