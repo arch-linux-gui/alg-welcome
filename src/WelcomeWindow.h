@@ -30,7 +30,7 @@ protected:
 private:
     // Constants
     static constexpr int WINDOW_WIDTH = 520;
-    static constexpr int WINDOW_HEIGHT = 620;
+    static constexpr int WINDOW_HEIGHT = 600;
     static constexpr int LOGO_SIZE = 38;
     static constexpr int ICON_SIZE = 18;
     static constexpr int TOAST_DURATION_MS = 1800;
