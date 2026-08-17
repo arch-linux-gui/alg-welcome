@@ -6,10 +6,15 @@
 #include <QTimer>
 #include <memory>
 
-class QPushButton;
 class QCheckBox;
+class QLabel;
+class QPlainTextEdit;
+class QPushButton;
+class QStackedWidget;
 class QVBoxLayout;
-class MirrorListDialog;
+class AboutPage;
+class MirrorlistPage;
+class ThemePage;
 
 class WelcomeWindow : public QMainWindow
 {
@@ -19,12 +24,16 @@ public:
     explicit WelcomeWindow( QWidget* parent = nullptr );
     ~WelcomeWindow() override = default;
 
+protected:
+    void resizeEvent( QResizeEvent* event ) override;
+
 private:
     // Constants
-    static constexpr int WINDOW_WIDTH = 480;
-    static constexpr int WINDOW_HEIGHT = 400;
-    static constexpr int LOGO_SIZE = 60;
-    static constexpr int ICON_SIZE = 20;
+    static constexpr int WINDOW_WIDTH = 520;
+    static constexpr int WINDOW_HEIGHT = 620;
+    static constexpr int LOGO_SIZE = 38;
+    static constexpr int ICON_SIZE = 18;
+    static constexpr int TOAST_DURATION_MS = 1800;
 
     // Returns the first path in `candidates` that exists, or an empty string if none do.
     static QString resolveExistingPath( const QStringList& candidates );
@@ -35,40 +44,59 @@ private:
     void setupUI();
     void setupCalamaresMonitoring();
 
-    // UI creation methods
+    // Home page construction
+    QWidget* buildHomePage();
     void addHeader( QVBoxLayout* layout );
-    void addInstallSetupSection( QVBoxLayout* layout );
-    void addSocialMediaSection( QVBoxLayout* layout );
-    void addMoreOptionsSection( QVBoxLayout* layout );
-    void addAboutUsSection( QVBoxLayout* layout );
+    void addBasicUtilitiesSection( QVBoxLayout* layout );
+    void addProjectInformationSection( QVBoxLayout* layout );
+    void addLogSection( QVBoxLayout* layout );
 
     QPushButton* createButtonWithIcon( const QString& label, const QString& iconName, bool fromFile );
-    QWidget* createSwitchWithLabel( const QString& labelText, QCheckBox** switchOut );
+
+    // Navigation between the single-window pages
+    void goHome();
+    void goMirrorlist();
+    void goTheme();
+    void goAbout();
+
+    // Activity log (Home page) / toast notifications (float over every page)
+    void appendActivityLog( const QString& message );
+    void showToast( const QString& message );
+    void positionToast();
+    void toggleLogSection();
 
     // Slots
     void onInstallAlg();
     void onScreenResolution();
     void onUpdateSystem();
-    void onUpdateMirrorlist();
+    void onSyncRepositories();
     void onLaunchAppStore();
     void onAutostartToggled( bool checked );
-    void onThemeToggled( bool checked );
-    void onAboutUs();
+    void onWebsite();
+    void onGithub();
+    void onDiscord();
     void checkCalamaresStatus();
-    void onMirrorlistDialogClosed();
 
     // Member variables
     QString desktopEnv;
-    bool isLiveISO;
+    bool isLiveISO = false;
+
+    QStackedWidget* pages = nullptr;
+    MirrorlistPage* mirrorlistPage = nullptr;
+    ThemePage* themePage = nullptr;
+    AboutPage* aboutPage = nullptr;
 
     QPushButton* installButton = nullptr;
-    QPushButton* updateSystemButton = nullptr;
-    QPushButton* updateMirrorlistButton = nullptr;
     QCheckBox* autostartSwitch = nullptr;
-    QCheckBox* themeSwitch = nullptr;
+
+    QPushButton* logToggleButton = nullptr;
+    QPlainTextEdit* logView = nullptr;
+    bool logExpanded = false;
+
+    QLabel* toastLabel = nullptr;
+    QTimer* toastTimer = nullptr;
 
     std::unique_ptr< QTimer > calamaresTimer;
-    MirrorListDialog* mirrorListDialog = nullptr;
 };
 
 #endif  // WELCOMEWINDOW_H

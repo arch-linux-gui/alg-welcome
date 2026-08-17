@@ -1,10 +1,10 @@
 #include "WelcomeWindow.h"
-#include "AboutUsDialog.h"
-#include "MirrorListDialog.h"
+#include "dialogs/AboutPage.h"
+#include "dialogs/MirrorlistPage.h"
+#include "dialogs/ThemePage.h"
 #include "utils/Autostart.h"
 #include "utils/Extras.h"
 #include "utils/Resolution.h"
-#include "utils/Themes.h"
 #include "utils/Updates.h"
 
 #include <spdlog/spdlog.h>
@@ -18,10 +18,14 @@
 #include <QIcon>
 #include <QLabel>
 #include <QPixmap>
+#include <QPlainTextEdit>
 #include <QProcess>
 #include <QPushButton>
+#include <QResizeEvent>
 #include <QScreen>
+#include <QStackedWidget>
 #include <QStandardPaths>
+#include <QTime>
 #include <QVBoxLayout>
 
 WelcomeWindow::WelcomeWindow( QWidget* parent )
@@ -66,7 +70,8 @@ void
 WelcomeWindow::setupWindow()
 {
     setWindowTitle( "Archer" );
-    setFixedSize( WINDOW_WIDTH, WINDOW_HEIGHT );
+    setMinimumSize( WINDOW_WIDTH, WINDOW_HEIGHT );
+    resize( WINDOW_WIDTH, WINDOW_HEIGHT );
 
     // Set window icon - try installed location first, then fall back to current directory
     const QString iconPath
@@ -109,26 +114,60 @@ WelcomeWindow::applyStylesheet()
 void
 WelcomeWindow::setupUI()
 {
-    auto* centralWidget = new QWidget( this );
-    setCentralWidget( centralWidget );
+    pages = new QStackedWidget( this );
+    setCentralWidget( pages );
 
-    auto* mainLayout = new QVBoxLayout( centralWidget );
+    pages->addWidget( buildHomePage() );
+
+    mirrorlistPage = new MirrorlistPage( this );
+    connect( mirrorlistPage, &MirrorlistPage::backRequested, this, &WelcomeWindow::goHome );
+    connect( mirrorlistPage, &MirrorlistPage::toastRequested, this, &WelcomeWindow::showToast );
+    pages->addWidget( mirrorlistPage );
+
+    themePage = new ThemePage( desktopEnv, this );
+    connect( themePage, &ThemePage::backRequested, this, &WelcomeWindow::goHome );
+    connect( themePage, &ThemePage::toastRequested, this, &WelcomeWindow::showToast );
+    pages->addWidget( themePage );
+
+    aboutPage = new AboutPage( this );
+    connect( aboutPage, &AboutPage::backRequested, this, &WelcomeWindow::goHome );
+    connect( aboutPage, &AboutPage::toastRequested, this, &WelcomeWindow::showToast );
+    pages->addWidget( aboutPage );
+
+    // Floating toast, overlaid on the whole window rather than the current page so it survives
+    // navigation between pages.
+    toastLabel = new QLabel( this );
+    toastLabel->setObjectName( "toast" );
+    toastLabel->hide();
+    toastLabel->setAttribute( Qt::WA_TransparentForMouseEvents );
+
+    toastTimer = new QTimer( this );
+    toastTimer->setSingleShot( true );
+    connect( toastTimer, &QTimer::timeout, toastLabel, &QLabel::hide );
+}
+
+QWidget*
+WelcomeWindow::buildHomePage()
+{
+    auto* homePage = new QWidget();
+
+    auto* mainLayout = new QVBoxLayout( homePage );
     mainLayout->setSpacing( 10 );
-    mainLayout->setContentsMargins( 20, 10, 20, 10 );
+    mainLayout->setContentsMargins( 20, 12, 20, 12 );
 
-    // Add sections
     addHeader( mainLayout );
-    addInstallSetupSection( mainLayout );
-    addSocialMediaSection( mainLayout );
-    addMoreOptionsSection( mainLayout );
-    addAboutUsSection( mainLayout );
+    addBasicUtilitiesSection( mainLayout );
+    addProjectInformationSection( mainLayout );
+    addLogSection( mainLayout );
+
+    return homePage;
 }
 
 void
 WelcomeWindow::addHeader( QVBoxLayout* layout )
 {
     auto* headerLayout = new QHBoxLayout();
-    headerLayout->setSpacing( 10 );
+    headerLayout->setSpacing( 12 );
 
     // Logo - try installed location first, then fall back to current directory
     const QString logoPath
@@ -142,127 +181,134 @@ WelcomeWindow::addHeader( QVBoxLayout* layout )
         headerLayout->addWidget( logoLabel );
     }
 
-    // Welcome text
-    auto* welcomeLabel = new QLabel( "Welcome to ALG!" );
-    welcomeLabel->setObjectName( "header" );
-    welcomeLabel->setAlignment( Qt::AlignLeft | Qt::AlignVCenter );
-    headerLayout->addWidget( welcomeLabel, 1 );
+    auto* titleBox = new QVBoxLayout();
+    titleBox->setSpacing( 0 );
+
+    auto* titleLabel = new QLabel( "Archer" );
+    titleLabel->setObjectName( "header" );
+    titleBox->addWidget( titleLabel );
+
+    auto* subtitleLabel = new QLabel( "Welcome & onboarding for ALG" );
+    subtitleLabel->setObjectName( "subtitle" );
+    titleBox->addWidget( subtitleLabel );
+
+    headerLayout->addLayout( titleBox, 1 );
+
+    autostartSwitch = new QCheckBox( "AutoStart" );
+    autostartSwitch->setFocusPolicy( Qt::NoFocus );
+    autostartSwitch->setChecked( Autostart::checkFileExists() );
+    connect( autostartSwitch, &QCheckBox::toggled, this, &WelcomeWindow::onAutostartToggled );
+    headerLayout->addWidget( autostartSwitch );
 
     layout->addLayout( headerLayout );
 }
 
 void
-WelcomeWindow::addInstallSetupSection( QVBoxLayout* layout )
+WelcomeWindow::addBasicUtilitiesSection( QVBoxLayout* layout )
 {
-    auto* sectionLabel = new QLabel( "Install & Setup" );
+    auto* sectionLabel = new QLabel( "Basic Utilities" );
+    sectionLabel->setObjectName( "sectionLabel" );
     sectionLabel->setAlignment( Qt::AlignCenter );
     layout->addWidget( sectionLabel );
 
     auto* grid = new QGridLayout();
     grid->setSpacing( 10 );
 
-    // Define buttons based on whether it's Live ISO
+    // Row 0 - differs based on whether it's Live ISO
     if ( isLiveISO )
     {
-        // Row 0
         installButton = createButtonWithIcon( "Install ALG ", "system-software-install", false );
         connect( installButton, &QPushButton::clicked, this, &WelcomeWindow::onInstallAlg );
         grid->addWidget( installButton, 0, 0 );
-
-        auto* resolutionBtn = createButtonWithIcon( "Screen Resolution ", "video-display", false );
-        connect( resolutionBtn, &QPushButton::clicked, this, &WelcomeWindow::onScreenResolution );
-        grid->addWidget( resolutionBtn, 0, 1 );
-
-        // Row 1
-        updateSystemButton = createButtonWithIcon( "Update System ", "system-software-update", false );
-        connect( updateSystemButton, &QPushButton::clicked, this, &WelcomeWindow::onUpdateSystem );
-        grid->addWidget( updateSystemButton, 1, 0 );
-
-        updateMirrorlistButton = createButtonWithIcon( "Update Mirrorlist ", "view-refresh", false );
-        connect( updateMirrorlistButton, &QPushButton::clicked, this, &WelcomeWindow::onUpdateMirrorlist );
-        grid->addWidget( updateMirrorlistButton, 1, 1 );
     }
     else
     {
-        // Row 0
         auto* appStoreBtn = createButtonWithIcon( "Launch App Store ", "system-software-install", false );
         connect( appStoreBtn, &QPushButton::clicked, this, &WelcomeWindow::onLaunchAppStore );
         grid->addWidget( appStoreBtn, 0, 0 );
-
-        auto* resolutionBtn = createButtonWithIcon( "Screen Resolution ", "video-display", false );
-        connect( resolutionBtn, &QPushButton::clicked, this, &WelcomeWindow::onScreenResolution );
-        grid->addWidget( resolutionBtn, 0, 1 );
-
-        // Row 1
-        updateSystemButton = createButtonWithIcon( "Update System ", "system-software-update", false );
-        connect( updateSystemButton, &QPushButton::clicked, this, &WelcomeWindow::onUpdateSystem );
-        grid->addWidget( updateSystemButton, 1, 0 );
-
-        updateMirrorlistButton = createButtonWithIcon( "Update Mirrorlist ", "view-refresh", false );
-        connect( updateMirrorlistButton, &QPushButton::clicked, this, &WelcomeWindow::onUpdateMirrorlist );
-        grid->addWidget( updateMirrorlistButton, 1, 1 );
     }
 
+    auto* resolutionBtn = createButtonWithIcon( "Screen Resolution ", "video-display", false );
+    connect( resolutionBtn, &QPushButton::clicked, this, &WelcomeWindow::onScreenResolution );
+    grid->addWidget( resolutionBtn, 0, 1 );
+
+    // Row 1
+    auto* syncBtn = createButtonWithIcon( "Sync Repositories ", "package-x-generic", false );
+    connect( syncBtn, &QPushButton::clicked, this, &WelcomeWindow::onSyncRepositories );
+    grid->addWidget( syncBtn, 1, 0 );
+
+    auto* updateSystemBtn = createButtonWithIcon( "Update System ", "system-software-update", false );
+    connect( updateSystemBtn, &QPushButton::clicked, this, &WelcomeWindow::onUpdateSystem );
+    grid->addWidget( updateSystemBtn, 1, 1 );
+
+    // Row 2
+    auto* themeBtn = createButtonWithIcon( "Set System Theme ", "preferences-desktop-theme", false );
+    connect( themeBtn, &QPushButton::clicked, this, &WelcomeWindow::goTheme );
+    grid->addWidget( themeBtn, 2, 0 );
+
+    auto* mirrorlistBtn = createButtonWithIcon( "Update Mirrorlist ", "view-refresh", false );
+    connect( mirrorlistBtn, &QPushButton::clicked, this, &WelcomeWindow::goMirrorlist );
+    grid->addWidget( mirrorlistBtn, 2, 1 );
+
     layout->addLayout( grid );
-    layout->addStretch();
 }
 
 void
-WelcomeWindow::addSocialMediaSection( QVBoxLayout* layout )
+WelcomeWindow::addProjectInformationSection( QVBoxLayout* layout )
 {
-    auto* sectionLabel = new QLabel( "Social Media Links" );
+    auto* sectionLabel = new QLabel( "Project Information" );
+    sectionLabel->setObjectName( "sectionLabel" );
     sectionLabel->setAlignment( Qt::AlignCenter );
     layout->addWidget( sectionLabel );
 
     auto* grid = new QGridLayout();
     grid->setSpacing( 10 );
 
-    // GitHub button
-    auto* githubBtn = createButtonWithIcon( "GitHub  ", "assets/github.svg", true );
-    connect( githubBtn, &QPushButton::clicked, []() { Extras::openUrl( "https://github.com/arch-linux-gui" ); } );
-    grid->addWidget( githubBtn, 0, 0 );
+    auto* websiteBtn = createButtonWithIcon( "Website ", "applications-internet", false );
+    connect( websiteBtn, &QPushButton::clicked, this, &WelcomeWindow::onWebsite );
+    grid->addWidget( websiteBtn, 0, 0 );
 
-    // Discord button
+    auto* githubBtn = createButtonWithIcon( "GitHub  ", "assets/github.svg", true );
+    connect( githubBtn, &QPushButton::clicked, this, &WelcomeWindow::onGithub );
+    grid->addWidget( githubBtn, 0, 1 );
+
     auto* discordBtn = createButtonWithIcon( "Discord ", "assets/discord.svg", true );
-    connect( discordBtn, &QPushButton::clicked, []() { Extras::openUrl( "https://discord.gg/NgAFEw9Tkf" ); } );
-    grid->addWidget( discordBtn, 0, 1 );
+    connect( discordBtn, &QPushButton::clicked, this, &WelcomeWindow::onDiscord );
+    grid->addWidget( discordBtn, 1, 0 );
+
+    auto* aboutBtn = createButtonWithIcon( "About Archer ", "help-about", false );
+    connect( aboutBtn, &QPushButton::clicked, this, &WelcomeWindow::goAbout );
+    grid->addWidget( aboutBtn, 1, 1 );
 
     layout->addLayout( grid );
 }
 
 void
-WelcomeWindow::addMoreOptionsSection( QVBoxLayout* layout )
+WelcomeWindow::addLogSection( QVBoxLayout* layout )
 {
-    auto* sectionLabel = new QLabel( "More Options" );
-    sectionLabel->setAlignment( Qt::AlignCenter );
-    layout->addWidget( sectionLabel );
+    // Wrapped in its own container (added with stretch below) so it - not the button grids above
+    // it - absorbs the window's extra height, whether or not the log view is currently shown.
+    auto* container = new QWidget();
+    auto* containerLayout = new QVBoxLayout( container );
+    containerLayout->setContentsMargins( 0, 0, 0, 0 );
+    containerLayout->setSpacing( 6 );
 
-    auto* hbox = new QHBoxLayout();
-    hbox->setSpacing( 10 );
+    logToggleButton = new QPushButton( QString::fromUtf8( "\xE2\x80\xBA View Logs" ) );
+    logToggleButton->setObjectName( "logToggleButton" );
+    logToggleButton->setFlat( true );
+    logToggleButton->setCursor( Qt::PointingHandCursor );
+    logToggleButton->setFocusPolicy( Qt::NoFocus );
+    connect( logToggleButton, &QPushButton::clicked, this, &WelcomeWindow::toggleLogSection );
+    containerLayout->addWidget( logToggleButton );
 
-    // Autostart toggle
-    auto* autostartWidget = createSwitchWithLabel( "AutoStart:", &autostartSwitch );
-    autostartSwitch->setChecked( Autostart::checkFileExists() );
-    connect( autostartSwitch, &QCheckBox::toggled, this, &WelcomeWindow::onAutostartToggled );
-    hbox->addWidget( autostartWidget );
+    logView = new QPlainTextEdit();
+    logView->setObjectName( "logView" );
+    logView->setReadOnly( true );
+    logView->setPlaceholderText( "No activity yet." );
+    logView->hide();
+    containerLayout->addWidget( logView, 1 );
 
-    // Dark theme toggle
-    auto* darkthemeWidget = createSwitchWithLabel( "Dark Theme:", &themeSwitch );
-    const auto currentTheme = Themes::getCurrentTheme( desktopEnv );
-    themeSwitch->setChecked( Themes::isDarkTheme( currentTheme ) );
-    connect( themeSwitch, &QCheckBox::toggled, this, &WelcomeWindow::onThemeToggled );
-    hbox->addWidget( darkthemeWidget );
-
-    layout->addLayout( hbox );
-}
-
-void
-WelcomeWindow::addAboutUsSection( QVBoxLayout* layout )
-{
-    auto* aboutButton = new QPushButton( "About Us" );
-    aboutButton->setFocusPolicy( Qt::NoFocus );
-    connect( aboutButton, &QPushButton::clicked, this, &WelcomeWindow::onAboutUs );
-    layout->addWidget( aboutButton );
+    layout->addWidget( container, 1 );
 }
 
 QPushButton*
@@ -306,24 +352,77 @@ WelcomeWindow::createButtonWithIcon( const QString& label, const QString& iconNa
     return button;
 }
 
-QWidget*
-WelcomeWindow::createSwitchWithLabel( const QString& labelText, QCheckBox** switchOut )
+void
+WelcomeWindow::goHome()
 {
-    auto* widget = new QWidget();
-    auto* layout = new QHBoxLayout( widget );
-    layout->setContentsMargins( 0, 0, 0, 0 );
-    layout->setSpacing( 5 );
+    pages->setCurrentIndex( 0 );
+}
 
-    auto* label = new QLabel( labelText );
-    auto* checkbox = new QCheckBox();
-    checkbox->setFocusPolicy( Qt::NoFocus );
+void
+WelcomeWindow::goMirrorlist()
+{
+    mirrorlistPage->resetToConfig();
+    pages->setCurrentWidget( mirrorlistPage );
+}
 
-    layout->addWidget( label );
-    layout->addStretch();
-    layout->addWidget( checkbox );
+void
+WelcomeWindow::goTheme()
+{
+    pages->setCurrentWidget( themePage );
+}
 
-    *switchOut = checkbox;
-    return widget;
+void
+WelcomeWindow::goAbout()
+{
+    pages->setCurrentWidget( aboutPage );
+}
+
+void
+WelcomeWindow::appendActivityLog( const QString& message )
+{
+    const QString timestamp = QTime::currentTime().toString( "HH:mm:ss" );
+    logView->appendPlainText( QString( "%1  %2" ).arg( timestamp, message ) );
+}
+
+void
+WelcomeWindow::toggleLogSection()
+{
+    logExpanded = !logExpanded;
+    logView->setVisible( logExpanded );
+    logToggleButton->setText( QString::fromUtf8( logExpanded ? "\xE2\x8C\xA5 View Logs" : "\xE2\x80\xBA View Logs" ) );
+}
+
+void
+WelcomeWindow::showToast( const QString& message )
+{
+    toastLabel->setText( message );
+    toastLabel->adjustSize();
+    positionToast();
+    toastLabel->raise();
+    toastLabel->show();
+    toastTimer->start( TOAST_DURATION_MS );
+}
+
+void
+WelcomeWindow::positionToast()
+{
+    if ( !toastLabel )
+    {
+        return;
+    }
+    const int x = ( width() - toastLabel->width() ) / 2;
+    const int y = height() - toastLabel->height() - 20;
+    toastLabel->move( x, y );
+}
+
+void
+WelcomeWindow::resizeEvent( QResizeEvent* event )
+{
+    QMainWindow::resizeEvent( event );
+    if ( toastLabel && toastLabel->isVisible() )
+    {
+        positionToast();
+    }
 }
 
 void
@@ -368,66 +467,37 @@ void
 WelcomeWindow::onInstallAlg()
 {
     Extras::runCalamaresIfLiveISO( isLiveISO );
+    showToast( "Launching installer..." );
 }
 
 void
 WelcomeWindow::onScreenResolution()
 {
     Resolution::screenResolution( desktopEnv );
+    showToast( "Opening resolution settings..." );
 }
 
 void
 WelcomeWindow::onUpdateSystem()
 {
     Updates::updateSystem( desktopEnv );
+    appendActivityLog( "System update launched in a terminal." );
+    showToast( "Updating system..." );
 }
 
 void
-WelcomeWindow::onUpdateMirrorlist()
+WelcomeWindow::onSyncRepositories()
 {
-    if ( !mirrorListDialog || !mirrorListDialog->isVisible() )
-    {
-        mirrorListDialog = new MirrorListDialog( this );
-
-        // Disable buttons when dialog opens
-        if ( updateSystemButton )
-        {
-            updateSystemButton->setEnabled( false );
-        }
-        if ( updateMirrorlistButton )
-        {
-            updateMirrorlistButton->setEnabled( false );
-        }
-
-        // Re-enable buttons when dialog closes
-        connect( mirrorListDialog, &QDialog::finished, this, &WelcomeWindow::onMirrorlistDialogClosed );
-
-        mirrorListDialog->show();
-    }
-    else
-    {
-        mirrorListDialog->activateWindow();
-        mirrorListDialog->raise();
-    }
-}
-
-void
-WelcomeWindow::onMirrorlistDialogClosed()
-{
-    if ( updateSystemButton )
-    {
-        updateSystemButton->setEnabled( true );
-    }
-    if ( updateMirrorlistButton )
-    {
-        updateMirrorlistButton->setEnabled( true );
-    }
+    Updates::syncDatabases( desktopEnv );
+    appendActivityLog( "Repository sync launched in a terminal." );
+    showToast( "Syncing repositories..." );
 }
 
 void
 WelcomeWindow::onLaunchAppStore()
 {
     QProcess::startDetached( "alg-app-store", QStringList() );
+    showToast( "Launching App Store..." );
 }
 
 void
@@ -437,14 +507,22 @@ WelcomeWindow::onAutostartToggled( bool checked )
 }
 
 void
-WelcomeWindow::onThemeToggled( bool checked )
+WelcomeWindow::onWebsite()
 {
-    Themes::toggleTheme( checked, desktopEnv );
+    Extras::openUrl( "https://www.arkalinuxgui.org" );
+    showToast( "Opening website..." );
 }
 
 void
-WelcomeWindow::onAboutUs()
+WelcomeWindow::onGithub()
 {
-    AboutUsDialog dialog( this );
-    dialog.exec();
+    Extras::openUrl( "https://github.com/arch-linux-gui" );
+    showToast( "Opening GitHub..." );
+}
+
+void
+WelcomeWindow::onDiscord()
+{
+    Extras::openUrl( "https://discord.gg/NgAFEw9Tkf" );
+    showToast( "Opening Discord..." );
 }
