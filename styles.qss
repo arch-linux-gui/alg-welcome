@@ -44,6 +44,67 @@ QLabel#header {
     font-weight: bold;
 }
 
+QLabel#subtitle {
+    font-size: 12px;
+    color: #9aa0a8;
+}
+
+/* Section labels ("Basic Utilities", "Project Information") */
+QLabel#sectionLabel {
+    font-size: 12px;
+    color: #a7adf0;
+}
+
+/* Sub-page header bar (Mirrorlist / Theme / About) is styled directly in
+   src/dialogs/PageChrome.h so it renders consistently even on pages, like ThemePage, that set
+   their own local stylesheet. */
+
+/* Primary (call-to-action) buttons: Mirrorlist Update, Theme Apply */
+QPushButton#primaryButton {
+    background-color: #3d7eff;
+    color: #ffffff;
+    border: none;
+}
+
+QPushButton#primaryButton:hover {
+    background-color: #5a90ff;
+    border: none;
+}
+
+QPushButton#primaryButton:disabled {
+    background-color: #3a3d42;
+    color: #7a8087;
+    border: none;
+}
+
+/* Home page collapsible activity log */
+QPushButton#logToggleButton {
+    background: none;
+    border: none;
+    color: #9aa0a8;
+    font-size: 12px;
+    text-align: left;
+    padding: 2px 0;
+}
+
+QPlainTextEdit#logView {
+    background-color: #24262b;
+    border: 1px solid #37393e;
+    border-radius: 6px;
+    font-family: ui-monospace, monospace;
+    font-size: 11px;
+    color: #8a9099;
+}
+
+/* Toast notification */
+QLabel#toast {
+    background-color: #3a3d42;
+    color: #eef0f2;
+    font-size: 12px;
+    padding: 8px 14px;
+    border-radius: 6px;
+}
+
 /* CheckBox as Switch */
 QCheckBox {
     spacing: 10px;

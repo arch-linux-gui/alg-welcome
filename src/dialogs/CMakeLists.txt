@@ -1,8 +1,11 @@
 target_sources(${PROJECT_NAME} PRIVATE
-    AboutUsDialog.cpp
-    AboutUsDialog.h
-    MirrorListDialog.cpp
-    MirrorListDialog.h
+    AboutPage.cpp
+    AboutPage.h
+    MirrorlistPage.cpp
+    MirrorlistPage.h
     MirrorListParsing.cpp
     MirrorListParsing.h
+    PageChrome.h
+    ThemePage.cpp
+    ThemePage.h
 )
