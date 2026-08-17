@@ -26,15 +26,20 @@ depends=(
 makedepends=('cmake' 'git')
 checkdepends=('catch2')
 optdepends=(
-    'plasma-workspace: KDE Plasma theme switching and display settings (kcmshell6, qdbus6, lookandfeeltool, plasma-apply-colorscheme)'
+    'plasma-workspace: KDE Plasma theme switching and display settings (kcmshell6, qdbus6, lookandfeeltool, plasma-apply-colorscheme, plasma-apply-cursortheme)'
     'kconfig: KDE Plasma theme switching (kwriteconfig6)'
     'konsole: KDE Plasma system-update terminal'
+    'plasma6-themes-qogir-git: ALG theme KDE Plasma color scheme (Qogir)'
     'gnome-control-center: GNOME display settings'
     'gnome-console: GNOME system-update terminal (kgx)'
     'glib2: GNOME theme switching (gsettings)'
+    'orchis-theme: ALG theme GNOME GTK/shell theme (Orchis Red)'
     'xfconf: Xfce theme switching (xfconf-query)'
     'xfce4-settings: Xfce display settings (xfce4-display-settings)'
     'xfce4-terminal: Xfce system-update terminal'
+    'qogir-gtk-theme: ALG theme Xfce GTK/window-manager theme (Qogir)'
+    'tela-circle-icon-theme: ALG theme icons (theme selector, all desktop environments)'
+    'mcmojave-cursors: ALG theme cursor (theme selector, all desktop environments)'
 )
 
 source=("archer::git+https://github.com/arch-linux-gui/archer.git#tag=v$pkgver")
