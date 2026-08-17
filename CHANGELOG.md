@@ -9,6 +9,87 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- Full UI redesign, built against an HTML/JS mockup produced with Claude's Design tool
+  (`design/Archer.dc.html`) after an earlier dialog-based attempt at this same feature didn't look
+  right. `WelcomeWindow` is now a single resizable/maximizable window (`setMinimumSize(520, 710)`,
+  `setFixedSize` removed) hosting a `QStackedWidget` of pages, replacing every popup dialog:
+  - `MirrorListDialog` → `MirrorlistPage` (`QDialog` → `QWidget`): its config view and progress-log
+    view, previously a dialog plus a second log `QDialog` spawned from it, are now two widgets in
+    a small internal `QStackedWidget` within the one page. Execution logic (the reflector
+    `pkexec` call, the `jthread` worker, `MirrorListParsing`) is unchanged.
+  - `AboutUsDialog` → `AboutPage` (`QDialog` → `QWidget`), no longer modal.
+  - New `ThemePage`: the theme-selector UI this milestone actually needed, built on the
+    `Themes::ThemeManager` preset backend (`availablePresets()`/`currentPresetId()`/
+    `applyPreset()` — KDE Breeze/Qogir, GNOME Adwaita/Orchis Red, Xfce Adwaita/Qogir, each with
+    McMojave cursors + Tela Circle icons on the ALG side). Presents every preset the active
+    `ThemeManager` reports as a grid of preview cards grouped by family, with an explicit
+    Cancel/Apply confirmation bar rather than instant-apply, matching the mockup.
+  - New `src/dialogs/PageChrome.h`: the "‹ Back / title" bar shared by all three non-home pages,
+    factored out once it was clearly the same widget four times over (Mirrorlist's two sub-views,
+    Theme, About). Sets its own stylesheet directly rather than relying on the app-wide one, since
+    a widget's local style sheet otherwise shadows the ancestor's for its subtree — the bug that
+    made the bar render unstyled on `ThemePage`'s light background before this fix.
+  - Home page gained a toast-notification system (a floating `QLabel` over the whole window,
+    auto-hiding after 1.8s) and a collapsible inline activity log (`QPlainTextEdit`, "› View
+    Logs"), both used across every page action instead of only Mirrorlist having any feedback
+    mechanism.
+  - "Install & Setup" (renamed "Basic Utilities") gained two buttons: **Sync Repositories**
+    (`Updates::syncDatabases()`, `pacman -Syy` via the same per-DE terminal dispatch as
+    `updateSystem()`, factored through a shared `runInTerminal()` helper) and **Set System
+    Theme** (opens `ThemePage`). A new "Project Information" **Website** button was also added
+    (`arkalinuxgui.org`, previously only reachable from inside the About dialog).
+  - The "Dark Theme:" checkbox is gone (superseded by the Theme page); "More Options" as a
+    section is gone entirely, its one remaining control (Autostart) moved into the header row.
+  - Deliberate scope limit: `Updates::updateSystem()`/`syncDatabases()` still launch a **detached**
+    external terminal (`QProcess::startDetached`), exactly as before — there is no live output to
+    stream into the new activity log, only a single "launched" line per click, because a detached
+    process gives the app no completion signal or captured stdout. Building real progress
+    tracking for these would mean re-architecting how they're run (e.g. a captured `QProcess`
+    under `pkexec` instead of a user-facing terminal), which is a separate, bigger decision than
+    this UI pass.
+- `Themes::ThemeManager` redesigned from a binary toggle to a four-preset catalog per desktop
+  environment — every DE now offers its own stock look ("Default") and the ALG look ("ALG
+  Theme"), each in light and dark:
+  ```cpp
+  struct ThemePreset { QString id; QString displayName; QString family; bool isDark; };
+  virtual QVector<ThemePreset> availablePresets() const = 0;
+  virtual QString currentPresetId() = 0;
+  virtual void applyPreset(const QString& id) = 0;
+  ```
+  replacing `getCurrentTheme()`/`setTheme(bool)`. Preset catalog, grounded against the actual
+  upstream install scripts (vinceliuice's Orchis-theme/Tela-circle-icon-theme/Qogir-theme repos)
+  to get exact installed folder/theme names right, not guessed:
+  - **KDE**: Default = Breeze Light/Dark (`lookandfeeltool --apply org.kde.breeze[dark].desktop`,
+    unchanged — the stock look-and-feel package already resets icons/cursor to Breeze's own as
+    part of applying the full package). ALG = Qogir Light/Dark (`plasma-apply-colorscheme` +
+    window-deco `kwriteconfig6`, as before) **plus new**: icon theme set to
+    `Tela-circle`/`Tela-circle-dark` (`kwriteconfig6` + best-effort live refresh via
+    `plasma-changeicons`) and cursor set to `McMojave-cursors` (`plasma-apply-cursortheme`).
+  - **GNOME**: previously the app had no real "stock GNOME" path at all — the old binary toggle
+    always applied Orchis Red, just switching its light/dark variant. Now Default = Adwaita
+    Light/Dark is a real, selectable option (`gtk-theme`/`icon-theme`/`cursor-theme` reset to
+    `Adwaita`/`Adwaita-dark` via `gsettings`, shell theme reset to empty = built-in default). ALG =
+    Orchis Red Light/Dark (unchanged GTK/shell/icon settings) **plus new**: `cursor-theme` set to
+    `McMojave-cursors` (previously never touched at all).
+  - **Xfce**: previously `setTheme()` auto-detected "is the current theme already Qogir?" and only
+    ever touched `/Net/ThemeName` — icons and cursor were never set. Now Default = Adwaita
+    Light/Dark and ALG = Qogir Light/Dark are both explicit, and both paths now also set
+    `/Net/IconThemeName` (`Adwaita` / `Tela-circle`,`Tela-circle-dark`) and the previously-untouched
+    `/Gtk/CursorThemeName` (`default` / `McMojave-cursors`) via `xfconf-query`.
+  - `Themes::isDarkTheme()`'s existing keyword-substring check needed no changes — every new theme
+    name (`Adwaita-dark`, `Tela-circle-dark`, `Qogirdark`, `Orchis-Red-Dark`) already contains the
+    bare `"dark"` keyword it already matches on.
+  - `PKGBUILD` `optdepends` gained the actual runtime packages this introduces:
+    `plasma6-themes-qogir-git` (KDE Qogir color scheme), `qogir-gtk-theme` (Xfce Qogir GTK theme),
+    `orchis-theme` (GNOME, now in Arch's official `extra` repo), and the shared
+    `tela-circle-icon-theme`/`mcmojave-cursors` (icons/cursor across all three DEs) — none of these
+    were previously listed even though `GNOMETheme` was already applying Orchis Red/Tela-circle
+    before this change.
+- `Updates::syncCommandFor()`/`syncDatabases()`: a new sibling to the existing `commandFor()`/
+  `updateSystem()`, same per-DE-terminal dispatch pattern, just `pacman -Syy` instead of `-Syu`.
+  The shared KDE-environment-stripping/terminal-launch logic was factored into a private
+  `runInTerminal()` helper so the two entry points don't duplicate it.
+
 - `VERSION` file as the single source of truth for the project version.
 - Pre-commit hook (`scripts/bump-version.sh`, installed via `scripts/install-hooks.sh`) that
   auto-bumps the patch component of `VERSION` on every commit. Minor/major bumps stay a
