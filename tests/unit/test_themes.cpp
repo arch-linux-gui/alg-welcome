@@ -76,3 +76,66 @@ TEST_CASE( "getThemeManager dispatches to the right implementation per desktop e
     CHECK( dynamic_cast< Themes::XFCETheme* >( Themes::getThemeManager( "xfce" ).get() ) != nullptr );
     CHECK( Themes::getThemeManager( "unknown-de" ) == nullptr );
 }
+
+namespace
+{
+
+void
+checkFourStandardPresets( const QVector< Themes::ThemePreset >& presets )
+{
+    REQUIRE( presets.size() == 4 );
+
+    CHECK( presets[ 0 ].id == "default-light" );
+    CHECK( presets[ 0 ].family == "Default" );
+    CHECK_FALSE( presets[ 0 ].isDark );
+
+    CHECK( presets[ 1 ].id == "default-dark" );
+    CHECK( presets[ 1 ].family == "Default" );
+    CHECK( presets[ 1 ].isDark );
+
+    CHECK( presets[ 2 ].id == "alg-light" );
+    CHECK( presets[ 2 ].family == "ALG Theme" );
+    CHECK_FALSE( presets[ 2 ].isDark );
+
+    CHECK( presets[ 3 ].id == "alg-dark" );
+    CHECK( presets[ 3 ].family == "ALG Theme" );
+    CHECK( presets[ 3 ].isDark );
+}
+
+}  // namespace
+
+TEST_CASE( "KDETheme::availablePresets offers Breeze and Qogir, light and dark", "[themes][kde]" )
+{
+    Themes::KDETheme theme;
+    const auto presets = theme.availablePresets();
+    checkFourStandardPresets( presets );
+
+    CHECK( presets[ 0 ].displayName == "Breeze Light" );
+    CHECK( presets[ 1 ].displayName == "Breeze Dark" );
+    CHECK( presets[ 2 ].displayName == "Qogir Light" );
+    CHECK( presets[ 3 ].displayName == "Qogir Dark" );
+}
+
+TEST_CASE( "GNOMETheme::availablePresets offers Adwaita and Orchis Red, light and dark", "[themes][gnome]" )
+{
+    Themes::GNOMETheme theme;
+    const auto presets = theme.availablePresets();
+    checkFourStandardPresets( presets );
+
+    CHECK( presets[ 0 ].displayName == "Adwaita Light" );
+    CHECK( presets[ 1 ].displayName == "Adwaita Dark" );
+    CHECK( presets[ 2 ].displayName == "Orchis Red Light" );
+    CHECK( presets[ 3 ].displayName == "Orchis Red Dark" );
+}
+
+TEST_CASE( "XFCETheme::availablePresets offers Adwaita and Qogir, light and dark", "[themes][xfce]" )
+{
+    Themes::XFCETheme theme;
+    const auto presets = theme.availablePresets();
+    checkFourStandardPresets( presets );
+
+    CHECK( presets[ 0 ].displayName == "Adwaita Light" );
+    CHECK( presets[ 1 ].displayName == "Adwaita Dark" );
+    CHECK( presets[ 2 ].displayName == "Qogir Light" );
+    CHECK( presets[ 3 ].displayName == "Qogir Dark" );
+}

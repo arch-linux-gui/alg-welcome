@@ -8,28 +8,12 @@
 namespace Updates
 {
 
-Command
-commandFor( const QString& desktopEnv )
+namespace
 {
-    if ( desktopEnv == "xfce" )
-    {
-        return { "xfce4-terminal", { "-x", "pkexec", "pacman", "--noconfirm", "-Syu" } };
-    }
-    if ( desktopEnv == "gnome" )
-    {
-        return { "kgx", { "--", "sudo", "pacman", "--noconfirm", "-Syu" } };
-    }
-    if ( desktopEnv == "kde" )
-    {
-        return { "konsole", { "-e", "sudo", "pacman", "--noconfirm", "-Syu" } };
-    }
-    return { };
-}
 
 void
-updateSystem( const QString& desktopEnv )
+runInTerminal( const QString& desktopEnv, const Command& command )
 {
-    const auto command = commandFor( desktopEnv );
     if ( command.program.isEmpty() )
     {
         spdlog::warn( "Unsupported desktop environment: {}", desktopEnv.toStdString() );
@@ -52,6 +36,56 @@ updateSystem( const QString& desktopEnv )
     {
         QProcess::startDetached( command.program, command.arguments );
     }
+}
+
+}  // namespace
+
+Command
+commandFor( const QString& desktopEnv )
+{
+    if ( desktopEnv == "xfce" )
+    {
+        return { "xfce4-terminal", { "-x", "pkexec", "pacman", "--noconfirm", "-Syu" } };
+    }
+    if ( desktopEnv == "gnome" )
+    {
+        return { "kgx", { "--", "sudo", "pacman", "--noconfirm", "-Syu" } };
+    }
+    if ( desktopEnv == "kde" )
+    {
+        return { "konsole", { "-e", "sudo", "pacman", "--noconfirm", "-Syu" } };
+    }
+    return { };
+}
+
+Command
+syncCommandFor( const QString& desktopEnv )
+{
+    if ( desktopEnv == "xfce" )
+    {
+        return { "xfce4-terminal", { "-x", "pkexec", "pacman", "--noconfirm", "-Syy" } };
+    }
+    if ( desktopEnv == "gnome" )
+    {
+        return { "kgx", { "--", "sudo", "pacman", "--noconfirm", "-Syy" } };
+    }
+    if ( desktopEnv == "kde" )
+    {
+        return { "konsole", { "-e", "sudo", "pacman", "--noconfirm", "-Syy" } };
+    }
+    return { };
+}
+
+void
+updateSystem( const QString& desktopEnv )
+{
+    runInTerminal( desktopEnv, commandFor( desktopEnv ) );
+}
+
+void
+syncDatabases( const QString& desktopEnv )
+{
+    runInTerminal( desktopEnv, syncCommandFor( desktopEnv ) );
 }
 
 }  // namespace Updates

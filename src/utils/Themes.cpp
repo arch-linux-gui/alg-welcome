@@ -142,61 +142,110 @@ KDETheme::getLookAndFeelPackage()
     return DEFAULT_COLOR_SCHEME;
 }
 
-QString
-KDETheme::getCurrentTheme()
+QVector< ThemePreset >
+KDETheme::availablePresets() const
 {
-    const auto theme = getLookAndFeelPackage();
-    spdlog::debug( "Current KDE Theme: {}", theme.toStdString() );
-    return theme;
+    return {
+        { "default-light", "Breeze Light", "Default", false },
+        { "default-dark", "Breeze Dark", "Default", true },
+        { "alg-light", "Qogir Light", "ALG Theme", false },
+        { "alg-dark", "Qogir Dark", "ALG Theme", true },
+    };
+}
+
+QString
+KDETheme::currentPresetId()
+{
+    const auto package = getLookAndFeelPackage();
+    spdlog::debug( "Current KDE Theme: {}", package.toStdString() );
+
+    if ( package == "org.kde.breeze.desktop" )
+    {
+        return "default-light";
+    }
+    if ( package == "org.kde.breezedark.desktop" )
+    {
+        return "default-dark";
+    }
+    return isDarkTheme( package ) ? "alg-dark" : "alg-light";
 }
 
 void
-KDETheme::setTheme( bool dark )
+KDETheme::applyPreset( const QString& id )
 {
-    const auto currentPackage = getLookAndFeelPackage();
-
-    if ( currentPackage.contains( "org.kde.breeze" ) )
+    if ( id == "default-light" || id == "default-dark" )
     {
-        // Pure breeze theme
-        const QString style = dark ? "org.kde.breezedark.desktop" : "org.kde.breeze.desktop";
+        // The stock Breeze look-and-feel package resets icons/cursor to Breeze's own as part of
+        // applying the full package, not just the color scheme.
+        const QString style = ( id == "default-dark" ) ? "org.kde.breezedark.desktop" : "org.kde.breeze.desktop";
         QProcess::execute( "lookandfeeltool", QStringList() << "--apply" << style );
         spdlog::info( "KDE theme changed to {}", style.toStdString() );
+        return;
     }
-    else
+
+    if ( id != "alg-light" && id != "alg-dark" )
     {
-        // Themed KDE (Qogir)
-        QString style, winDeco;
-        if ( dark )
-        {
-            style = "Qogirdark";
-            winDeco = "__aurorae__svg__Qogir-dark-circle";
-        }
-        else
-        {
-            style = "Qogirlight";
-            winDeco = "__aurorae__svg__Qogir-light-circle";
-        }
-
-        const QString cmd = QString( "plasma-apply-colorscheme %1 && "
-                                     "kwriteconfig6 --file %2/.config/kwinrc "
-                                     "--group org.kde.kdecoration2 --key theme %3 && "
-                                     "qdbus6 org.kde.KWin /KWin reconfigure" )
-                                .arg( style, homeDir, winDeco );
-
-        QProcess::execute( "sh", QStringList() << "-c" << cmd );
-        spdlog::info( "KDE theme changed to {}", style.toStdString() );
+        spdlog::warn( "Unknown KDE theme preset: {}", id.toStdString() );
+        return;
     }
+
+    const bool dark = ( id == "alg-dark" );
+    const QString colorScheme = dark ? "Qogirdark" : "Qogirlight";
+    const QString winDeco = dark ? "__aurorae__svg__Qogir-dark-circle" : "__aurorae__svg__Qogir-light-circle";
+    const QString iconTheme = dark ? "Tela-circle-dark" : "Tela-circle";
+
+    const QString cmd = QString( "plasma-apply-colorscheme %1 && "
+                                 "kwriteconfig6 --file %2/.config/kwinrc "
+                                 "--group org.kde.kdecoration2 --key theme %3 && "
+                                 "kwriteconfig6 --file %2/.config/kdeglobals --group Icons --key Theme %4 && "
+                                 "qdbus6 org.kde.KWin /KWin reconfigure" )
+                            .arg( colorScheme, homeDir, winDeco, iconTheme );
+    QProcess::execute( "sh", QStringList() << "-c" << cmd );
+
+    // Best-effort live refresh: not every system has these on PATH, but a failure here shouldn't
+    // undo the config already written above.
+    QProcess::execute( "plasma-changeicons", QStringList() << iconTheme );
+    QProcess::execute( "plasma-apply-cursortheme", QStringList() << "McMojave-cursors" );
+
+    spdlog::info( "KDE theme changed to Qogir {}", dark ? "Dark" : "Light" );
 }
 
 // ============================================================================
 // GNOMETheme Implementation
 // ============================================================================
 
-const GNOMETheme::ThemeConfig GNOMETheme::DARK_THEME
-    = { "Tela-circle-dark", "Orchis-Red-Dark", "Orchis-Red-Dark", "prefer-dark" };
+const GNOMETheme::ThemeConfig GNOMETheme::DEFAULT_LIGHT_THEME = { "Adwaita", "", "Adwaita", "prefer-light", "Adwaita" };
 
-const GNOMETheme::ThemeConfig GNOMETheme::LIGHT_THEME
-    = { "Tela-circle", "Orchis-Red-Light", "Orchis-Red-Light", "prefer-light" };
+const GNOMETheme::ThemeConfig GNOMETheme::DEFAULT_DARK_THEME
+    = { "Adwaita", "", "Adwaita-dark", "prefer-dark", "Adwaita" };
+
+const GNOMETheme::ThemeConfig GNOMETheme::ALG_LIGHT_THEME
+    = { "Tela-circle", "Orchis-Red-Light", "Orchis-Red-Light", "prefer-light", "McMojave-cursors" };
+
+const GNOMETheme::ThemeConfig GNOMETheme::ALG_DARK_THEME
+    = { "Tela-circle-dark", "Orchis-Red-Dark", "Orchis-Red-Dark", "prefer-dark", "McMojave-cursors" };
+
+const GNOMETheme::ThemeConfig*
+GNOMETheme::configFor( const QString& id )
+{
+    if ( id == "default-light" )
+    {
+        return &DEFAULT_LIGHT_THEME;
+    }
+    if ( id == "default-dark" )
+    {
+        return &DEFAULT_DARK_THEME;
+    }
+    if ( id == "alg-light" )
+    {
+        return &ALG_LIGHT_THEME;
+    }
+    if ( id == "alg-dark" )
+    {
+        return &ALG_DARK_THEME;
+    }
+    return nullptr;
+}
 
 GNOMETheme::GNOMETheme()
 {
@@ -223,38 +272,65 @@ GNOMETheme::setGSetting( const QString& schema, const QString& key, const QStrin
     QProcess::execute( "gsettings", QStringList() << "set" << schema << key << value );
 }
 
+QVector< ThemePreset >
+GNOMETheme::availablePresets() const
+{
+    return {
+        { "default-light", "Adwaita Light", "Default", false },
+        { "default-dark", "Adwaita Dark", "Default", true },
+        { "alg-light", "Orchis Red Light", "ALG Theme", false },
+        { "alg-dark", "Orchis Red Dark", "ALG Theme", true },
+    };
+}
+
 QString
-GNOMETheme::getCurrentTheme()
+GNOMETheme::currentPresetId()
 {
     const auto colorScheme = getGSetting( "org.gnome.desktop.interface", "color-scheme" );
     const auto gtkTheme = getGSetting( "org.gnome.desktop.interface", "gtk-theme" );
-
-    // Determine theme based on color scheme or GTK theme
     const auto theme = !colorScheme.isEmpty() ? colorScheme : gtkTheme;
     spdlog::debug( "Current GNOME Theme: {}", theme.toStdString() );
-    return theme;
+
+    const bool alg = gtkTheme.contains( "orchis", Qt::CaseInsensitive );
+    const bool dark = isDarkTheme( theme );
+
+    if ( alg )
+    {
+        return dark ? "alg-dark" : "alg-light";
+    }
+    return dark ? "default-dark" : "default-light";
 }
 
 void
-GNOMETheme::setTheme( bool dark )
+GNOMETheme::applyPreset( const QString& id )
 {
-    const auto& themeConfig = dark ? DARK_THEME : LIGHT_THEME;
+    const auto* config = configFor( id );
+    if ( !config )
+    {
+        spdlog::warn( "Unknown GNOME theme preset: {}", id.toStdString() );
+        return;
+    }
 
     // Set icon theme
-    setGSetting( "org.gnome.desktop.interface", "icon-theme", themeConfig.icons );
-    spdlog::debug( "GNOME icons set to: {}", themeConfig.icons.toStdString() );
+    setGSetting( "org.gnome.desktop.interface", "icon-theme", config->icons );
+    spdlog::debug( "GNOME icons set to: {}", config->icons.toStdString() );
 
     // Set GTK theme (Legacy Applications)
-    setGSetting( "org.gnome.desktop.interface", "gtk-theme", themeConfig.gtk );
-    spdlog::debug( "GNOME GTK theme set to: {}", themeConfig.gtk.toStdString() );
+    setGSetting( "org.gnome.desktop.interface", "gtk-theme", config->gtk );
+    spdlog::debug( "GNOME GTK theme set to: {}", config->gtk.toStdString() );
 
     // Set color scheme
-    setGSetting( "org.gnome.desktop.interface", "color-scheme", themeConfig.colorScheme );
-    spdlog::debug( "GNOME color scheme set to: {}", themeConfig.colorScheme.toStdString() );
+    setGSetting( "org.gnome.desktop.interface", "color-scheme", config->colorScheme );
+    spdlog::debug( "GNOME color scheme set to: {}", config->colorScheme.toStdString() );
 
-    // Set shell theme (requires user-theme extension)
-    setGSetting( "org.gnome.shell.extensions.user-theme", "name", themeConfig.shell );
-    spdlog::info( "GNOME theme changed to {} ({})", dark ? "dark" : "light", themeConfig.gtk.toStdString() );
+    // Set cursor theme
+    setGSetting( "org.gnome.desktop.interface", "cursor-theme", config->cursor );
+    spdlog::debug( "GNOME cursor theme set to: {}", config->cursor.toStdString() );
+
+    // Set shell theme (requires user-theme extension); empty resets to the built-in default.
+    setGSetting( "org.gnome.shell.extensions.user-theme", "name", config->shell );
+
+    spdlog::info( "GNOME theme changed to {}", config->gtk.toStdString() );
 }
 
 // ============================================================================
@@ -282,37 +358,89 @@ XFCETheme::setXfconfValue( const QString& channel, const QString& propertyPath, 
     QProcess::execute( "xfconf-query", QStringList() << "-c" << channel << "-p" << propertyPath << "-s" << value );
 }
 
+QVector< ThemePreset >
+XFCETheme::availablePresets() const
+{
+    return {
+        { "default-light", "Adwaita Light", "Default", false },
+        { "default-dark", "Adwaita Dark", "Default", true },
+        { "alg-light", "Qogir Light", "ALG Theme", false },
+        { "alg-dark", "Qogir Dark", "ALG Theme", true },
+    };
+}
+
 QString
-XFCETheme::getCurrentTheme()
+XFCETheme::getXsettingsThemeName()
 {
     const auto theme = getXfconfValue( "xsettings", "/Net/ThemeName" );
     spdlog::debug( "Current XFCE Theme: {}", theme.toStdString() );
     return theme;
 }
 
-void
-XFCETheme::setTheme( bool dark )
+QString
+XFCETheme::currentPresetId()
 {
-    const auto currentTheme = getCurrentTheme();
+    const auto theme = getXsettingsThemeName();
+    const bool alg = theme.contains( "qogir", Qt::CaseInsensitive );
+    const bool dark = isDarkTheme( theme );
 
-    // Determine theme based on current theme
-    QString style;
-    if ( currentTheme.contains( "Qogir" ) )
+    if ( alg )
     {
-        style = dark ? "Qogir-Dark" : "Qogir-Light";
+        return dark ? "alg-dark" : "alg-light";
+    }
+    return dark ? "default-dark" : "default-light";
+}
+
+void
+XFCETheme::applyPreset( const QString& id )
+{
+    QString theme, icon, cursor;
+
+    if ( id == "default-light" )
+    {
+        theme = "Adwaita";
+        icon = "Adwaita";
+        cursor = "default";
+    }
+    else if ( id == "default-dark" )
+    {
+        theme = "Adwaita-dark";
+        icon = "Adwaita";
+        cursor = "default";
+    }
+    else if ( id == "alg-light" )
+    {
+        theme = "Qogir-Light";
+        icon = "Tela-circle";
+        cursor = "McMojave-cursors";
+    }
+    else if ( id == "alg-dark" )
+    {
+        theme = "Qogir-Dark";
+        icon = "Tela-circle-dark";
+        cursor = "McMojave-cursors";
     }
     else
     {
-        style = dark ? "Adwaita-dark" : "Adwaita";
+        spdlog::warn( "Unknown XFCE theme preset: {}", id.toStdString() );
+        return;
     }
 
     // Set GTK theme
-    setXfconfValue( "xsettings", "/Net/ThemeName", style );
-    spdlog::debug( "XFCE GTK theme set to: {}", style.toStdString() );
+    setXfconfValue( "xsettings", "/Net/ThemeName", theme );
+    spdlog::debug( "XFCE GTK theme set to: {}", theme.toStdString() );
+
+    // Set icon theme
+    setXfconfValue( "xsettings", "/Net/IconThemeName", icon );
+    spdlog::debug( "XFCE icon theme set to: {}", icon.toStdString() );
+
+    // Set cursor theme
+    setXfconfValue( "xsettings", "/Gtk/CursorThemeName", cursor );
+    spdlog::debug( "XFCE cursor theme set to: {}", cursor.toStdString() );
 
     // Set window manager theme
-    setXfconfValue( "xfwm4", "/general/theme", style );
-    spdlog::info( "XFCE theme changed to {}", style.toStdString() );
+    setXfconfValue( "xfwm4", "/general/theme", theme );
+    spdlog::info( "XFCE theme changed to {}", theme.toStdString() );
 }
 
 // ============================================================================
@@ -338,35 +466,6 @@ getThemeManager( const QString& desktopEnv )
     {
         spdlog::warn( "Unsupported desktop environment: {}", desktopEnv.toStdString() );
         return nullptr;
-    }
-}
-
-// ============================================================================
-// Public API Functions
-// ============================================================================
-
-QString
-getCurrentTheme( const QString& desktopEnv )
-{
-    auto manager = getThemeManager( desktopEnv );
-    if ( manager )
-    {
-        return manager->getCurrentTheme();
-    }
-    return QString();
-}
-
-void
-toggleTheme( bool dark, const QString& desktopEnv )
-{
-    auto manager = getThemeManager( desktopEnv );
-    if ( manager )
-    {
-        manager->setTheme( dark );
-    }
-    else
-    {
-        spdlog::warn( "Cannot toggle theme for unsupported desktop environment: {}", desktopEnv.toStdString() );
     }
 }
 

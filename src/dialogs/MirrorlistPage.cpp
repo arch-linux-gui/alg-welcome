@@ -1,5 +1,6 @@
-#include "MirrorListDialog.h"
+#include "MirrorlistPage.h"
 #include "MirrorListParsing.h"
+#include "PageChrome.h"
 
 #include <spdlog/spdlog.h>
 
@@ -15,74 +16,129 @@
 #include <QProcessEnvironment>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QStackedWidget>
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
-MirrorListDialog::MirrorListDialog( QWidget* parent )
-    : QDialog( parent )
+MirrorlistPage::MirrorlistPage( QWidget* parent )
+    : QWidget( parent )
 {
     // Connect signals for thread-safe UI updates
-    connect( &workerSignals, &MirrorListSignals::logAppended, this, &MirrorListDialog::appendLogToUI );
-    connect( &workerSignals, &MirrorListSignals::updateFinished, this, &MirrorListDialog::onUpdateFinished );
+    connect( &workerSignals, &MirrorListSignals::logAppended, this, &MirrorlistPage::appendLogToUI );
+    connect( &workerSignals, &MirrorListSignals::updateFinished, this, &MirrorlistPage::onUpdateFinished );
 
     setupUI();
 
-    // Position dialog next to parent
-    if ( parent )
-    {
-        const auto parentGeometry = parent->geometry();
-        if ( parentGeometry.isValid() )
-        {
-            move( parentGeometry.x() + parentGeometry.width() + 10, parentGeometry.y() );
-        }
-    }
-
-    spdlog::debug( "MirrorListDialog initialized" );
+    spdlog::debug( "MirrorlistPage initialized" );
 }
 
 void
-MirrorListDialog::setupUI()
+MirrorlistPage::setupUI()
 {
-    setWindowTitle( "Update MirrorList" );
-    setMinimumSize( 500, 450 );
-    setModal( false );
+    auto* outer = new QVBoxLayout( this );
+    outer->setContentsMargins( 0, 0, 0, 0 );
+    outer->setSpacing( 0 );
 
-    setWindowFlags( windowFlags() | Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint
-                    | Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint );
+    stack = new QStackedWidget( this );
 
-    auto* layout = new QVBoxLayout( this );
-    layout->setSpacing( 10 );
-    layout->setContentsMargins( 10, 10, 10, 10 );
+    configPage = buildConfigPage();
+    logPage = buildLogPage();
+    stack->addWidget( configPage );
+    stack->addWidget( logPage );
 
-    // Countries selection
+    outer->addWidget( stack, 1 );
+}
+
+void
+MirrorlistPage::resetToConfig()
+{
+    stack->setCurrentWidget( configPage );
+}
+
+QWidget*
+MirrorlistPage::buildConfigPage()
+{
+    auto* page = new QWidget();
+    auto* outer = new QVBoxLayout( page );
+    outer->setContentsMargins( 0, 0, 0, 0 );
+    outer->setSpacing( 0 );
+
+    const auto header = PageChrome::buildSubHeader( "Update MirrorList", page );
+    connect( header.backButton, &QPushButton::clicked, this, &MirrorlistPage::backRequested );
+    outer->addWidget( header.widget );
+
+    auto* content = new QWidget();
+    auto* layout = new QVBoxLayout( content );
+    layout->setSpacing( 12 );
+    layout->setContentsMargins( 18, 14, 18, 14 );
+
     setupCountriesSection( layout );
-
-    // Protocol selection
     setupProtocolSection( layout );
-
-    // Sort by selection
     setupSortSection( layout );
-
-    // Settings (max mirrors and timeout)
     setupSettingsSection( layout );
+    layout->addStretch();
+
+    outer->addWidget( content, 1 );
 
     // Buttons (Update and Close)
     auto* buttonLayout = new QHBoxLayout();
+    buttonLayout->setContentsMargins( 18, 12, 18, 12 );
+    buttonLayout->setSpacing( 10 );
 
     updateButton = new QPushButton( "Update" );
     updateButton->setEnabled( false );
-    connect( updateButton, &QPushButton::clicked, this, &MirrorListDialog::onUpdateClicked );
+    connect( updateButton, &QPushButton::clicked, this, &MirrorlistPage::onUpdateClicked );
 
-    mainCloseButton = new QPushButton( "Close" );
-    connect( mainCloseButton, &QPushButton::clicked, this, &QDialog::close );
+    auto* closeButton = new QPushButton( "Close" );
+    connect( closeButton, &QPushButton::clicked, this, &MirrorlistPage::backRequested );
 
     buttonLayout->addWidget( updateButton );
-    buttonLayout->addWidget( mainCloseButton );
-    layout->addLayout( buttonLayout );
+    buttonLayout->addWidget( closeButton );
+    outer->addLayout( buttonLayout );
+
+    return page;
+}
+
+QWidget*
+MirrorlistPage::buildLogPage()
+{
+    auto* page = new QWidget();
+    auto* outer = new QVBoxLayout( page );
+    outer->setContentsMargins( 0, 0, 0, 0 );
+    outer->setSpacing( 0 );
+
+    const auto header = PageChrome::buildSubHeader( "Update Progress", page );
+    connect( header.backButton, &QPushButton::clicked, this, &MirrorlistPage::resetToConfig );
+    outer->addWidget( header.widget );
+
+    auto* content = new QWidget();
+    auto* contentLayout = new QVBoxLayout( content );
+    contentLayout->setContentsMargins( 10, 10, 10, 10 );
+
+    logTree = new QTreeWidget();
+    logTree->setHeaderLabels( { "Server", "Rate", "Time" } );
+    logTree->header()->setSectionResizeMode( 0, QHeaderView::Stretch );
+    logTree->setAlternatingRowColors( true );
+    contentLayout->addWidget( logTree );
+
+    outer->addWidget( content, 1 );
+
+    auto* buttonLayout = new QHBoxLayout();
+    buttonLayout->setContentsMargins( 18, 12, 18, 12 );
+
+    logCloseButton = new QPushButton( "Updating..." );
+    logCloseButton->setEnabled( false );
+    logCloseButton->setObjectName( "primaryButton" );
+    connect( logCloseButton, &QPushButton::clicked, this, &MirrorlistPage::resetToConfig );
+    buttonLayout->addWidget( logCloseButton );
+
+    outer->addLayout( buttonLayout );
+
+    return page;
 }
 
 void
-MirrorListDialog::setupCountriesSection( QVBoxLayout* layout )
+MirrorlistPage::setupCountriesSection( QVBoxLayout* layout )
 {
     auto* group = new QGroupBox( "Countries" );
     auto* grid = new QGridLayout();
@@ -97,7 +153,7 @@ MirrorListDialog::setupCountriesSection( QVBoxLayout* layout )
         const auto& country = countries[ i ];
         auto* checkbox = new QCheckBox( country );
         checkbox->setFocusPolicy( Qt::NoFocus );
-        connect( checkbox, &QCheckBox::toggled, this, &MirrorListDialog::onCountryToggled );
+        connect( checkbox, &QCheckBox::toggled, this, &MirrorlistPage::onCountryToggled );
         countryCheckboxes[ country ] = checkbox;
         grid->addWidget( checkbox, i / 2, i % 2 );
     }
@@ -107,7 +163,7 @@ MirrorListDialog::setupCountriesSection( QVBoxLayout* layout )
 }
 
 void
-MirrorListDialog::setupProtocolSection( QVBoxLayout* layout )
+MirrorlistPage::setupProtocolSection( QVBoxLayout* layout )
 {
     auto* group = new QGroupBox( "Protocols" );
     auto* hbox = new QHBoxLayout();
@@ -128,7 +184,7 @@ MirrorListDialog::setupProtocolSection( QVBoxLayout* layout )
 }
 
 void
-MirrorListDialog::setupSortSection( QVBoxLayout* layout )
+MirrorlistPage::setupSortSection( QVBoxLayout* layout )
 {
     auto* group = new QGroupBox( "Sort By" );
     auto* hbox = new QHBoxLayout();
@@ -143,7 +199,7 @@ MirrorListDialog::setupSortSection( QVBoxLayout* layout )
 }
 
 void
-MirrorListDialog::setupSettingsSection( QVBoxLayout* layout )
+MirrorlistPage::setupSettingsSection( QVBoxLayout* layout )
 {
     auto* hbox = new QHBoxLayout();
 
@@ -170,7 +226,7 @@ MirrorListDialog::setupSettingsSection( QVBoxLayout* layout )
 }
 
 void
-MirrorListDialog::onCountryToggled( bool checked )
+MirrorlistPage::onCountryToggled( bool checked )
 {
     auto* checkbox = qobject_cast< QCheckBox* >( sender() );
     if ( !checkbox )
@@ -199,7 +255,7 @@ MirrorListDialog::onCountryToggled( bool checked )
 }
 
 void
-MirrorListDialog::onUpdateClicked()
+MirrorlistPage::onUpdateClicked()
 {
     spdlog::info( "Mirror update started" );
 
@@ -239,60 +295,19 @@ MirrorListDialog::onUpdateClicked()
 
     spdlog::debug( "Reflector args: {}", args.join( " " ).toStdString() );
 
-    // Show log dialog and start update
-    showLogDialog();
+    // Reset the log sub-view and show it
+    logTree->clear();
+    lineCounter = 0;
+    logCloseButton->setEnabled( false );
+    logCloseButton->setText( "Updating..." );
+    stack->setCurrentWidget( logPage );
+
+    Q_EMIT toastRequested( "Updating mirror list..." );
     startMirrorListUpdate( args );
 }
 
 void
-MirrorListDialog::showLogDialog()
-{
-    if ( logDialog )
-    {
-        spdlog::trace( "Log dialog already exists, showing it" );
-        logDialog->show();
-        return;
-    }
-
-    spdlog::trace( "Creating new log dialog" );
-    lineCounter = 0;
-
-    logDialog = new QDialog( this );
-    logDialog->setWindowTitle( "Update Progress" );
-    logDialog->setMinimumSize( 600, 400 );
-    logDialog->setModal( false );
-    logDialog->setWindowFlags( Qt::Window | Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint
-                               | Qt::WindowCloseButtonHint );
-
-    auto* layout = new QVBoxLayout( logDialog );
-    layout->setSpacing( 10 );
-    layout->setContentsMargins( 10, 10, 10, 10 );
-
-    // Create tree widget for logs
-    logTree = new QTreeWidget();
-    logTree->setHeaderLabels( { "Server", "Rate", "Time" } );
-    logTree->header()->setSectionResizeMode( 0, QHeaderView::Stretch );
-    logTree->setAlternatingRowColors( true );
-
-    layout->addWidget( logTree );
-
-    // Add Close button at the bottom
-    closeButton = new QPushButton( "Close" );
-    closeButton->setEnabled( false );  // Disabled during update
-    closeButton->setMinimumHeight( 35 );
-    connect( closeButton, &QPushButton::clicked, logDialog, &QDialog::close );
-    layout->addWidget( closeButton );
-
-    // Position next to parent
-    const auto parentGeometry = geometry();
-    logDialog->move( parentGeometry.x() + parentGeometry.width() + 10, parentGeometry.y() );
-
-    spdlog::trace( "Log dialog created and showing" );
-    logDialog->show();
-}
-
-void
-MirrorListDialog::startMirrorListUpdate( const QStringList& args )
+MirrorlistPage::startMirrorListUpdate( const QStringList& args )
 {
     spdlog::debug( "Starting mirror list update thread" );
     isUpdating = true;
@@ -384,7 +399,7 @@ MirrorListDialog::startMirrorListUpdate( const QStringList& args )
 }
 
 void
-MirrorListDialog::processLogLine( const QString& logLine )
+MirrorlistPage::processLogLine( const QString& logLine )
 {
     lineCounter++;
 
@@ -422,7 +437,7 @@ MirrorListDialog::processLogLine( const QString& logLine )
 }
 
 void
-MirrorListDialog::appendLogToUI( const QString& server, const QString& rate, const QString& time )
+MirrorlistPage::appendLogToUI( const QString& server, const QString& rate, const QString& time )
 {
     spdlog::trace(
         "Appending to UI: {}, {}, {}", server.left( 50 ).toStdString(), rate.toStdString(), time.toStdString() );
@@ -442,17 +457,19 @@ MirrorListDialog::appendLogToUI( const QString& server, const QString& rate, con
 }
 
 void
-MirrorListDialog::onUpdateFinished()
+MirrorlistPage::onUpdateFinished()
 {
     spdlog::trace( "Update finished callback" );
     isUpdating = false;
     updateButton->setEnabled( true );
 
     // Enable the Close button now that update is complete
-    if ( closeButton )
+    if ( logCloseButton )
     {
-        closeButton->setEnabled( true );
+        logCloseButton->setEnabled( true );
+        logCloseButton->setText( "Close" );
     }
 
-    spdlog::info( "Mirror update finished. Log dialog remains open for review." );
+    Q_EMIT toastRequested( "Mirror list update finished" );
+    spdlog::info( "Mirror update finished. Progress page remains open for review." );
 }

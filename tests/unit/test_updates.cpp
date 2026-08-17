@@ -15,3 +15,20 @@ TEST_CASE( "Updates::commandFor selects the right tool per desktop environment",
 
     CHECK( Updates::commandFor( "unknown-de" ).program.isEmpty() );
 }
+
+TEST_CASE( "Updates::syncCommandFor selects the right tool per desktop environment", "[updates][dispatch]" )
+{
+    CHECK( Updates::syncCommandFor( "xfce" ).program == "xfce4-terminal" );
+    CHECK( Updates::syncCommandFor( "xfce" ).arguments
+           == QStringList { "-x", "pkexec", "pacman", "--noconfirm", "-Syy" } );
+
+    CHECK( Updates::syncCommandFor( "gnome" ).program == "kgx" );
+    CHECK( Updates::syncCommandFor( "gnome" ).arguments
+           == QStringList { "--", "sudo", "pacman", "--noconfirm", "-Syy" } );
+
+    CHECK( Updates::syncCommandFor( "kde" ).program == "konsole" );
+    CHECK( Updates::syncCommandFor( "kde" ).arguments
+           == QStringList { "-e", "sudo", "pacman", "--noconfirm", "-Syy" } );
+
+    CHECK( Updates::syncCommandFor( "unknown-de" ).program.isEmpty() );
+}

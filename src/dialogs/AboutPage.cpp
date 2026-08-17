@@ -1,4 +1,6 @@
-#include "AboutUsDialog.h"
+#include "AboutPage.h"
+#include "PageChrome.h"
+
 #include <QDesktopServices>
 #include <QFont>
 #include <QLabel>
@@ -6,22 +8,28 @@
 #include <QUrl>
 #include <QVBoxLayout>
 
-AboutUsDialog::AboutUsDialog( QWidget* parent )
-    : QDialog( parent )
+AboutPage::AboutPage( QWidget* parent )
+    : QWidget( parent )
 {
     setupUI();
 }
 
 void
-AboutUsDialog::setupUI()
+AboutPage::setupUI()
 {
-    setWindowTitle( "About Us" );
-    setFixedSize( 400, 350 );
-    setModal( true );
+    auto* outer = new QVBoxLayout( this );
+    outer->setContentsMargins( 0, 0, 0, 0 );
+    outer->setSpacing( 0 );
 
-    auto* layout = new QVBoxLayout( this );
+    const auto header = PageChrome::buildSubHeader( "About Archer", this );
+    connect( header.backButton, &QPushButton::clicked, this, &AboutPage::backRequested );
+    outer->addWidget( header.widget );
+
+    auto* content = new QWidget( this );
+    auto* layout = new QVBoxLayout( content );
     layout->setSpacing( 10 );
-    layout->setContentsMargins( 20, 20, 20, 20 );
+    layout->setContentsMargins( 24, 20, 24, 20 );
+    layout->setAlignment( Qt::AlignHCenter );
 
     // App name
     auto* appName = new QLabel( "Archer" );
@@ -41,8 +49,9 @@ AboutUsDialog::setupUI()
     auto* description = new QLabel( "The Archer application was made to help you install ALG "
                                     "and onboard quickly. It also serves as a tool for simple utility tasks." );
     description->setWordWrap( true );
+    description->setMaximumWidth( 360 );
     description->setAlignment( Qt::AlignJustify );
-    layout->addWidget( description );
+    layout->addWidget( description, 0, Qt::AlignHCenter );
 
     // Developers label
     auto* devLabel = new QLabel( "<b>Developers:</b>" );
@@ -59,8 +68,14 @@ AboutUsDialog::setupUI()
     websiteButton->setFocusPolicy( Qt::NoFocus );
     connect( websiteButton,
              &QPushButton::clicked,
-             [] { QDesktopServices::openUrl( QUrl( "https://www.arkalinuxgui.org" ) ); } );
+             [ this ]()
+             {
+                 QDesktopServices::openUrl( QUrl( "https://www.arkalinuxgui.org" ) );
+                 Q_EMIT toastRequested( "Opening website..." );
+             } );
     layout->addWidget( websiteButton );
+
+    layout->addStretch();
 
     // License
     auto* licenseText = new QLabel( "Distributed under the MIT License." );
@@ -68,5 +83,5 @@ AboutUsDialog::setupUI()
     licenseText->setAlignment( Qt::AlignCenter );
     layout->addWidget( licenseText );
 
-    layout->addStretch();
+    outer->addWidget( content, 1 );
 }

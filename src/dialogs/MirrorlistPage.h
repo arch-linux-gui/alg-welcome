@@ -1,11 +1,11 @@
-#ifndef MIRRORLISTDIALOG_H
-#define MIRRORLISTDIALOG_H
+#ifndef MIRRORLISTPAGE_H
+#define MIRRORLISTPAGE_H
 
-#include <QDialog>
 #include <QMap>
 #include <QObject>
 #include <QString>
 #include <QStringList>
+#include <QWidget>
 #include <atomic>
 #include <thread>
 
@@ -13,8 +13,8 @@ class QCheckBox;
 class QComboBox;
 class QSpinBox;
 class QPushButton;
+class QStackedWidget;
 class QTreeWidget;
-class QTreeWidgetItem;
 
 // Signals class for thread-safe UI updates
 class MirrorListSignals : public QObject
@@ -32,21 +32,33 @@ Q_SIGNALS:
     void updateFinished();
 };
 
-class MirrorListDialog : public QDialog
+// Update MirrorList, as an in-window page: a config sub-view (countries/protocols/sort/settings)
+// and a progress-log sub-view, switched between internally. Only the config sub-view's Back/Close
+// leaves the page entirely (back to Home) - the log sub-view's Back returns to the config sub-view.
+class MirrorlistPage : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit MirrorListDialog( QWidget* parent = nullptr );
+    explicit MirrorlistPage( QWidget* parent = nullptr );
+
+    // Shows the config sub-view. Call before navigating to this page from Home, so re-entering
+    // after a completed update doesn't leave the user stranded on the log sub-view.
+    void resetToConfig();
+
+Q_SIGNALS:
+    void backRequested();
+    void toastRequested( const QString& message );
 
 private:
     void setupUI();
+    QWidget* buildConfigPage();
+    QWidget* buildLogPage();
     void setupCountriesSection( class QVBoxLayout* layout );
     void setupProtocolSection( class QVBoxLayout* layout );
     void setupSortSection( class QVBoxLayout* layout );
     void setupSettingsSection( class QVBoxLayout* layout );
 
-    void showLogDialog();
     void startMirrorListUpdate( const QStringList& args );
     void processLogLine( const QString& logLine );
 
@@ -62,19 +74,21 @@ private:
     std::atomic< bool > isUpdating { false };
     int lineCounter = 0;
 
-    // UI widgets
+    QStackedWidget* stack = nullptr;
+    QWidget* configPage = nullptr;
+    QWidget* logPage = nullptr;
+
+    // Config sub-view widgets
     QCheckBox* httpsCheck = nullptr;
     QCheckBox* httpCheck = nullptr;
     QComboBox* sortCombo = nullptr;
     QSpinBox* mirrorSpin = nullptr;
     QSpinBox* timeoutSpin = nullptr;
     QPushButton* updateButton = nullptr;
-    QPushButton* mainCloseButton = nullptr;
 
-    // Log dialog
-    QDialog* logDialog = nullptr;
+    // Log sub-view widgets
     QTreeWidget* logTree = nullptr;
-    QPushButton* closeButton = nullptr;
+    QPushButton* logCloseButton = nullptr;
 
     // Signals object for thread communication
     MirrorListSignals workerSignals;
@@ -83,4 +97,4 @@ private:
     std::jthread updateThread;
 };
 
-#endif  // MIRRORLISTDIALOG_H
+#endif  // MIRRORLISTPAGE_H
