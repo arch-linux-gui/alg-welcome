@@ -13,6 +13,7 @@
 #include <QCheckBox>
 #include <QDir>
 #include <QFile>
+#include <QFrame>
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QIcon>
@@ -27,6 +28,22 @@
 #include <QStandardPaths>
 #include <QTime>
 #include <QVBoxLayout>
+
+namespace
+{
+
+QFrame*
+buildSeparator()
+{
+    auto* line = new QFrame();
+    line->setFrameShape( QFrame::HLine );
+    line->setFrameShadow( QFrame::Plain );
+    line->setFixedHeight( 1 );
+    line->setStyleSheet( "background-color: #37393e; border: none;" );
+    return line;
+}
+
+}  // namespace
 
 WelcomeWindow::WelcomeWindow( QWidget* parent )
     : QMainWindow( parent )
@@ -156,8 +173,10 @@ WelcomeWindow::buildHomePage()
     mainLayout->setContentsMargins( 20, 12, 20, 12 );
 
     addHeader( mainLayout );
+    mainLayout->addWidget( buildSeparator() );
     addBasicUtilitiesSection( mainLayout );
     addProjectInformationSection( mainLayout );
+    mainLayout->addWidget( buildSeparator() );
     addLogSection( mainLayout );
 
     return homePage;
