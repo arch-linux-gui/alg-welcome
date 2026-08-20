@@ -2,90 +2,98 @@
 
 #include <spdlog/spdlog.h>
 
+#include <QMetaObject>
 #include <QProcess>
 #include <QProcessEnvironment>
 
 namespace Updates
 {
 
-namespace
+QStringList
+updateArgs()
 {
+    return { "pacman", "--noconfirm", "-Syu" };
+}
+
+QStringList
+syncArgs()
+{
+    return { "pacman", "--noconfirm", "-Syy" };
+}
+
+Runner::Runner( QObject* parent )
+    : QObject( parent )
+{
+}
+
+bool
+Runner::isRunning() const
+{
+    return running.load();
+}
 
 void
-runInTerminal( const QString& desktopEnv, const Command& command )
+Runner::start( const QStringList& pacmanArgs )
 {
-    if ( command.program.isEmpty() )
+    if ( running.load() )
     {
-        spdlog::warn( "Unsupported desktop environment: {}", desktopEnv.toStdString() );
+        spdlog::warn( "Updates::Runner::start() called while already running; ignoring" );
         return;
     }
 
-    if ( desktopEnv == "kde" )
-    {
-        // Remove problematic environment variables for KDE
-        auto env = QProcessEnvironment::systemEnvironment();
-        env.remove( "LD_LIBRARY_PATH" );
-        env.remove( "QT_PLUGIN_PATH" );
-        env.remove( "QT_QPA_PLATFORM_THEME" );
+    running = true;
 
-        QProcess process;
-        process.setProcessEnvironment( env );
-        process.startDetached( command.program, command.arguments );
-    }
-    else
-    {
-        QProcess::startDetached( command.program, command.arguments );
-    }
-}
+    // jthread requests-stop-and-joins any previous one on assignment, matching MirrorlistPage's
+    // update thread.
+    thread = std::jthread(
+        [ this, pacmanArgs ]( std::stop_token )
+        {
+            // Clean environment to avoid Qt library conflicts, same as MirrorlistPage's reflector
+            // call and the old KDE-specific terminal launch this replaces.
+            auto env = QProcessEnvironment::systemEnvironment();
+            env.remove( "LD_LIBRARY_PATH" );
+            env.remove( "QT_PLUGIN_PATH" );
+            env.remove( "QT_QPA_PLATFORM_THEME" );
 
-}  // namespace
+            spdlog::debug( "Executing: pkexec {}", pacmanArgs.join( " " ).toStdString() );
 
-Command
-commandFor( const QString& desktopEnv )
-{
-    if ( desktopEnv == "xfce" )
-    {
-        return { "xfce4-terminal", { "-x", "pkexec", "pacman", "--noconfirm", "-Syu" } };
-    }
-    if ( desktopEnv == "gnome" )
-    {
-        return { "kgx", { "--", "sudo", "pacman", "--noconfirm", "-Syu" } };
-    }
-    if ( desktopEnv == "kde" )
-    {
-        return { "konsole", { "-e", "sudo", "pacman", "--noconfirm", "-Syu" } };
-    }
-    return { };
-}
+            QProcess process;
+            process.setProcessEnvironment( env );
+            process.setProcessChannelMode( QProcess::MergedChannels );
+            process.start( "pkexec", pacmanArgs );
+            process.waitForStarted();
 
-Command
-syncCommandFor( const QString& desktopEnv )
-{
-    if ( desktopEnv == "xfce" )
-    {
-        return { "xfce4-terminal", { "-x", "pkexec", "pacman", "--noconfirm", "-Syy" } };
-    }
-    if ( desktopEnv == "gnome" )
-    {
-        return { "kgx", { "--", "sudo", "pacman", "--noconfirm", "-Syy" } };
-    }
-    if ( desktopEnv == "kde" )
-    {
-        return { "konsole", { "-e", "sudo", "pacman", "--noconfirm", "-Syy" } };
-    }
-    return { };
-}
+            while ( process.state() != QProcess::NotRunning || process.canReadLine() )
+            {
+                if ( process.canReadLine() )
+                {
+                    const QString line = QString::fromUtf8( process.readLine() ).trimmed();
+                    if ( !line.isEmpty() )
+                    {
+                        QMetaObject::invokeMethod( this, "lineOutput", Qt::QueuedConnection, Q_ARG( QString, line ) );
+                    }
+                }
+                else
+                {
+                    process.waitForReadyRead( 100 );
+                }
+            }
 
-void
-updateSystem( const QString& desktopEnv )
-{
-    runInTerminal( desktopEnv, commandFor( desktopEnv ) );
-}
+            while ( process.canReadLine() )
+            {
+                const QString line = QString::fromUtf8( process.readLine() ).trimmed();
+                if ( !line.isEmpty() )
+                {
+                    QMetaObject::invokeMethod( this, "lineOutput", Qt::QueuedConnection, Q_ARG( QString, line ) );
+                }
+            }
 
-void
-syncDatabases( const QString& desktopEnv )
-{
-    runInTerminal( desktopEnv, syncCommandFor( desktopEnv ) );
+            const int exitCode = process.exitCode();
+            spdlog::debug( "pacman process completed with exit code: {}", exitCode );
+
+            running = false;
+            QMetaObject::invokeMethod( this, "finished", Qt::QueuedConnection, Q_ARG( int, exitCode ) );
+        } );
 }
 
 }  // namespace Updates
