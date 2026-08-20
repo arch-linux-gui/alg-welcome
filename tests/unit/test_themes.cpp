@@ -81,24 +81,24 @@ namespace
 {
 
 void
-checkFourStandardPresets( const QVector< Themes::ThemePreset >& presets )
+checkFourStandardPresets( const QVector< Themes::ThemePreset >& presets, const QString& defaultFamily )
 {
     REQUIRE( presets.size() == 4 );
 
     CHECK( presets[ 0 ].id == "default-light" );
-    CHECK( presets[ 0 ].family == "Default" );
+    CHECK( presets[ 0 ].family == defaultFamily );
     CHECK_FALSE( presets[ 0 ].isDark );
 
     CHECK( presets[ 1 ].id == "default-dark" );
-    CHECK( presets[ 1 ].family == "Default" );
+    CHECK( presets[ 1 ].family == defaultFamily );
     CHECK( presets[ 1 ].isDark );
 
     CHECK( presets[ 2 ].id == "alg-light" );
-    CHECK( presets[ 2 ].family == "ALG Theme" );
+    CHECK( presets[ 2 ].family == "ALG Themes" );
     CHECK_FALSE( presets[ 2 ].isDark );
 
     CHECK( presets[ 3 ].id == "alg-dark" );
-    CHECK( presets[ 3 ].family == "ALG Theme" );
+    CHECK( presets[ 3 ].family == "ALG Themes" );
     CHECK( presets[ 3 ].isDark );
 }
 
@@ -108,7 +108,7 @@ TEST_CASE( "KDETheme::availablePresets offers Breeze and Qogir, light and dark",
 {
     Themes::KDETheme theme;
     const auto presets = theme.availablePresets();
-    checkFourStandardPresets( presets );
+    checkFourStandardPresets( presets, "KDE Defaults" );
 
     CHECK( presets[ 0 ].displayName == "Breeze Light" );
     CHECK( presets[ 1 ].displayName == "Breeze Dark" );
@@ -120,7 +120,7 @@ TEST_CASE( "GNOMETheme::availablePresets offers Adwaita and Orchis Red, light an
 {
     Themes::GNOMETheme theme;
     const auto presets = theme.availablePresets();
-    checkFourStandardPresets( presets );
+    checkFourStandardPresets( presets, "GNOME Defaults" );
 
     CHECK( presets[ 0 ].displayName == "Adwaita Light" );
     CHECK( presets[ 1 ].displayName == "Adwaita Dark" );
@@ -132,7 +132,7 @@ TEST_CASE( "XFCETheme::availablePresets offers Adwaita and Qogir, light and dark
 {
     Themes::XFCETheme theme;
     const auto presets = theme.availablePresets();
-    checkFourStandardPresets( presets );
+    checkFourStandardPresets( presets, "Xfce Defaults" );
 
     CHECK( presets[ 0 ].displayName == "Adwaita Light" );
     CHECK( presets[ 1 ].displayName == "Adwaita Dark" );

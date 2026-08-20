@@ -146,10 +146,10 @@ QVector< ThemePreset >
 KDETheme::availablePresets() const
 {
     return {
-        { "default-light", "Breeze Light", "Default", false },
-        { "default-dark", "Breeze Dark", "Default", true },
-        { "alg-light", "Qogir Light", "ALG Theme", false },
-        { "alg-dark", "Qogir Dark", "ALG Theme", true },
+        { "default-light", "Breeze Light", "KDE Defaults", false },
+        { "default-dark", "Breeze Dark", "KDE Defaults", true },
+        { "alg-light", "Qogir Light", "ALG Themes", false },
+        { "alg-dark", "Qogir Dark", "ALG Themes", true },
     };
 }
 
@@ -276,10 +276,10 @@ QVector< ThemePreset >
 GNOMETheme::availablePresets() const
 {
     return {
-        { "default-light", "Adwaita Light", "Default", false },
-        { "default-dark", "Adwaita Dark", "Default", true },
-        { "alg-light", "Orchis Red Light", "ALG Theme", false },
-        { "alg-dark", "Orchis Red Dark", "ALG Theme", true },
+        { "default-light", "Adwaita Light", "GNOME Defaults", false },
+        { "default-dark", "Adwaita Dark", "GNOME Defaults", true },
+        { "alg-light", "Orchis Red Light", "ALG Themes", false },
+        { "alg-dark", "Orchis Red Dark", "ALG Themes", true },
     };
 }
 
@@ -362,10 +362,10 @@ QVector< ThemePreset >
 XFCETheme::availablePresets() const
 {
     return {
-        { "default-light", "Adwaita Light", "Default", false },
-        { "default-dark", "Adwaita Dark", "Default", true },
-        { "alg-light", "Qogir Light", "ALG Theme", false },
-        { "alg-dark", "Qogir Dark", "ALG Theme", true },
+        { "default-light", "Adwaita Light", "Xfce Defaults", false },
+        { "default-dark", "Adwaita Dark", "Xfce Defaults", true },
+        { "alg-light", "Qogir Light", "ALG Themes", false },
+        { "alg-dark", "Qogir Dark", "ALG Themes", true },
     };
 }
 

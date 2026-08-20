@@ -88,7 +88,7 @@ ThemePage::setupUI()
                    "letter-spacing: 1px; }"
                    "#themePage QLabel#deBadge { background-color: #e2ebff; color: #3d6fe0; font-size: 11px; "
                    "font-weight: 600; padding: 3px 10px; border-radius: 9px; }"
-                   "#themePage QLabel#familyLabel { font-size: 13px; font-weight: 700; }"
+                   "#themePage QLabel#familyLabel { color: #ffffff; font-size: 13px; font-weight: 700; }"
                    "#themePage QLabel#themeNote { color: #9aa0a8; font-style: italic; font-size: 11px; }"
                    "#themePage QToolButton { border: 2px solid transparent; border-radius: 8px; padding: 6px; "
                    "font-size: 12px; font-weight: 600; color: #5a5d63; background: transparent; }"
@@ -222,7 +222,7 @@ ThemePage::rebuildCards()
             cardsRow->setSpacing( 14 );
             familySection->addLayout( cardsRow );
 
-            if ( currentFamily == "ALG Theme" )
+            if ( currentFamily == "ALG Themes" )
             {
                 auto* note = new QLabel( "Includes McMojave cursors and Tela Circle icons." );
                 note->setObjectName( "themeNote" );
