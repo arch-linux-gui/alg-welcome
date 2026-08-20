@@ -161,6 +161,10 @@ WelcomeWindow::setupUI()
     toastTimer = new QTimer( this );
     toastTimer->setSingleShot( true );
     connect( toastTimer, &QTimer::timeout, toastLabel, &QLabel::hide );
+
+    updatesRunner = new Updates::Runner( this );
+    connect( updatesRunner, &Updates::Runner::lineOutput, this, &WelcomeWindow::onUpdatesLineOutput );
+    connect( updatesRunner, &Updates::Runner::finished, this, &WelcomeWindow::onUpdatesFinished );
 }
 
 QWidget*
@@ -252,13 +256,13 @@ WelcomeWindow::addBasicUtilitiesSection( QVBoxLayout* layout )
     grid->addWidget( resolutionBtn, 0, 1 );
 
     // Row 1
-    auto* syncBtn = createButtonWithIcon( "Sync Repositories ", "package-x-generic", false );
-    connect( syncBtn, &QPushButton::clicked, this, &WelcomeWindow::onSyncRepositories );
-    grid->addWidget( syncBtn, 1, 0 );
+    syncRepositoriesButton = createButtonWithIcon( "Sync Repositories ", "package-x-generic", false );
+    connect( syncRepositoriesButton, &QPushButton::clicked, this, &WelcomeWindow::onSyncRepositories );
+    grid->addWidget( syncRepositoriesButton, 1, 0 );
 
-    auto* updateSystemBtn = createButtonWithIcon( "Update System ", "system-software-update", false );
-    connect( updateSystemBtn, &QPushButton::clicked, this, &WelcomeWindow::onUpdateSystem );
-    grid->addWidget( updateSystemBtn, 1, 1 );
+    updateSystemButton = createButtonWithIcon( "Update System ", "system-software-update", false );
+    connect( updateSystemButton, &QPushButton::clicked, this, &WelcomeWindow::onUpdateSystem );
+    grid->addWidget( updateSystemButton, 1, 1 );
 
     // Row 2
     auto* themeBtn = createButtonWithIcon( "Set System Theme ", "preferences-desktop-theme", false );
@@ -497,19 +501,77 @@ WelcomeWindow::onScreenResolution()
 }
 
 void
+WelcomeWindow::startUpdatesOperation( const QString& label, const QStringList& pacmanArgs )
+{
+    if ( updatesRunner->isRunning() )
+    {
+        showToast( "An update is already running" );
+        return;
+    }
+
+    currentUpdatesOperationLabel = label;
+
+    if ( updateSystemButton )
+    {
+        updateSystemButton->setEnabled( false );
+    }
+    if ( syncRepositoriesButton )
+    {
+        syncRepositoriesButton->setEnabled( false );
+    }
+
+    // Surface live output as it streams in rather than making the user click to find it.
+    if ( !logExpanded )
+    {
+        toggleLogSection();
+    }
+
+    appendActivityLog( QString( "%1 started." ).arg( label ) );
+    showToast( QString( "%1..." ).arg( label ) );
+
+    updatesRunner->start( pacmanArgs );
+}
+
+void
 WelcomeWindow::onUpdateSystem()
 {
-    Updates::updateSystem( desktopEnv );
-    appendActivityLog( "System update launched in a terminal." );
-    showToast( "Updating system..." );
+    startUpdatesOperation( "System update", Updates::updateArgs() );
 }
 
 void
 WelcomeWindow::onSyncRepositories()
 {
-    Updates::syncDatabases( desktopEnv );
-    appendActivityLog( "Repository sync launched in a terminal." );
-    showToast( "Syncing repositories..." );
+    startUpdatesOperation( "Repository sync", Updates::syncArgs() );
+}
+
+void
+WelcomeWindow::onUpdatesLineOutput( const QString& line )
+{
+    appendActivityLog( line );
+}
+
+void
+WelcomeWindow::onUpdatesFinished( int exitCode )
+{
+    if ( updateSystemButton )
+    {
+        updateSystemButton->setEnabled( true );
+    }
+    if ( syncRepositoriesButton )
+    {
+        syncRepositoriesButton->setEnabled( true );
+    }
+
+    if ( exitCode == 0 )
+    {
+        appendActivityLog( QString( "%1 completed successfully." ).arg( currentUpdatesOperationLabel ) );
+        showToast( QString( "%1 complete" ).arg( currentUpdatesOperationLabel ) );
+    }
+    else
+    {
+        appendActivityLog( QString( "%1 failed (exit code %2)." ).arg( currentUpdatesOperationLabel ).arg( exitCode ) );
+        showToast( QString( "%1 failed" ).arg( currentUpdatesOperationLabel ) );
+    }
 }
 
 void

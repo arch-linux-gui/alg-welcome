@@ -34,19 +34,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     Logs"), both used across every page action instead of only Mirrorlist having any feedback
     mechanism.
   - "Install & Setup" (renamed "Basic Utilities") gained two buttons: **Sync Repositories**
-    (`Updates::syncDatabases()`, `pacman -Syy` via the same per-DE terminal dispatch as
-    `updateSystem()`, factored through a shared `runInTerminal()` helper) and **Set System
-    Theme** (opens `ThemePage`). A new "Project Information" **Website** button was also added
-    (`arkalinuxgui.org`, previously only reachable from inside the About dialog).
+    (`pacman -Syy`) and **Set System Theme** (opens `ThemePage`). A new "Project Information"
+    **Website** button was also added (`arkalinuxgui.org`, previously only reachable from inside
+    the About dialog).
   - The "Dark Theme:" checkbox is gone (superseded by the Theme page); "More Options" as a
     section is gone entirely, its one remaining control (Autostart) moved into the header row.
-  - Deliberate scope limit: `Updates::updateSystem()`/`syncDatabases()` still launch a **detached**
-    external terminal (`QProcess::startDetached`), exactly as before — there is no live output to
-    stream into the new activity log, only a single "launched" line per click, because a detached
-    process gives the app no completion signal or captured stdout. Building real progress
-    tracking for these would mean re-architecting how they're run (e.g. a captured `QProcess`
-    under `pkexec` instead of a user-facing terminal), which is a separate, bigger decision than
-    this UI pass.
 - `Themes::ThemeManager` redesigned from a binary toggle to a four-preset catalog per desktop
   environment — every DE now offers its own stock look ("Default") and the ALG look ("ALG
   Theme"), each in light and dark:
@@ -85,10 +77,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     `tela-circle-icon-theme`/`mcmojave-cursors` (icons/cursor across all three DEs) — none of these
     were previously listed even though `GNOMETheme` was already applying Orchis Red/Tela-circle
     before this change.
-- `Updates::syncCommandFor()`/`syncDatabases()`: a new sibling to the existing `commandFor()`/
-  `updateSystem()`, same per-DE-terminal dispatch pattern, just `pacman -Syy` instead of `-Syu`.
-  The shared KDE-environment-stripping/terminal-launch logic was factored into a private
-  `runInTerminal()` helper so the two entry points don't duplicate it.
+- `Updates::updateSystem()`/`syncDatabases()` (per-DE terminal dispatch: `konsole`/`kgx`/
+  `xfce4-terminal` running `sudo`/`pkexec pacman`) replaced by a single DE-agnostic
+  `Updates::Runner`, matching how `MirrorlistPage` already runs `reflector`: a `pkexec pacman
+  <args>` `QProcess` on a `jthread`, merged-channel output streamed line-by-line into Home's
+  activity log via `lineOutput(QString)`/`finished(int)` signals, instead of opening a detached,
+  uncaptured terminal window. `pkexec` already talks to whichever polkit agent the desktop
+  environment provides, so unlike the old per-DE terminal dispatch there's nothing DE-specific
+  left to select — `Updates::updateArgs()`/`syncArgs()` are now plain pure functions returning
+  the pacman argument list, no `desktopEnv` parameter needed. `WelcomeWindow` opens the activity
+  log automatically when either operation starts, disables both Update System and Sync
+  Repositories buttons for the duration (pacman's own database lock would serialize/conflict on
+  concurrent runs anyway), and re-enables them with a success/failure line in the log and a toast
+  once `Runner::finished(exitCode)` fires.
 
 - `VERSION` file as the single source of truth for the project version.
 - Pre-commit hook (`scripts/bump-version.sh`, installed via `scripts/install-hooks.sh`) that

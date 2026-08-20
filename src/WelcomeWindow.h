@@ -16,6 +16,11 @@ class AboutPage;
 class MirrorlistPage;
 class ThemePage;
 
+namespace Updates
+{
+class Runner;
+}
+
 class WelcomeWindow : public QMainWindow
 {
     Q_OBJECT
@@ -76,6 +81,12 @@ private:
     void onGithub();
     void onDiscord();
     void checkCalamaresStatus();
+    void onUpdatesLineOutput( const QString& line );
+    void onUpdatesFinished( int exitCode );
+
+    // Starts an Updates::Runner operation (system upgrade or database sync) with the shared
+    // "already running" guard, activity log entry, toast, and log-panel auto-expand.
+    void startUpdatesOperation( const QString& label, const QStringList& pacmanArgs );
 
     // Member variables
     QString desktopEnv;
@@ -87,11 +98,16 @@ private:
     AboutPage* aboutPage = nullptr;
 
     QPushButton* installButton = nullptr;
+    QPushButton* updateSystemButton = nullptr;
+    QPushButton* syncRepositoriesButton = nullptr;
     QCheckBox* autostartSwitch = nullptr;
 
     QPushButton* logToggleButton = nullptr;
     QPlainTextEdit* logView = nullptr;
     bool logExpanded = false;
+
+    Updates::Runner* updatesRunner = nullptr;
+    QString currentUpdatesOperationLabel;
 
     QLabel* toastLabel = nullptr;
     QTimer* toastTimer = nullptr;
