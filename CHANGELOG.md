@@ -56,18 +56,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     part of applying the full package). ALG = Qogir Light/Dark (`plasma-apply-colorscheme` +
     window-deco `kwriteconfig6`, as before) **plus new**: icon theme set to
     `Tela-circle`/`Tela-circle-dark` (`kwriteconfig6` + best-effort live refresh via
-    `plasma-changeicons`) and cursor set to `McMojave-cursors` (`plasma-apply-cursortheme`).
+    `plasma-changeicons`) and cursor set to `mcmojave-cursors` (`plasma-apply-cursortheme`).
   - **GNOME**: previously the app had no real "stock GNOME" path at all — the old binary toggle
     always applied Orchis Red, just switching its light/dark variant. Now Default = Adwaita
     Light/Dark is a real, selectable option (`gtk-theme`/`icon-theme`/`cursor-theme` reset to
     `Adwaita`/`Adwaita-dark` via `gsettings`, shell theme reset to empty = built-in default). ALG =
     Orchis Red Light/Dark (unchanged GTK/shell/icon settings) **plus new**: `cursor-theme` set to
-    `McMojave-cursors` (previously never touched at all).
+    `mcmojave-cursors` (previously never touched at all).
   - **Xfce**: previously `setTheme()` auto-detected "is the current theme already Qogir?" and only
     ever touched `/Net/ThemeName` — icons and cursor were never set. Now Default = Adwaita
     Light/Dark and ALG = Qogir Light/Dark are both explicit, and both paths now also set
     `/Net/IconThemeName` (`Adwaita` / `Tela-circle`,`Tela-circle-dark`) and the previously-untouched
-    `/Gtk/CursorThemeName` (`default` / `McMojave-cursors`) via `xfconf-query`.
+    `/Gtk/CursorThemeName` (`default` / `mcmojave-cursors`) via `xfconf-query`.
   - `Themes::isDarkTheme()`'s existing keyword-substring check needed no changes — every new theme
     name (`Adwaita-dark`, `Tela-circle-dark`, `Qogirdark`, `Orchis-Red-Dark`) already contains the
     bare `"dark"` keyword it already matches on.
@@ -77,6 +77,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
     `tela-circle-icon-theme`/`mcmojave-cursors` (icons/cursor across all three DEs) — none of these
     were previously listed even though `GNOMETheme` was already applying Orchis Red/Tela-circle
     before this change.
+- `KDETheme::applyPreset()` expanded from 2 settings (color scheme, window decoration) to all 7
+  categories System Settings' Appearance page exposes, per an explicit per-preset spec (Global
+  Theme, Colors, Application Style, Plasma Style, Window Decorations, Icons, Pointers), grounded
+  against this machine's real live KDE Plasma 6 session rather than guessed - both the exact
+  config keys/values (`plasmarc [Theme] name=breeze-light`/`breeze-dark`, `kdeglobals [KDE]
+  widgetStyle=Breeze`) and the actual behavior of `lookandfeeltool`/`plasma-apply-colorscheme`/
+  `plasma-apply-cursortheme`, applied and verified end-to-end (config-file diffs, not just exit
+  codes) for all 4 presets, then restored to a clean state afterwards. Found and fixed two real
+  bugs along the way:
+  - `kwinrc`'s decoration **engine** (`[org.kde.kdecoration2] library`) was never set, only the
+    Aurorae theme id (`theme`) - so switching to Qogir's window decoration would silently no-op
+    if `library` was still on `org.kde.breeze` (KDE's built-in decoration) from before. Now set
+    explicitly every time (`org.kde.breeze` for stock, `org.kde.kwin.aurorae.v2` for Qogir).
+  - The cursor theme argument was `McMojave-cursors`, but `plasma-apply-cursortheme`'s own error
+    output confirmed the real installed theme name is lowercase `mcmojave-cursors` - fixed
+    everywhere (KDE, GNOME, Xfce; GNOME/Xfce's `mcmojave-cursors` `gsettings`/`xfconf-query`
+    values were already lowercase and correct, only KDE had the wrong case).
+  - KDE's stock Breeze presets now set a deliberately different cursor per light/dark than the
+    color scheme name would suggest (`default-light` → cursor `breeze_cursors`, `default-dark` →
+    cursor `Breeze_Light`) - confirmed via the live session that this isn't a mistake: the cursor
+    theme folder literally named `breeze_cursors` reports `Name=Breeze Dark` in its own
+    `index.theme`, and `lookandfeeltool --apply org.kde.breeze.desktop` (light) applies that exact
+    cursor as part of its own bundle.
+  - Per explicit confirmation: `Plasma Style` is `Qogir-dark` for *both* ALG Light and ALG Dark
+    (the Qogir plasma-theme package ships one dark-panel desktop theme used for both color
+    variants, not a separate light one) - not a copy-paste error.
+- Fixed the actual cause of ALG icon themes not visibly applying on KDE: the icon-theme
+  live-refresh call (`plasma-changeicons <name>`) was run by bare name via `QProcess::execute`,
+  which resolves through `$PATH` - but on Arch this binary is installed to `/usr/lib/`, not
+  `/usr/bin/`, so it was never actually on `PATH` and the call silently failed to even launch.
+  Confirmed on a live session: `kdeglobals`'s `[Icons] Theme` was already being written correctly
+  the whole time, it just never got a live-refresh signal, so it stayed showing Breeze until
+  something else (e.g. opening System Settings) happened to trigger one. `KDETheme` now tries the
+  known `/usr/lib/plasma-changeicons` path first, falling back to bare-name `PATH` resolution for
+  other distros' packaging. (While upgrading `tela-circle-icon-theme` to track this down, also
+  confirmed the icon folder names this app already used - `Tela-circle`/`Tela-circle-dark` - are
+  still correct in the repackaged `extra/tela-circle-icon-theme-standard`; the bug was never a
+  naming mismatch.)
+- `src/utils/Themes.cpp` split into `src/utils/Themes.{h,cpp}` (just the shared `ThemeManager`
+  interface, `ThemePreset`, `isDarkTheme()`, and the `getThemeManager()` factory) plus
+  `src/utils/themes/{kde,gnome,xfce}.{h,cpp}` for each DE's actual implementation - the single
+  file had grown to over 500 lines covering three unrelated theming backends as the KDE preset
+  config grew from 2 categories to 7. Pure reorganization, no behavior change beyond the
+  `plasma-changeicons` fix above; verified via a clean rebuild and a full `ctest` pass.
 - `Updates::updateSystem()`/`syncDatabases()` (per-DE terminal dispatch: `konsole`/`kgx`/
   `xfce4-terminal` running `sudo`/`pkexec pacman`) replaced by a single DE-agnostic
   `Updates::Runner`, matching how `MirrorlistPage` already runs `reflector`: a `pkexec pacman

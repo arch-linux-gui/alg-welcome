@@ -1,4 +1,7 @@
 #include "utils/Themes.h"
+#include "utils/themes/gnome.h"
+#include "utils/themes/kde.h"
+#include "utils/themes/xfce.h"
 
 #include <catch2/catch_test_macros.hpp>
 

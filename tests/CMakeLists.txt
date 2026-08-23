@@ -22,6 +22,9 @@ add_executable(archer_tests
     unit/test_mirrorlist_parsing.cpp
     ${CMAKE_SOURCE_DIR}/src/utils/Extras.cpp
     ${CMAKE_SOURCE_DIR}/src/utils/Themes.cpp
+    ${CMAKE_SOURCE_DIR}/src/utils/themes/kde.cpp
+    ${CMAKE_SOURCE_DIR}/src/utils/themes/gnome.cpp
+    ${CMAKE_SOURCE_DIR}/src/utils/themes/xfce.cpp
     ${CMAKE_SOURCE_DIR}/src/utils/Resolution.cpp
     ${CMAKE_SOURCE_DIR}/src/utils/Updates.cpp
     ${CMAKE_SOURCE_DIR}/src/dialogs/MirrorListParsing.cpp
