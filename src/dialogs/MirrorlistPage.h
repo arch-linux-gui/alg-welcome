@@ -40,20 +40,23 @@ class MirrorlistPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit MirrorlistPage( QWidget* parent = nullptr );
+    explicit MirrorlistPage( bool dark, QWidget* parent = nullptr );
 
     // Shows the config sub-view. Call before navigating to this page from Home, so re-entering
     // after a completed update doesn't leave the user stranded on the log sub-view.
     void resetToConfig();
+
+    // Re-colors both sub-views' header bars for a possibly-changed system theme.
+    void applyTheme( bool dark );
 
 Q_SIGNALS:
     void backRequested();
     void toastRequested( const QString& message );
 
 private:
-    void setupUI();
-    QWidget* buildConfigPage();
-    QWidget* buildLogPage();
+    void setupUI( bool dark );
+    QWidget* buildConfigPage( bool dark );
+    QWidget* buildLogPage( bool dark );
     void setupCountriesSection( class QVBoxLayout* layout );
     void setupProtocolSection( class QVBoxLayout* layout );
     void setupSortSection( class QVBoxLayout* layout );
@@ -77,6 +80,8 @@ private:
     QStackedWidget* stack = nullptr;
     QWidget* configPage = nullptr;
     QWidget* logPage = nullptr;
+    QWidget* configSubHeader = nullptr;
+    QWidget* logSubHeader = nullptr;
 
     // Config sub-view widgets
     QCheckBox* httpsCheck = nullptr;

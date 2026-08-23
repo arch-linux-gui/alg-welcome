@@ -1,6 +1,8 @@
 #ifndef PAGECHROME_H
 #define PAGECHROME_H
 
+#include "AppPalette.h"
+
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -17,21 +19,28 @@ struct SubHeader
     QPushButton* backButton;
 };
 
+// Set directly (rather than relying on the app-wide stylesheet) so this bar always renders
+// consistently even on a page - like ThemePage - that overrides its own background: a widget's
+// own style sheet takes precedence over an ancestor's for its whole subtree. Callable again after
+// construction (with the container returned by buildSubHeader()) to re-theme it live.
+inline void
+styleSubHeader( QWidget* container, const AppPalette::Palette& palette )
+{
+    container->setStyleSheet( QString( "QWidget#subHeader { background-color: %1; "
+                                       "border-bottom: 1px solid %1; }"
+                                       "QPushButton#backButton { background: none; border: none; color: %2; "
+                                       "font-size: 13px; padding: 4px 6px; }"
+                                       "QPushButton#backButton:hover { background: none; border: none; }"
+                                       "QLabel#subHeaderTitle { background: none; color: %3; font-size: 14px; "
+                                       "font-weight: 600; }" )
+                                  .arg( palette.chromeBg, palette.chromeAccent, palette.chromeText ) );
+}
+
 inline SubHeader
-buildSubHeader( const QString& title, QWidget* parent = nullptr )
+buildSubHeader( const QString& title, const AppPalette::Palette& palette, QWidget* parent = nullptr )
 {
     auto* container = new QWidget( parent );
     container->setObjectName( "subHeader" );
-    // Set directly (rather than relying on the app-wide stylesheet) so this bar always renders
-    // consistently dark even on a page - like ThemePage - that overrides its own background:
-    // a widget's own style sheet takes precedence over an ancestor's for its whole subtree.
-    container->setStyleSheet( "QWidget#subHeader { background-color: #24262b; "
-                              "border-bottom: 1px solid #37393e; }"
-                              "QPushButton#backButton { background: none; border: none; color: #8fb1ff; "
-                              "font-size: 13px; padding: 4px 6px; }"
-                              "QPushButton#backButton:hover { background: none; border: none; color: #a9c3ff; }"
-                              "QLabel#subHeaderTitle { background: none; color: #eef0f2; font-size: 14px; "
-                              "font-weight: 600; }" );
 
     auto* layout = new QHBoxLayout( container );
     layout->setContentsMargins( 14, 8, 14, 8 );
@@ -52,6 +61,8 @@ buildSubHeader( const QString& title, QWidget* parent = nullptr )
     layout->addWidget( backButton );
     layout->addWidget( titleLabel, 1 );
     layout->addWidget( spacer );
+
+    styleSubHeader( container, palette );
 
     return { container, backButton };
 }

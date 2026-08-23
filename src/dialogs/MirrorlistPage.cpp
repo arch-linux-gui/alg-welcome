@@ -1,4 +1,5 @@
 #include "MirrorlistPage.h"
+#include "AppPalette.h"
 #include "MirrorListParsing.h"
 #include "PageChrome.h"
 
@@ -20,20 +21,20 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
-MirrorlistPage::MirrorlistPage( QWidget* parent )
+MirrorlistPage::MirrorlistPage( bool dark, QWidget* parent )
     : QWidget( parent )
 {
     // Connect signals for thread-safe UI updates
     connect( &workerSignals, &MirrorListSignals::logAppended, this, &MirrorlistPage::appendLogToUI );
     connect( &workerSignals, &MirrorListSignals::updateFinished, this, &MirrorlistPage::onUpdateFinished );
 
-    setupUI();
+    setupUI( dark );
 
     spdlog::debug( "MirrorlistPage initialized" );
 }
 
 void
-MirrorlistPage::setupUI()
+MirrorlistPage::setupUI( bool dark )
 {
     auto* outer = new QVBoxLayout( this );
     outer->setContentsMargins( 0, 0, 0, 0 );
@@ -41,8 +42,8 @@ MirrorlistPage::setupUI()
 
     stack = new QStackedWidget( this );
 
-    configPage = buildConfigPage();
-    logPage = buildLogPage();
+    configPage = buildConfigPage( dark );
+    logPage = buildLogPage( dark );
     stack->addWidget( configPage );
     stack->addWidget( logPage );
 
@@ -55,15 +56,30 @@ MirrorlistPage::resetToConfig()
     stack->setCurrentWidget( configPage );
 }
 
+void
+MirrorlistPage::applyTheme( bool dark )
+{
+    const auto& palette = AppPalette::forSystem( dark );
+    if ( configSubHeader )
+    {
+        PageChrome::styleSubHeader( configSubHeader, palette );
+    }
+    if ( logSubHeader )
+    {
+        PageChrome::styleSubHeader( logSubHeader, palette );
+    }
+}
+
 QWidget*
-MirrorlistPage::buildConfigPage()
+MirrorlistPage::buildConfigPage( bool dark )
 {
     auto* page = new QWidget();
     auto* outer = new QVBoxLayout( page );
     outer->setContentsMargins( 0, 0, 0, 0 );
     outer->setSpacing( 0 );
 
-    const auto header = PageChrome::buildSubHeader( "Update MirrorList", page );
+    const auto header = PageChrome::buildSubHeader( "Update MirrorList", AppPalette::forSystem( dark ), page );
+    configSubHeader = header.widget;
     connect( header.backButton, &QPushButton::clicked, this, &MirrorlistPage::backRequested );
     outer->addWidget( header.widget );
 
@@ -100,14 +116,15 @@ MirrorlistPage::buildConfigPage()
 }
 
 QWidget*
-MirrorlistPage::buildLogPage()
+MirrorlistPage::buildLogPage( bool dark )
 {
     auto* page = new QWidget();
     auto* outer = new QVBoxLayout( page );
     outer->setContentsMargins( 0, 0, 0, 0 );
     outer->setSpacing( 0 );
 
-    const auto header = PageChrome::buildSubHeader( "Update Progress", page );
+    const auto header = PageChrome::buildSubHeader( "Update Progress", AppPalette::forSystem( dark ), page );
+    logSubHeader = header.widget;
     connect( header.backButton, &QPushButton::clicked, this, &MirrorlistPage::resetToConfig );
     outer->addWidget( header.widget );
 

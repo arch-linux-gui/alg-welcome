@@ -134,6 +134,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   Repositories buttons for the duration (pacman's own database lock would serialize/conflict on
   concurrent runs anyway), and re-enables them with a success/failure line in the log and a toast
   once `Runner::finished(exitCode)` fires.
+- Archer's own UI now follows the system's light/dark state instead of assuming dark. Root cause:
+  several colors were hardcoded (e.g. the GNOME/ALG Defaults title-bar text was hardcoded white,
+  worked around by hand rather than fixed), and `ThemePage`'s intended light content background
+  never actually painted when embedded in the `QStackedWidget` (a plain `QWidget`'s stylesheet
+  `background-color` doesn't reliably paint unless it's top-level or has `WA_StyledBackground`
+  set) — the two combined into genuinely unreadable white-on-white text on GNOME Light and ALG
+  Light. Fixed by centralizing every color that needs to vary in a new
+  `src/dialogs/AppPalette.h` (`AppPalette::Palette`, `darkPalette()`/`lightPalette()`/
+  `forSystem(bool)`), a new `Themes::isSystemDark(desktopEnv)` (reuses the existing
+  `ThemeManager::currentPresetId()` detection, defaulting dark if undetectable), and a new
+  `@TOKEN@`-templated `styles.qss` (WelcomeWindow substitutes ~17 tokens from `AppPalette` at load
+  time; the ~90% of the file that's already theme-neutral is untouched). `MirrorlistPage`,
+  `ThemePage`, and `AboutPage` each take a `bool dark` constructor argument and expose a public
+  `applyTheme(bool dark)`; `PageChrome::buildSubHeader()` gained a matching `styleSubHeader()` so
+  the shared "‹ Back" bar can be restyled the same way after construction. Re-themes live, with no
+  restart, immediately after a successful `ThemePage` Apply (new `ThemePage::themeApplied()`
+  signal → `WelcomeWindow::applySystemTheme()`, which re-resolves `Themes::isSystemDark()` and
+  cascades the new palette to the app-wide stylesheet, both Home page separators, and all three
+  pages). Verified with a scratch test harness (a patched, non-shipping copy of `WelcomeWindow`
+  exposing a test-only page-navigation hook) against both a real live dark KDE session and a
+  simulated light `QPalette`, screenshotting Home/Mirrorlist/Theme/About in both. The Mirrorlist
+  "Sort By" `QComboBox`'s hardcoded dark background (pre-existing, out of scope for this change)
+  is now visibly low-contrast in a light system theme — noted as a follow-up, not fixed here.
 
 - `VERSION` file as the single source of truth for the project version.
 - Pre-commit hook (`scripts/bump-version.sh`, installed via `scripts/install-hooks.sh`) that

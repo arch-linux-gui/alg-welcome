@@ -8,14 +8,19 @@ class AboutPage : public QWidget
     Q_OBJECT
 
 public:
-    explicit AboutPage( QWidget* parent = nullptr );
+    explicit AboutPage( bool dark, QWidget* parent = nullptr );
+
+    // Re-colors the page for a possibly-changed system theme; layout is untouched.
+    void applyTheme( bool dark );
 
 Q_SIGNALS:
     void backRequested();
     void toastRequested( const QString& message );
 
 private:
-    void setupUI();
+    void setupUI( bool dark );
+
+    QWidget* subHeader = nullptr;
 };
 
 #endif  // ABOUTPAGE_H

@@ -1,4 +1,5 @@
 #include "AboutPage.h"
+#include "AppPalette.h"
 #include "PageChrome.h"
 
 #include <QDesktopServices>
@@ -8,30 +9,21 @@
 #include <QUrl>
 #include <QVBoxLayout>
 
-AboutPage::AboutPage( QWidget* parent )
+AboutPage::AboutPage( bool dark, QWidget* parent )
     : QWidget( parent )
 {
-    setupUI();
+    setupUI( dark );
 }
 
 void
-AboutPage::setupUI()
+AboutPage::setupUI( bool dark )
 {
-    // Set directly (rather than relying on the app-wide stylesheet's 16px QLabel default) so
-    // this page's body text renders at the design's compact sizes regardless of where it's
-    // embedded - a widget's own style sheet otherwise gets shadowed by an ancestor's.
-    setStyleSheet( "QLabel#aboutAppName { font-size: 20px; font-weight: 700; color: #eef0f2; }"
-                   "QLabel#aboutVersion { font-size: 13px; color: #9aa0a8; }"
-                   "QLabel#aboutDescription { font-size: 13px; color: #c7cbd1; }"
-                   "QLabel#aboutDevLabel { font-size: 13px; }"
-                   "QLabel#aboutDevNames { font-size: 13px; color: #c7cbd1; }"
-                   "QLabel#aboutLicense { font-size: 12px; color: #7a8087; }" );
-
     auto* outer = new QVBoxLayout( this );
     outer->setContentsMargins( 0, 0, 0, 0 );
     outer->setSpacing( 0 );
 
-    const auto header = PageChrome::buildSubHeader( "About Archer", this );
+    const auto header = PageChrome::buildSubHeader( "About Archer", AppPalette::forSystem( dark ), this );
+    subHeader = header.widget;
     connect( header.backButton, &QPushButton::clicked, this, &AboutPage::backRequested );
     outer->addWidget( header.widget );
 
@@ -108,4 +100,25 @@ AboutPage::setupUI()
     // (via the AlignTop set on `layout` above), matching the design: the text sits near the top
     // with modest padding, not centered in - or stretched across - the whole window.
     outer->addWidget( content, 1 );
+
+    applyTheme( dark );
+}
+
+void
+AboutPage::applyTheme( bool dark )
+{
+    const auto& palette = AppPalette::forSystem( dark );
+
+    setStyleSheet( QString( "QLabel#aboutAppName { font-size: 20px; font-weight: 700; color: %1; }"
+                            "QLabel#aboutVersion { font-size: 13px; color: %2; }"
+                            "QLabel#aboutDescription { font-size: 13px; color: %2; }"
+                            "QLabel#aboutDevLabel { font-size: 13px; color: %1; }"
+                            "QLabel#aboutDevNames { font-size: 13px; color: %2; }"
+                            "QLabel#aboutLicense { font-size: 12px; color: %2; }" )
+                       .arg( palette.primaryText, palette.mutedText ) );
+
+    if ( subHeader )
+    {
+        PageChrome::styleSubHeader( subHeader, palette );
+    }
 }

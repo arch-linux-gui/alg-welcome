@@ -22,15 +22,21 @@ class ThemePage : public QWidget
     Q_OBJECT
 
 public:
-    explicit ThemePage( const QString& desktopEnv, QWidget* parent = nullptr );
+    explicit ThemePage( const QString& desktopEnv, bool dark, QWidget* parent = nullptr );
+
+    // Re-colors the page for a possibly-changed system theme; layout is untouched.
+    void applyTheme( bool dark );
 
 Q_SIGNALS:
     void backRequested();
     void toastRequested( const QString& message );
+    // Emitted after a preset is successfully applied via this page's own Apply button, since that
+    // may have changed the system's light/dark state that the rest of Archer's UI should follow.
+    void themeApplied();
 
 private:
-    void setupUI();
-    void setupUnsupportedUI();
+    void setupUI( bool dark );
+    void setupUnsupportedUI( bool dark );
     void rebuildCards();
     void selectPreset( const QString& id );
     void showConfirmBar( const QString& id );
@@ -39,6 +45,7 @@ private:
     QString desktopEnv;
     std::unique_ptr< Themes::ThemeManager > themeManager;
 
+    QWidget* subHeader = nullptr;
     QVBoxLayout* groupsLayout = nullptr;
     QButtonGroup* cardGroup = nullptr;
     QWidget* confirmBar = nullptr;

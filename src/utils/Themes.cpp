@@ -46,4 +46,15 @@ getThemeManager( const QString& desktopEnv )
     }
 }
 
+bool
+isSystemDark( const QString& desktopEnv )
+{
+    auto manager = getThemeManager( desktopEnv );
+    if ( !manager )
+    {
+        return true;
+    }
+    return manager->currentPresetId().endsWith( "-dark" );
+}
+
 }  // namespace Themes

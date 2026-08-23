@@ -40,6 +40,12 @@ public:
 // Factory function to get appropriate theme manager
 std::unique_ptr< ThemeManager > getThemeManager( const QString& desktopEnv );
 
+// Whether the desktop environment's *currently active* preset is a dark one - the single source
+// of truth Archer's own UI uses to pick its own colors, so it never disagrees with what the
+// Theme page itself shows as selected. Falls back to true (Archer's traditional look) for an
+// unsupported/undetectable desktop environment.
+bool isSystemDark( const QString& desktopEnv );
+
 }  // namespace Themes
 
 #endif  // THEMES_H

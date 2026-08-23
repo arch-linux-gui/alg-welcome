@@ -7,6 +7,7 @@
 #include <memory>
 
 class QCheckBox;
+class QFrame;
 class QLabel;
 class QPlainTextEdit;
 class QPushButton;
@@ -70,6 +71,11 @@ private:
     void positionToast();
     void toggleLogSection();
 
+    // Re-resolves light/dark from the live system state and re-applies it everywhere: the
+    // app-wide stylesheet plus every page that has its own local one. Called once at startup and
+    // again whenever ThemePage successfully applies a new preset.
+    void applySystemTheme();
+
     // Slots
     void onInstallAlg();
     void onScreenResolution();
@@ -91,6 +97,7 @@ private:
     // Member variables
     QString desktopEnv;
     bool isLiveISO = false;
+    bool isDarkTheme = true;
 
     QStackedWidget* pages = nullptr;
     MirrorlistPage* mirrorlistPage = nullptr;
@@ -105,6 +112,9 @@ private:
     QPushButton* logToggleButton = nullptr;
     QPlainTextEdit* logView = nullptr;
     bool logExpanded = false;
+
+    QFrame* headerSeparator = nullptr;
+    QFrame* logSeparator = nullptr;
 
     Updates::Runner* updatesRunner = nullptr;
     QString currentUpdatesOperationLabel;

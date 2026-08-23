@@ -1,10 +1,12 @@
 #include "WelcomeWindow.h"
 #include "dialogs/AboutPage.h"
+#include "dialogs/AppPalette.h"
 #include "dialogs/MirrorlistPage.h"
 #include "dialogs/ThemePage.h"
 #include "utils/Autostart.h"
 #include "utils/Extras.h"
 #include "utils/Resolution.h"
+#include "utils/Themes.h"
 #include "utils/Updates.h"
 
 #include <spdlog/spdlog.h>
@@ -33,13 +35,13 @@ namespace
 {
 
 QFrame*
-buildSeparator()
+buildSeparator( const QString& color )
 {
     auto* line = new QFrame();
     line->setFrameShape( QFrame::HLine );
     line->setFrameShadow( QFrame::Plain );
     line->setFixedHeight( 1 );
-    line->setStyleSheet( "background-color: #37393e; border: none;" );
+    line->setStyleSheet( QString( "background-color: %1; border: none;" ).arg( color ) );
     return line;
 }
 
@@ -60,6 +62,7 @@ WelcomeWindow::WelcomeWindow( QWidget* parent )
     // Get system information
     desktopEnv = Extras::getDesktopEnvironment();
     isLiveISO = Extras::checkIfLiveISO();
+    isDarkTheme = Themes::isSystemDark( desktopEnv );
 
     // Setup UI
     setupWindow();
@@ -118,9 +121,48 @@ WelcomeWindow::applyStylesheet()
     QFile file( qssPath );
     if ( !qssPath.isEmpty() && file.open( QFile::ReadOnly | QFile::Text ) )
     {
-        const QString styleSheet = QString::fromUtf8( file.readAll() );
-        setStyleSheet( styleSheet );
+        QString styleSheet = QString::fromUtf8( file.readAll() );
         file.close();
+
+        // styles.qss is a template: substitute the handful of @TOKEN@ color placeholders for the
+        // system's current light/dark state (see src/dialogs/AppPalette.h) - everything else in
+        // the file is the same regardless of theme.
+        const auto& palette = AppPalette::forSystem( isDarkTheme );
+        const QString btnBg = isDarkTheme ? "#2a2a2a" : "#ffffff";
+        const QString btnText = isDarkTheme ? "#ffffff" : "#2b2e33";
+        const QString btnBorder = isDarkTheme ? "#444444" : "#d0d3d8";
+        const QString btnHoverBg = isDarkTheme ? "#3a3a3a" : "#f0f2f4";
+        const QString btnHoverBorder = isDarkTheme ? "#555555" : "#c3c7cc";
+        const QString btnPressedBg = isDarkTheme ? "#1a1a1a" : "#e4e7ea";
+        const QString btnPressedBorder = isDarkTheme ? "#333333" : "#b5b9bf";
+        const QString btnDisabledBg = isDarkTheme ? "#3a3a3a" : "#f0f2f4";
+        const QString btnDisabledText = isDarkTheme ? "#888888" : "#a3a8ad";
+        const QString btnDisabledBorder = isDarkTheme ? "#4a4a4a" : "#dde0e4";
+        const QString logViewBg = isDarkTheme ? "#24262b" : "#ffffff";
+        const QString logViewText = isDarkTheme ? "#8a9099" : palette.cardText;
+        const QString toastBg = isDarkTheme ? "#3a3d42" : palette.chromeBg;
+        const QString toastText = isDarkTheme ? "#eef0f2" : palette.chromeText;
+
+        styleSheet.replace( "@btnBg@", btnBg );
+        styleSheet.replace( "@btnText@", btnText );
+        styleSheet.replace( "@btnBorder@", btnBorder );
+        styleSheet.replace( "@btnHoverBg@", btnHoverBg );
+        styleSheet.replace( "@btnHoverBorder@", btnHoverBorder );
+        styleSheet.replace( "@btnPressedBg@", btnPressedBg );
+        styleSheet.replace( "@btnPressedBorder@", btnPressedBorder );
+        styleSheet.replace( "@btnDisabledBg@", btnDisabledBg );
+        styleSheet.replace( "@btnDisabledText@", btnDisabledText );
+        styleSheet.replace( "@btnDisabledBorder@", btnDisabledBorder );
+        styleSheet.replace( "@subtitleText@", palette.mutedText );
+        styleSheet.replace( "@sectionLabelText@", palette.accentText );
+        styleSheet.replace( "@logToggleText@", palette.mutedText );
+        styleSheet.replace( "@logViewBg@", logViewBg );
+        styleSheet.replace( "@logViewBorder@", palette.dividerColor );
+        styleSheet.replace( "@logViewText@", logViewText );
+        styleSheet.replace( "@toastBg@", toastBg );
+        styleSheet.replace( "@toastText@", toastText );
+
+        setStyleSheet( styleSheet );
         spdlog::debug( "Loaded stylesheet from: {}", qssPath.toStdString() );
         return;
     }
@@ -136,17 +178,18 @@ WelcomeWindow::setupUI()
 
     pages->addWidget( buildHomePage() );
 
-    mirrorlistPage = new MirrorlistPage( this );
+    mirrorlistPage = new MirrorlistPage( isDarkTheme, this );
     connect( mirrorlistPage, &MirrorlistPage::backRequested, this, &WelcomeWindow::goHome );
     connect( mirrorlistPage, &MirrorlistPage::toastRequested, this, &WelcomeWindow::showToast );
     pages->addWidget( mirrorlistPage );
 
-    themePage = new ThemePage( desktopEnv, this );
+    themePage = new ThemePage( desktopEnv, isDarkTheme, this );
     connect( themePage, &ThemePage::backRequested, this, &WelcomeWindow::goHome );
     connect( themePage, &ThemePage::toastRequested, this, &WelcomeWindow::showToast );
+    connect( themePage, &ThemePage::themeApplied, this, &WelcomeWindow::applySystemTheme );
     pages->addWidget( themePage );
 
-    aboutPage = new AboutPage( this );
+    aboutPage = new AboutPage( isDarkTheme, this );
     connect( aboutPage, &AboutPage::backRequested, this, &WelcomeWindow::goHome );
     connect( aboutPage, &AboutPage::toastRequested, this, &WelcomeWindow::showToast );
     pages->addWidget( aboutPage );
@@ -176,11 +219,15 @@ WelcomeWindow::buildHomePage()
     mainLayout->setSpacing( 10 );
     mainLayout->setContentsMargins( 20, 12, 20, 12 );
 
+    const QString dividerColor = AppPalette::forSystem( isDarkTheme ).dividerColor;
+
     addHeader( mainLayout );
-    mainLayout->addWidget( buildSeparator() );
+    headerSeparator = buildSeparator( dividerColor );
+    mainLayout->addWidget( headerSeparator );
     addBasicUtilitiesSection( mainLayout );
     addProjectInformationSection( mainLayout );
-    mainLayout->addWidget( buildSeparator() );
+    logSeparator = buildSeparator( dividerColor );
+    mainLayout->addWidget( logSeparator );
     addLogSection( mainLayout );
 
     return homePage;
@@ -413,6 +460,38 @@ WelcomeWindow::toggleLogSection()
     logExpanded = !logExpanded;
     logView->setVisible( logExpanded );
     logToggleButton->setText( QString::fromUtf8( logExpanded ? "\xE2\x8C\xA5 View Logs" : "\xE2\x80\xBA View Logs" ) );
+}
+
+void
+WelcomeWindow::applySystemTheme()
+{
+    isDarkTheme = Themes::isSystemDark( desktopEnv );
+
+    applyStylesheet();
+
+    const QString dividerColor = AppPalette::forSystem( isDarkTheme ).dividerColor;
+    const QString dividerStyle = QString( "background-color: %1; border: none;" ).arg( dividerColor );
+    if ( headerSeparator )
+    {
+        headerSeparator->setStyleSheet( dividerStyle );
+    }
+    if ( logSeparator )
+    {
+        logSeparator->setStyleSheet( dividerStyle );
+    }
+
+    if ( mirrorlistPage )
+    {
+        mirrorlistPage->applyTheme( isDarkTheme );
+    }
+    if ( themePage )
+    {
+        themePage->applyTheme( isDarkTheme );
+    }
+    if ( aboutPage )
+    {
+        aboutPage->applyTheme( isDarkTheme );
+    }
 }
 
 void
