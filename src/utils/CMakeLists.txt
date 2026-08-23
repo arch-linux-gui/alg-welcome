@@ -5,6 +5,12 @@ target_sources(${PROJECT_NAME} PRIVATE
     Autostart.h
     Themes.cpp
     Themes.h
+    themes/kde.cpp
+    themes/kde.h
+    themes/gnome.cpp
+    themes/gnome.h
+    themes/xfce.cpp
+    themes/xfce.h
     Resolution.cpp
     Resolution.h
     Updates.cpp
