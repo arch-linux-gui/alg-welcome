@@ -13,6 +13,7 @@
 
 #include <QApplication>
 #include <QCheckBox>
+#include <QColor>
 #include <QDir>
 #include <QFile>
 #include <QFrame>
@@ -23,6 +24,7 @@
 #include <QPixmap>
 #include <QPlainTextEdit>
 #include <QProcess>
+#include <QPalette>
 #include <QPushButton>
 #include <QResizeEvent>
 #include <QScreen>
@@ -142,6 +144,25 @@ WelcomeWindow::applyStylesheet()
         const QString logViewText = isDarkTheme ? "#8a9099" : palette.cardText;
         const QString toastBg = isDarkTheme ? "#3a3d42" : palette.chromeBg;
         const QString toastText = isDarkTheme ? "#eef0f2" : palette.chromeText;
+        const QString alternateBase = isDarkTheme ? "#32353b" : "#f5f5f7";
+        const QString controlBorder = isDarkTheme ? "#44484f" : "#cccfd4";
+        const QString controlHoverBorder = isDarkTheme ? "#666b73" : "#999999";
+        const QString controlMuted = isDarkTheme ? "#5a5e65" : "#cccccc";
+        const QString controlHoverBg = isDarkTheme ? "#3a3d42" : "#e0e0e0";
+
+        // GNOME can change GTK's color scheme without changing Qt's native palette. Set the
+        // application palette explicitly so the app follows the ThemeManager result.
+        QPalette applicationPalette = QApplication::palette();
+        applicationPalette.setColor( QPalette::Window, QColor( palette.pageBg ) );
+        applicationPalette.setColor( QPalette::WindowText, QColor( palette.primaryText ) );
+        applicationPalette.setColor( QPalette::Base, QColor( palette.pageBg ) );
+        applicationPalette.setColor( QPalette::AlternateBase, QColor( alternateBase ) );
+        applicationPalette.setColor( QPalette::Text, QColor( palette.primaryText ) );
+        applicationPalette.setColor( QPalette::Button, QColor( btnBg ) );
+        applicationPalette.setColor( QPalette::ButtonText, QColor( btnText ) );
+        applicationPalette.setColor( QPalette::Highlight, QColor( "#3d7eff" ) );
+        applicationPalette.setColor( QPalette::HighlightedText, QColor( "#ffffff" ) );
+        QApplication::setPalette( applicationPalette );
 
         styleSheet.replace( "@btnBg@", btnBg );
         styleSheet.replace( "@btnText@", btnText );
@@ -161,6 +182,13 @@ WelcomeWindow::applyStylesheet()
         styleSheet.replace( "@logViewText@", logViewText );
         styleSheet.replace( "@toastBg@", toastBg );
         styleSheet.replace( "@toastText@", toastText );
+        styleSheet.replace( "@pageBg@", palette.pageBg );
+        styleSheet.replace( "@primaryText@", palette.primaryText );
+        styleSheet.replace( "@alternateBase@", alternateBase );
+        styleSheet.replace( "@controlBorder@", controlBorder );
+        styleSheet.replace( "@controlHoverBorder@", controlHoverBorder );
+        styleSheet.replace( "@controlMuted@", controlMuted );
+        styleSheet.replace( "@controlHoverBg@", controlHoverBg );
 
         setStyleSheet( styleSheet );
         spdlog::debug( "Loaded stylesheet from: {}", qssPath.toStdString() );
