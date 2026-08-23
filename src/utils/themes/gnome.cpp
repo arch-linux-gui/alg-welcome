@@ -13,10 +13,10 @@ const GNOMETheme::ThemeConfig GNOMETheme::DEFAULT_DARK_THEME
     = { "Adwaita", "", "Adwaita-dark", "prefer-dark", "Adwaita" };
 
 const GNOMETheme::ThemeConfig GNOMETheme::ALG_LIGHT_THEME
-    = { "Tela-circle", "Orchis-Red-Light", "Orchis-Red-Light", "prefer-light", "mcmojave-cursors" };
+    = { "Tela-circle", "Orchis-Red-Light", "Orchis-Red-Light", "prefer-light", "Vimix-cursors" };
 
 const GNOMETheme::ThemeConfig GNOMETheme::ALG_DARK_THEME
-    = { "Tela-circle-dark", "Orchis-Red-Dark", "Orchis-Red-Dark", "prefer-dark", "mcmojave-cursors" };
+    = { "Tela-circle-dark", "Orchis-Red-Dark", "Orchis-Red-Dark", "prefer-dark", "Vimix-cursors" };
 
 const GNOMETheme::ThemeConfig*
 GNOMETheme::configFor( const QString& id )
